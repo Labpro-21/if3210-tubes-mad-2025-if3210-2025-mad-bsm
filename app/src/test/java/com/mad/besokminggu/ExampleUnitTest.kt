@@ -1,4 +1,4 @@
-package com.mad.besokminggu_mad
+package com.mad.besokminggu
 
 import org.junit.Test
 

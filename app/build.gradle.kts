@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    namespace = "com.mad.besokminggu_mad"
-    compileSdk = 33
+    namespace = "com.mad.besokminggu"
+    compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.mad.besokminggu_mad"
+        applicationId = "com.mad.besokminggu"
         minSdk = 29
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -33,6 +33,9 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 dependencies {
@@ -40,18 +43,13 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
-    implementation(libs.androidx.activity)
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.navigation.runtime.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.navigation.fragment.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-}
-
-configurations.all {
-    resolutionStrategy {
-        force("androidx.activity:activity-compose:1.7.2") // Force 1.7.2
-        force("androidx.activity:activity:1.7.2") // Ensure main library is also 1.7.2
-        force("androidx.activity:activity-ktx:1.7.2") // Ensure main library is also 1.7.2
-    }
 }

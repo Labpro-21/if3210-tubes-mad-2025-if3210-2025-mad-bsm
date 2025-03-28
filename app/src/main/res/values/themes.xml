@@ -11,8 +11,8 @@
         <item name="colorOnSecondary">@color/primary</item>
         <!-- Android utils color -->
         <item name="android:statusBarColor">?attr/colorPrimary</item>
-        <item name="android:windowBackground">?attr/colorPrimaryVariant</item>
-        <item name="android:navigationBarColor">?attr/colorPrimaryVariant</item>
+        <item name="android:windowBackground">?attr/colorPrimary</item>
+        <item name="android:navigationBarColor">?attr/colorPrimary</item>
         <!-- Customize your theme here. -->
     </style>
 </resources>

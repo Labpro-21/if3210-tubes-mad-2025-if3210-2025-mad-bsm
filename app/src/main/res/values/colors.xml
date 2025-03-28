@@ -16,6 +16,7 @@
 
 
     <color name="white">#FFFFFFFF</color>
+    <color name="link">#4286F4</color>
 
 
 </resources>

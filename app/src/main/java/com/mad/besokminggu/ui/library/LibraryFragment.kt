@@ -8,7 +8,9 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.mad.besokminggu.databinding.FragmentLibraryBinding
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class LibraryFragment : Fragment() {
 
     private var _binding: FragmentLibraryBinding? = null
@@ -22,14 +24,14 @@ class LibraryFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val notificationsViewModel =
+        val libraryViewModel =
             ViewModelProvider(this)[LibraryViewModel::class.java]
 
         _binding = FragmentLibraryBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
         val textView: TextView = binding.textLibrary
-        notificationsViewModel.text.observe(viewLifecycleOwner) {
+        libraryViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }
         return root

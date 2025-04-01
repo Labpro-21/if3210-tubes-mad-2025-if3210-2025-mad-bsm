@@ -5,10 +5,13 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.mad.besokminggu.databinding.ActivityMainBinding
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
@@ -25,12 +28,8 @@ class MainActivity : AppCompatActivity() {
         binding.root.post {
             val navController = findNavController(R.id.nav_host_fragment_activity_main)
 
-            val appBarConfiguration = AppBarConfiguration(
-                setOf(R.id.navigation_home, R.id.navigation_library, R.id.navigation_profile)
-            )
-
-            setupActionBarWithNavController(navController, appBarConfiguration)
             navView.setupWithNavController(navController)
+//            NavigationUI.setupWithNavController(binding.navView, navController)
         }
     }
 }

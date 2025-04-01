@@ -6,11 +6,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.mad.besokminggu.databinding.FragmentHomeBinding
 import com.mad.besokminggu.ui.login.LoginActivity
+import com.mad.besokminggu.viewModels.TokenViewModel
+import com.mad.besokminggu.viewModels.UserViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class HomeFragment : Fragment() {
+
+    private val tokenViewModel: TokenViewModel by viewModels()
+    private val userViewModel: UserViewModel by viewModels()
 
     private var _binding: FragmentHomeBinding? = null
 
@@ -28,12 +36,6 @@ class HomeFragment : Fragment() {
 
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
-
-        val LoginButton = binding.LoginRedirect
-        LoginButton.setOnClickListener({
-                val intent = Intent(requireContext(), LoginActivity::class.java)
-                startActivity(intent)
-        })
 
         return root
     }

@@ -7,9 +7,19 @@
         <item name="android:textColorHighlight">@color/muted</item>
     </style>
     <style name="NoActionBar">
-        <item name="windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
+        <item name="windowActionBar">false</item>
+    </style>
+    <style name="AppTheme.NoTitle" parent="Theme.BesokMinggu">
         <item name="android:windowNoTitle">true</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowActionBar">false</item>
+    </style>
+    <style name="circleImageView" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
     </style>
 </resources>

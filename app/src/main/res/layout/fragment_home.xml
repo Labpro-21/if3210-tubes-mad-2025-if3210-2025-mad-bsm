@@ -12,13 +12,6 @@
         android:layout_height="match_parent"
         >
 
-        <Button
-            android:id="@+id/LoginRedirect"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/accent"
-            android:text="Login"
-            android:textColor="@color/white" />
 
     </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

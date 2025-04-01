@@ -1,25 +1,54 @@
 package com.mad.besokminggu.ui.login
 
 import android.app.Activity
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
+import android.content.Intent
 import android.os.Bundle
-import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.Toast
-import com.mad.besokminggu.databinding.ActivityLoginBinding
-
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
+import com.mad.besokminggu.MainActivity
 import com.mad.besokminggu.R
+import com.mad.besokminggu.network.ApiResponse
+import com.mad.besokminggu.data.model.LoginBody
+import com.mad.besokminggu.data.model.Profile
+import com.mad.besokminggu.databinding.ActivityLoginBinding
+import com.mad.besokminggu.viewModels.AuthViewModel
+import com.mad.besokminggu.viewModels.CoroutinesErrorHandler
+import com.mad.besokminggu.viewModels.TokenViewModel
+import com.mad.besokminggu.viewModels.UserViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
+
+@AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
-
-    private lateinit var loginViewModel: LoginViewModel
+    private val authViewModel: AuthViewModel by viewModels()
+    private val tokenViewModel: TokenViewModel by viewModels()
+    private val userViewModel: UserViewModel by viewModels()
     private lateinit var binding: ActivityLoginBinding
+
+    private val _profile = MutableLiveData<Profile>()
+    val profile: LiveData<Profile> get() = _profile
+
+    private val errorHandler = object : CoroutinesErrorHandler {
+        override fun onError(message: String) {
+            runOnUiThread {
+                println("---------------- ERROR --------------")
+                println(message)
+                binding.loadingContainer?.visibility = View.GONE
+                showLoginFailed("Error! $message")
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,16 +58,14 @@ class LoginActivity : AppCompatActivity() {
 
         val email = binding.email
         val password = binding.password
-        val login = binding.ButtonLogin
-        val loading = binding.loading
+        val loginButton = binding.ButtonLogin
+        val loading = binding.loadingContainer!!
 
-        loginViewModel = ViewModelProvider(this, LoginViewModelFactory())[LoginViewModel::class.java]
-
-        loginViewModel.loginFormState.observe(this@LoginActivity, Observer {
+        authViewModel.loginFormState.observe(this@LoginActivity, Observer {
             val loginState = it ?: return@Observer
 
             // disable login button unless both email / password is valid
-            login.isEnabled = loginState.isDataValid
+            loginButton.isEnabled = loginState.isDataValid
 
             if (loginState.emailError != null) {
                 email.error = getString(loginState.emailError)
@@ -48,27 +75,50 @@ class LoginActivity : AppCompatActivity() {
             }
         })
 
-        loginViewModel.loginResult.observe(this@LoginActivity, Observer {
-            val loginResult = it ?: return@Observer
+        authViewModel.loginResponse.observe(this@LoginActivity) {
+            when (it) {
+                is ApiResponse.Failure -> {
+                    loading.visibility = View.GONE
+                    println("-------------- ERROR --------------")
+                    println(it.code)
+                    println(it.errorMessage)
+                    showLoginFailed(it.errorMessage)
+                }
+                is ApiResponse.Loading -> {
+                    loading.visibility = View.VISIBLE
+                }
+                is ApiResponse.Success -> {
+                    println("-------------- SUCCESS --------------")
+                    println(it)
 
-            println("----------------------- RESULT -----------------------")
-            println(loginResult)
+                    lifecycleScope.launch {
+                        tokenViewModel.saveToken(it.data.accessToken, it.data.refreshToken)
+                        showLoginSuccess()
+                    }
+
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
+                }
+            }
+        }
+
+        tokenViewModel._accessToken.observe(this@LoginActivity) { token ->
+            if (token != null) {
+                // TODO(Implement Token Verification)
+
+                showLoginSuccess()
+                setResult(Activity.RESULT_OK)
+
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+            }
 
             loading.visibility = View.GONE
-            if (loginResult.error != null) {
-                showLoginFailed(loginResult.error)
-            }
-            if (loginResult.success != null) {
-                updateUiWithUser(loginResult.success)
-            }
-            setResult(Activity.RESULT_OK)
+        }
 
-            // Complete and destroy login activity once successful
-            finish()
-        })
 
         email.afterTextChanged {
-            loginViewModel.loginDataChanged(
+            authViewModel.loginDataChanged(
                 email.text.toString(),
                 password.text.toString()
             )
@@ -76,7 +126,7 @@ class LoginActivity : AppCompatActivity() {
 
         password.apply {
             afterTextChanged {
-                loginViewModel.loginDataChanged(
+                authViewModel.loginDataChanged(
                     email.text.toString(),
                     password.text.toString()
                 )
@@ -85,33 +135,53 @@ class LoginActivity : AppCompatActivity() {
             setOnEditorActionListener { _, actionId, _ ->
                 when (actionId) {
                     EditorInfo.IME_ACTION_DONE ->
-                        loginViewModel.login(
-                            email.text.toString(),
-                            password.text.toString()
+                        authViewModel.login(
+                            LoginBody(email.text.toString(), password.text.toString()),
+                            errorHandler
                         )
                 }
                 false
             }
 
-            login.setOnClickListener {
+            loginButton.setOnClickListener {
                 loading.visibility = View.VISIBLE
-                loginViewModel.login(email.text.toString(), password.text.toString())
+                authViewModel.login(
+                    LoginBody(email.text.toString(), password.text.toString()),
+                    errorHandler
+                )
             }
         }
     }
 
-    private fun updateUiWithUser(model: LoggedInUserView) {
+    private fun showLoginSuccess() {
         val welcome = getString(R.string.welcome)
-        val displayName = model.displayName
-        // TODO : initiate successful logged in experience
-        Toast.makeText(
-            applicationContext,
-            "$welcome $displayName",
-            Toast.LENGTH_LONG
-        ).show()
+
+        userViewModel.profileResponse.observe(this@LoginActivity, Observer { it ->
+            when (it) {
+                is ApiResponse.Failure -> {
+                    println("-------------- ERROR --------------")
+                    println(it.code)
+                    println(it.errorMessage)
+                    showLoginFailed(it.errorMessage)
+                }
+                is ApiResponse.Loading -> {
+                    binding.loadingContainer?.visibility = View.VISIBLE
+                }
+                is ApiResponse.Success -> {
+                    println("-------------- SUCCESS --------------")
+                    println(it)
+                    binding.loadingContainer?.visibility = View.GONE
+
+                    // Initiate successful logged-in experience
+                    Toast.makeText(applicationContext, "$welcome ${it.data.username}", Toast.LENGTH_LONG).show()
+                }
+            }
+        })
+
+        userViewModel.getProfile(errorHandler)
     }
 
-    private fun showLoginFailed(@StringRes errorString: Int) {
+    private fun showLoginFailed(errorString: String) {
         Toast.makeText(applicationContext, errorString, Toast.LENGTH_SHORT).show()
     }
 }

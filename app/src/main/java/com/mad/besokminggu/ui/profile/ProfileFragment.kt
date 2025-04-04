@@ -2,7 +2,6 @@ package com.mad.besokminggu.ui.profile
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,7 +17,6 @@ import com.mad.besokminggu.viewModels.CoroutinesErrorHandler
 import com.mad.besokminggu.viewModels.TokenViewModel
 import com.mad.besokminggu.viewModels.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import androidx.core.net.toUri
 import com.bumptech.glide.Glide
 
 @AndroidEntryPoint

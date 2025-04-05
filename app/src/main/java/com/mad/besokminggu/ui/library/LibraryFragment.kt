@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.mad.besokminggu.adapter.SongAdapter
 import com.mad.besokminggu.databinding.FragmentLibraryBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -19,6 +21,8 @@ class LibraryFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+    private lateinit var songAdapter: SongAdapter
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -30,9 +34,19 @@ class LibraryFragment : Fragment() {
         _binding = FragmentLibraryBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textLibrary
-        libraryViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
+        // val textView: TextView = binding.textLibrary
+        // libraryViewModel.text.observe(viewLifecycleOwner) {
+        //     textView.text = it
+        // }
+
+        songAdapter = SongAdapter()
+        binding.songListRecyclerView.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = songAdapter
+        }
+
+        libraryViewModel.songs.observe(viewLifecycleOwner) { songList ->
+            songAdapter.submitList(songList)
         }
         return root
     }

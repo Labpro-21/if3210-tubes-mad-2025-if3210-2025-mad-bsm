@@ -1,47 +1,43 @@
 package com.mad.besokminggu.ui.home
 
-import android.content.Intent
+import SongAdapter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
-import com.mad.besokminggu.databinding.FragmentHomeBinding
-import com.mad.besokminggu.ui.login.LoginActivity
-import com.mad.besokminggu.viewModels.TokenViewModel
-import com.mad.besokminggu.viewModels.UserViewModel
-import dagger.hilt.android.AndroidEntryPoint
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.mad.besokminggu.R
 
-@AndroidEntryPoint
+
 class HomeFragment : Fragment() {
 
-    private val tokenViewModel: TokenViewModel by viewModels()
-    private val userViewModel: UserViewModel by viewModels()
+    private lateinit var adapter: SongAdapter
+    private lateinit var recyclerView: RecyclerView
+    private val viewModel: HomeViewModel by viewModels()
 
-    private var _binding: FragmentHomeBinding? = null
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
-    private val binding get() = _binding!!
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        val homeViewModel =
-            ViewModelProvider(this)[HomeViewModel::class.java]
-
-        _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        val root: View = binding.root
-
-        return root
+    ): View? {
+        return inflater.inflate(R.layout.fragment_home, container, false)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        recyclerView = view.findViewById(R.id.rvNewSongs)
+
+        adapter = SongAdapter(emptyList()) // list kosong dulu
+        recyclerView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+
+
+        viewModel.songs.observe(viewLifecycleOwner) { songs ->
+            adapter.updateSongs(songs)
+        }
     }
 }

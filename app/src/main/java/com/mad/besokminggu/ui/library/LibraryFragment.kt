@@ -47,6 +47,9 @@ class LibraryFragment : Fragment() {
 
         libraryViewModel.songs.observe(viewLifecycleOwner) { songList ->
             songAdapter.submitList(songList)
+            if (songList.isEmpty()) {
+                libraryViewModel.insertDummySongs()
+            }
         }
         return root
     }

@@ -11,9 +11,3 @@ data class Profile(
     val createdAt: Date,
     val updatedAt: Date,
 )
-
-data class Song(
-    val title: String,
-    val artist: String,
-    val coverResId: Int
-)

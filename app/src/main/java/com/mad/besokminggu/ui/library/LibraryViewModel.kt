@@ -3,21 +3,33 @@ package com.mad.besokminggu.ui.library
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.mad.besokminggu.R
 import com.mad.besokminggu.data.model.Song
+import com.mad.besokminggu.data.repositories.SongRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class LibraryViewModel : ViewModel() {
+@HiltViewModel
+class LibraryViewModel @Inject constructor(
+    private val repository: SongRepository
+) : ViewModel() {
 
-    private val _songs = MutableLiveData<List<Song>>().apply {
-        value = listOf(
-            Song("Starboy", "The Weeknd, Daft Punk", R.drawable.cover_starboy),
-            Song("Here Comes The Sun", "The Beatles", R.drawable.cover_starboy),
-            Song("Midnight Pretenders", "Tomoko Aran", R.drawable.cover_starboy),
-            Song("Violent Crimes", "Kanye West", R.drawable.cover_starboy),
-            Song("DENIAL IS A RIVER", "Doechii", R.drawable.cover_starboy),
-            Song("Doomsday", "MF DOOM, Pebbles The Invisible Girl", R.drawable.cover_starboy)
+    val songs: LiveData<List<Song>> = repository.allSongs
+
+    fun insertDummySongs() {
+        val dummySongs = listOf(
+            Song(title = "Starboy", artist = "The Weeknd, Daft Punk", coverResId = R.drawable.cover_blonde),
+            Song(title = "Here Comes The Sun", artist = "The Beatles", coverResId = R.drawable.cover_blonde),
+            Song(title = "Midnight Pretenders", artist = "Tomoko Aran", coverResId = R.drawable.cover_blonde),
+            Song(title = "Violent Crimes", artist = "Kanye West", coverResId = R.drawable.cover_blonde),
+            Song(title = "DENIAL IS A RIVER", artist = "Doechii", coverResId = R.drawable.cover_blonde),
+            Song(title = "Doomsday", artist = "MF DOOM, Pebbles The Invisible Girl", coverResId = R.drawable.cover_blonde)
         )
-    }
 
-    val songs: LiveData<List<Song>> = _songs
+        viewModelScope.launch {
+            repository.insertDummySongsIfEmpty(dummySongs)
+        }
+    }
 }

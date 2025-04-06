@@ -12,10 +12,10 @@ import com.bumptech.glide.Glide
 import com.mad.besokminggu.R
 import com.mad.besokminggu.data.model.Song
 
-class SongAdapter(
+class NewSongAdapter(
     private var songs: List<Song>,
     private val onClick: (Song) -> Unit = {}
-) : RecyclerView.Adapter<SongAdapter.SongViewHolder>() {
+) : RecyclerView.Adapter<NewSongAdapter.SongViewHolder>() {
 
     class SongViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvTitle: TextView = view.findViewById(R.id.tvTitle)
@@ -32,7 +32,7 @@ class SongAdapter(
         val song = songs[position]
         holder.tvTitle.text = song.title
         holder.tvArtist.text = song.artist
-        Glide.with(holder.itemView.context).load(song.coverImage).into(holder.ivCover)
+        Glide.with(holder.itemView.context).load(song.coverResId).into(holder.ivCover)
 
         // Marquee magic ✨
         holder.tvTitle.isSelected = true

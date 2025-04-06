@@ -3,6 +3,7 @@ package com.mad.besokminggu.ui.home
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.mad.besokminggu.R
 import com.mad.besokminggu.data.model.Song
 import java.util.Date
 
@@ -24,11 +25,50 @@ class HomeViewModel : ViewModel() {
     private fun dummySongs(): List<Song> {
         val now = Date()
         return listOf(
-            Song(1, "Blinding Lights", "The Weeknd", "https://example.com/blinding.jpg", Date(now.time - 100000)),
-            Song(2, "Here Comes The Sun", "The Beatles", "https://example.com/sun.jpg", Date(now.time - 200000)),
-            Song(3, "Midnight Pretenders", "Tomoko Aran", "https://example.com/midnight.jpg", Date(now.time - 300000), Date(now.time - 10000)),
-            Song(4, "Violent Crimes", "Kanye West", "https://example.com/violent.jpg", Date(now.time - 400000), Date(now.time - 20000))
+            Song(
+                id = 1,
+                title = "Blinding Lights",
+                artist = "The Weeknd",
+                coverResId = R.drawable.cover_starboy,
+                filePath = "",
+                isLiked = false,
+                isPlayed = false,
+                createdAt = Date(now.time - 100000),
+                lastPlayedAt = null
+            ),
+            Song(
+                id = 2,
+                title = "Here Comes The Sun",
+                artist = "The Beatles",
+                coverResId = R.drawable.cover_starboy,
+                filePath = "",
+                isLiked = false,
+                isPlayed = false,
+                createdAt = Date(now.time - 200000),
+                lastPlayedAt = null
+            ),
+            Song(
+                id = 3,
+                title = "Midnight Pretenders",
+                artist = "Tomoko Aran",
+                coverResId = R.drawable.cover_starboy,
+                filePath = "",
+                isLiked = false,
+                isPlayed = true,
+                createdAt = Date(now.time - 300000),
+                lastPlayedAt = Date(now.time - 10000)
+            ),
+            Song(
+                id = 4,
+                title = "Violent Crimes",
+                artist = "Kanye West",
+                coverResId = R.drawable.cover_starboy,
+                filePath = "",
+                isLiked = false,
+                isPlayed = true,
+                createdAt = Date(now.time - 400000),
+                lastPlayedAt = Date(now.time - 20000)
+            )
         )
     }
 }
-

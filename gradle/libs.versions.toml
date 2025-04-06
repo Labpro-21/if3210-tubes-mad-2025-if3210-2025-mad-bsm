@@ -24,6 +24,8 @@ annotation = "1.6.0"
 retrofit = "2.9.0"
 identityJvm = "202411.1"
 roomCompilerProcessingTesting = "2.6.1"
+room = "2.6.1"
+roomCommon = "2.6.1"
 
 [libraries]
 androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityKtx" }
@@ -51,6 +53,11 @@ androidx-annotation = { group = "androidx.annotation", name = "annotation", vers
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 identity-jvm = { group = "com.android.identity", name = "identity-jvm", version.ref = "identityJvm" }
 androidx-room-compiler-processing-testing = { group = "androidx.room", name = "room-compiler-processing-testing", version.ref = "roomCompilerProcessingTesting" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
+androidx-room-common = { group = "androidx.room", name = "room-common", version.ref = "roomCommon" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

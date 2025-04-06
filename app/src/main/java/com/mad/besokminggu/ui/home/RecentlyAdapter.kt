@@ -31,7 +31,7 @@ class RecentlyAdapter :
         val song = getItem(position)
         holder.tvTitle.text = song.title
         holder.tvArtist.text = song.artist
-        Glide.with(holder.itemView).load(song.coverImage).into(holder.ivCover)
+        Glide.with(holder.itemView).load(song.coverResId).into(holder.ivCover)
     }
 
     companion object {

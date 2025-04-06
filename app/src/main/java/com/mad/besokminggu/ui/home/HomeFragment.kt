@@ -13,7 +13,7 @@ import com.mad.besokminggu.R
 
 class HomeFragment : Fragment() {
 
-    private lateinit var newSongsAdapter: SongAdapter
+    private lateinit var newSongsAdapter: NewSongAdapter
 
 
     private lateinit var rvNewSongs: RecyclerView
@@ -35,7 +35,7 @@ class HomeFragment : Fragment() {
         rvNewSongs = view.findViewById(R.id.rvNewSongs)
         rvRecentlyPlayed = view.findViewById(R.id.rvRecentlyPlayed)
 
-        newSongsAdapter = SongAdapter(emptyList())
+        newSongsAdapter = NewSongAdapter(emptyList())
         val recentlyPlayedAdapter = RecentlyAdapter()
 
         rvNewSongs.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)

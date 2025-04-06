@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mad.besokminggu.adapter.SongAdapter
 import com.mad.besokminggu.databinding.FragmentLibraryBinding
+import com.mad.besokminggu.ui.addsongs.AddSongsFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -49,6 +50,15 @@ class LibraryFragment : Fragment() {
             songAdapter.submitList(songList)
             if (songList.isEmpty()) {
                 libraryViewModel.insertDummySongs()
+            }
+        }
+
+        // Open add songs sheet on clicking "add songs" button
+        binding.addButton.setOnClickListener {
+            val existingFragment = parentFragmentManager.findFragmentByTag("AddSongsBottomSheet")
+            if (existingFragment == null) {
+                val bottomSheet = AddSongsFragment()
+                bottomSheet.show(parentFragmentManager, "AddSongsBottomSheet")
             }
         }
         return root

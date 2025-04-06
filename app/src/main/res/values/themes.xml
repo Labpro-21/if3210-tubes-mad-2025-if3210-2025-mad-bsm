@@ -25,4 +25,13 @@
         <item name="android:windowActionBar">false</item>
         <item name="windowActionBar">false</item>
     </style>
+
+    <!--  Bottom Sheet Theme  -->
+    <style name="BottomSheetDialogTheme" parent="Theme.MaterialComponents.DayNight.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/CustomBottomSheetStyle</item>
+    </style>
+
+    <style name="CustomBottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@drawable/rounded_top_sheet_bg</item>
+    </style>
 </resources>

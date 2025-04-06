@@ -31,8 +31,8 @@
 
         <ImageButton
             android:id="@+id/addButton"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="@android:color/transparent"
             android:src="@drawable/add_icon"
             android:contentDescription="Add item" />
@@ -84,5 +84,6 @@
         app:layout_constraintTop_toBottomOf="@id/filterButtonsLayout"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:contentDescription="Songs list"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

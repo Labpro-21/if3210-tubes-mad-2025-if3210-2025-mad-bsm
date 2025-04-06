@@ -16,4 +16,8 @@ class SongRepository @Inject constructor(private val songDao: SongDao) {
     suspend fun insert(song: Song) {
         songDao.insert(song)
     }
+
+    suspend fun deleteAllSongs() {
+        songDao.deleteAll()
+    }
 }

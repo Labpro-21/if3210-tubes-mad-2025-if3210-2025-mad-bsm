@@ -20,16 +20,22 @@ class LibraryViewModel @Inject constructor(
 
     fun insertDummySongs() {
         val dummySongs = listOf(
-            Song(title = "Starboy", artist = "The Weeknd, Daft Punk", coverResId = R.drawable.cover_blonde),
-            Song(title = "Here Comes The Sun", artist = "The Beatles", coverResId = R.drawable.cover_blonde),
-            Song(title = "Midnight Pretenders", artist = "Tomoko Aran", coverResId = R.drawable.cover_blonde),
-            Song(title = "Violent Crimes", artist = "Kanye West", coverResId = R.drawable.cover_blonde),
-            Song(title = "DENIAL IS A RIVER", artist = "Doechii", coverResId = R.drawable.cover_blonde),
-            Song(title = "Doomsday", artist = "MF DOOM, Pebbles The Invisible Girl", coverResId = R.drawable.cover_blonde)
+            Song(title = "Starboy", artist = "The Weeknd, Daft Punk", coverResId = R.drawable. cover_starboy),
+            Song(title = "Here Comes The Sun", artist = "The Beatles", coverResId = R.drawable.cover_starboy),
+            Song(title = "Midnight Pretenders", artist = "Tomoko Aran", coverResId = R.drawable.cover_starboy),
+            Song(title = "Violent Crimes", artist = "Kanye West", coverResId = R.drawable.cover_starboy),
+            Song(title = "DENIAL IS A RIVER", artist = "Doechii", coverResId = R.drawable.cover_starboy),
+            Song(title = "Doomsday", artist = "MF DOOM, Pebbles The Invisible Girl", coverResId = R.drawable.cover_starboy)
         )
 
         viewModelScope.launch {
             repository.insertDummySongsIfEmpty(dummySongs)
+        }
+    }
+
+    fun insertSong(song: Song) {
+        viewModelScope.launch {
+            repository.insert(song)
         }
     }
 }

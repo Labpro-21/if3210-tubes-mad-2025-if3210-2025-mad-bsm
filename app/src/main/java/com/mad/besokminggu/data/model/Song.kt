@@ -7,5 +7,6 @@ data class Song(
     val title: String,
     val artist: String,
     val coverImage: String,
-    val createdAt: Date
+    val createdAt: Date,
+    val lastPlayedAt: Date? = null
 )

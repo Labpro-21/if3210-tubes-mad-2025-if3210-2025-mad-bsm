@@ -1,6 +1,5 @@
 package com.mad.besokminggu.ui.home
 
-import SongAdapter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,8 +13,12 @@ import com.mad.besokminggu.R
 
 class HomeFragment : Fragment() {
 
-    private lateinit var adapter: SongAdapter
-    private lateinit var recyclerView: RecyclerView
+    private lateinit var newSongsAdapter: SongAdapter
+
+
+    private lateinit var rvNewSongs: RecyclerView
+    private lateinit var rvRecentlyPlayed: RecyclerView
+
     private val viewModel: HomeViewModel by viewModels()
 
 
@@ -29,15 +32,24 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        recyclerView = view.findViewById(R.id.rvNewSongs)
+        rvNewSongs = view.findViewById(R.id.rvNewSongs)
+        rvRecentlyPlayed = view.findViewById(R.id.rvRecentlyPlayed)
 
-        adapter = SongAdapter(emptyList()) // list kosong dulu
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        newSongsAdapter = SongAdapter(emptyList())
+        val recentlyPlayedAdapter = RecentlyAdapter()
 
+        rvNewSongs.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        rvNewSongs.adapter = newSongsAdapter
 
-        viewModel.songs.observe(viewLifecycleOwner) { songs ->
-            adapter.updateSongs(songs)
+        rvRecentlyPlayed.layoutManager = LinearLayoutManager(requireContext())
+        rvRecentlyPlayed.adapter = recentlyPlayedAdapter
+
+        viewModel.newSongs.observe(viewLifecycleOwner) { songs ->
+            newSongsAdapter.updateSongs(songs)
+        }
+
+        viewModel.recentlyPlayed.observe(viewLifecycleOwner) { songs ->
+            recentlyPlayedAdapter.submitList(songs)
         }
     }
 }

@@ -14,4 +14,5 @@
     <string name="login_failed">"Login failed"</string>
     <string name="title_new_songs">New songs</string>
     <string name="cover_image">Song cover image</string>
+    <string name="recently_played">Recently played</string>
 </resources>

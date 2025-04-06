@@ -1,3 +1,5 @@
+package com.mad.besokminggu.ui.home
+
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
@@ -9,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.mad.besokminggu.R
 import com.mad.besokminggu.data.model.Song
-import com.mad.besokminggu.ui.home.UpdateSong
 
 class SongAdapter(
     private var songs: List<Song>,
@@ -33,8 +34,15 @@ class SongAdapter(
         holder.tvArtist.text = song.artist
         Glide.with(holder.itemView.context).load(song.coverImage).into(holder.ivCover)
 
-        holder.itemView.setOnClickListener { onClick(song) }
+        // Marquee magic ✨
+        holder.tvTitle.isSelected = true
+        holder.tvArtist.isSelected = true
+
+        holder.itemView.setOnClickListener {
+            onClick(song)
+        }
     }
+
 
     override fun getItemCount() = songs.size
 

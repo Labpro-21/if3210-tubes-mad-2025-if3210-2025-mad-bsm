@@ -8,19 +8,26 @@ import java.util.Date
 
 class HomeViewModel : ViewModel() {
 
-    private val _songs = MutableLiveData<List<Song>>()
-    val songs: LiveData<List<Song>> get() = _songs
+    private val _newSongs = MutableLiveData<List<Song>>()
+    val newSongs: LiveData<List<Song>> get() = _newSongs
+
+    private val _recentlyPlayed = MutableLiveData<List<Song>>()
+    val recentlyPlayed: LiveData<List<Song>> get() = _recentlyPlayed
 
     init {
-        _songs.value = dummySongs() // fungsi dummySongs
+        val songs = dummySongs()
+        _newSongs.value = songs.filter { it.lastPlayedAt == null }
+        _recentlyPlayed.value = songs.filter { it.lastPlayedAt != null }
+            .sortedByDescending { it.lastPlayedAt } // biar yang terakhir diputar muncul duluan
     }
 
     private fun dummySongs(): List<Song> {
+        val now = Date()
         return listOf(
-            Song(1, "Blinding Lights", "The Weeknd", "https://example.com/blinding.jpg", Date(System.currentTimeMillis() - 100000)),
-            Song(2, "Here Comes The Sun", "The Beatles", "https://example.com/sun.jpg", Date(System.currentTimeMillis() - 200000)),
-            Song(3, "Midnight Pretenders", "Tomoko Aran", "https://example.com/midnight.jpg", Date(System.currentTimeMillis() - 300000)),
-            Song(4, "Violent Crimes", "Kanye West", "https://example.com/violent.jpg", Date(System.currentTimeMillis() - 400000))
+            Song(1, "Blinding Lights", "The Weeknd", "https://example.com/blinding.jpg", Date(now.time - 100000)),
+            Song(2, "Here Comes The Sun", "The Beatles", "https://example.com/sun.jpg", Date(now.time - 200000)),
+            Song(3, "Midnight Pretenders", "Tomoko Aran", "https://example.com/midnight.jpg", Date(now.time - 300000), Date(now.time - 10000)),
+            Song(4, "Violent Crimes", "Kanye West", "https://example.com/violent.jpg", Date(now.time - 400000), Date(now.time - 20000))
         )
     }
 }

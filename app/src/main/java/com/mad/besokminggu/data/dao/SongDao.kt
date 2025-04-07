@@ -25,6 +25,22 @@ interface SongDao {
     @Delete
     suspend fun delete(song: Song)
 
+    @Query("SELECT * FROM songs WHERE id = :id")
+    suspend fun getSong(id: Int): Song
+
+    @Query("SELECT * FROM songs WHERE id = :id AND isLiked= 1")
+    suspend fun getLikedSong(id: Int): Song
+
     @Query("DELETE FROM songs")
     suspend fun deleteAll()
+
+    @Query("SELECT * FROM songs WHERE `id` > :currentIndex ORDER BY `id` ASC LIMIT 1")
+    suspend fun getNextIdSong(currentIndex : Int): Song?
+
+    @Query("SELECT * FROM songs ORDER BY `id` ASC LIMIT 1")
+    suspend fun getFirstSong(): Song
+
+    @Query("SELECT COUNT(*) FROM songs")
+    suspend fun getSongsCount(): Int
+
 }

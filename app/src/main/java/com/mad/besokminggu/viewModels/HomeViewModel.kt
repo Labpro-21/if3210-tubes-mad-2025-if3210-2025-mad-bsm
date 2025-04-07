@@ -1,26 +1,44 @@
-package com.mad.besokminggu.ui.home
+package com.mad.besokminggu.viewModels
 
+import android.view.animation.Transformation
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.map
+import androidx.lifecycle.viewModelScope
 import com.mad.besokminggu.R
 import com.mad.besokminggu.data.model.Song
+import com.mad.besokminggu.data.repositories.SongRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import java.util.Date
+import javax.inject.Inject
 
-class HomeViewModel : ViewModel() {
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    private val songRepository: SongRepository
+): ViewModel() {
 
-    private val _newSongs = MutableLiveData<List<Song>>()
-    val newSongs: LiveData<List<Song>> get() = _newSongs
+    private val allSongs: LiveData<List<Song>> = songRepository.allSongs
 
-    private val _recentlyPlayed = MutableLiveData<List<Song>>()
-    val recentlyPlayed: LiveData<List<Song>> get() = _recentlyPlayed
+    val newSongs: LiveData<List<Song>> = allSongs.map { songs ->
+        songs.filter { it.lastPlayedAt == null }
+
+    }
+
+    val recentlyPlayed: LiveData<List<Song>> = allSongs.map{ songs ->
+        songs.filter { it.lastPlayedAt != null }
+            .sortedByDescending { it.lastPlayedAt }
+    }
 
     init {
-        val songs = dummySongs()
-        _newSongs.value = songs.filter { it.lastPlayedAt == null }
-        _recentlyPlayed.value = songs.filter { it.lastPlayedAt != null }
-            .sortedByDescending { it.lastPlayedAt } // biar yang terakhir diputar muncul duluan
+        viewModelScope.launch {
+
+            songRepository.insertDummySongsIfEmpty(dummySongs())
+
+        }
     }
+
 
     private fun dummySongs(): List<Song> {
         val now = Date()

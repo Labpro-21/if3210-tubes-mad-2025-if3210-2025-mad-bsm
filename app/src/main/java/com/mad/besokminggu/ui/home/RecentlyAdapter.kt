@@ -12,10 +12,13 @@ import com.bumptech.glide.Glide
 import com.mad.besokminggu.R
 import com.mad.besokminggu.data.model.Song
 
-class RecentlyAdapter :
+class RecentlyAdapter (
+    private val onItemClick: (Song) -> Unit
+) :
     ListAdapter<Song, RecentlyAdapter.SongViewHolder>(DIFF_CALLBACK) {
 
     class SongViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
         val ivCover: ImageView = itemView.findViewById(R.id.ivCover)
         val tvTitle: TextView = itemView.findViewById(R.id.tvTitle)
         val tvArtist: TextView = itemView.findViewById(R.id.tvArtist)
@@ -28,10 +31,16 @@ class RecentlyAdapter :
     }
 
     override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
+
         val song = getItem(position)
+
         holder.tvTitle.text = song.title
         holder.tvArtist.text = song.artist
         Glide.with(holder.itemView).load(song.coverResId).into(holder.ivCover)
+
+        holder.itemView.setOnClickListener(){
+            onItemClick(song)
+        }
     }
 
     companion object {

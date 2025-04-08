@@ -137,8 +137,9 @@ class SessionManager @Inject constructor(
             val encryptedBytes = Base64.getDecoder().decode(encryptedRefreshToken)
 
             cipher.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(128, iv))
+            val decryptedAccessToken = String(cipher.doFinal(encryptedBytes))
 
-            String(cipher.doFinal(encryptedBytes))
+            emit(decryptedAccessToken)
         } catch (e: Exception) {
             e.printStackTrace()
             return@flow

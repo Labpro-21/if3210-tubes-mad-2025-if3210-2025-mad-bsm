@@ -18,6 +18,8 @@ class ConnectionStateMonitor(
     private val onNetworkAvailableCallbacks: OnNetworkAvailableCallbacks
 ) : ConnectivityManager.NetworkCallback() {
 
+    private var wasConnected = false
+
     private val connectivityManager: ConnectivityManager by lazy {
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     }
@@ -59,13 +61,16 @@ class ConnectionStateMonitor(
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
     override fun onAvailable(network: Network) {
         super.onAvailable(network)
-        if (hasNetworkConnection()) {
+        val isConnected = hasNetworkConnection()
+        if (isConnected && !wasConnected) {
+            wasConnected = true
             onNetworkAvailableCallbacks.onPositive()
         }
     }
 
     override fun onLost(network: Network) {
         super.onLost(network)
+        wasConnected = false
         onNetworkAvailableCallbacks.onNegative()
     }
 
@@ -74,9 +79,15 @@ class ConnectionStateMonitor(
         networkCapabilities: NetworkCapabilities
     ) {
         super.onCapabilitiesChanged(network, networkCapabilities)
-        if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-            networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) {
+        val isConnected = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+
+        if (isConnected && !wasConnected) {
+            wasConnected = true
             onNetworkAvailableCallbacks.onPositive()
+        } else if (!isConnected && wasConnected) {
+            wasConnected = false
+            onNetworkAvailableCallbacks.onNegative()
         }
     }
 }

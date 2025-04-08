@@ -2,7 +2,7 @@
 activityKtx = "1.8.0"
 agp = "8.7.3"
 glide = "4.16.0"
-hiltAndroid = "2.50"
+hiltAndroid = "2.51.1"
 kotlin = "1.9.24"
 #noinspection GradleDependency
 coreKtx = "1.13.0"
@@ -24,10 +24,15 @@ annotation = "1.6.0"
 retrofit = "2.9.0"
 identityJvm = "202411.1"
 roomCompilerProcessingTesting = "2.6.1"
+workRuntimeKtx = "2.9.0"
+hiltCommon = "1.2.0"
+hiltWork = "1.2.0"
 
 [libraries]
 androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityKtx" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltCommon" }
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
@@ -51,6 +56,8 @@ androidx-annotation = { group = "androidx.annotation", name = "annotation", vers
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 identity-jvm = { group = "com.android.identity", name = "identity-jvm", version.ref = "identityJvm" }
 androidx-room-compiler-processing-testing = { group = "androidx.room", name = "room-compiler-processing-testing", version.ref = "roomCompilerProcessingTesting" }
+androidx-hilt-common = { group = "androidx.hilt", name = "hilt-common", version.ref = "hiltCommon" }
+androidx-hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hiltWork" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

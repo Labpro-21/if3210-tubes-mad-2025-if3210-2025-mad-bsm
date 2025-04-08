@@ -27,16 +27,17 @@ class MainActivity : AppCompatActivity() {
 
     private val songViewModel : SongTracksViewModel by viewModels()
 
-    private fun onOpenTrackSong(){
 
-        binding.fullPlayer.translationY = binding.fullPlayer.height.toFloat()
-        binding.fullPlayer.alpha = 0f
-        binding.fullPlayer.visibility = View.VISIBLE
-        binding.fullPlayer.animate()
-            .translationY(0f)
-            .alpha(1f)
-            .setDuration(300)
-            .start()
+    fun onOpenTrackSong(){
+
+        binding.fullPlayer?.translationY = binding.fullPlayer?.height!!.toFloat()
+        binding.fullPlayer?.alpha = 0f
+        binding.fullPlayer?.visibility = View.VISIBLE
+        binding.fullPlayer?.animate()
+            ?.translationY(0f)
+            ?.alpha(1f)
+            ?.setDuration(300)
+            ?.start()
         binding.miniPlayer.visibility = View.GONE
     }
 
@@ -66,14 +67,22 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val navView: BottomNavigationView = binding.navView
+        val navView: BottomNavigationView? = binding.navView
 
-        // Delay execution to ensure the view is fully loaded
+        // Wait until views are loaded
         binding.root.post {
             val navController = findNavController(R.id.nav_host_fragment_activity_main)
 
-            navView.setupWithNavController(navController)
-//            NavigationUI.setupWithNavController(binding.navView, navController)
+            // Setup for BottomNavigationView (portrait)
+            navView?.setupWithNavController(navController)
+
+            // Setup for NavigationView (landscape)
+            val sideNavView = findViewById<com.google.android.material.navigation.NavigationView>(R.id.side_nav_view)
+            sideNavView?.setNavigationItemSelectedListener { menuItem ->
+                menuItem.isChecked = true
+                navController.navigate(menuItem.itemId)
+                true
+            }
         }
 
         binding.miniPlayer.visibility = View.GONE;
@@ -99,7 +108,7 @@ class MainActivity : AppCompatActivity() {
         binding.fullPlayer.post {
             val closeButton : ImageButton = binding.fullPlayer.findViewById(R.id.collapse_button)
             closeButton.setOnClickListener {
-            songViewModel.hideFullPlayer()
+                songViewModel.hideFullPlayer()
             }
         }
     }

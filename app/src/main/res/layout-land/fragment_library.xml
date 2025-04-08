@@ -1,0 +1,99 @@
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.library.LibraryFragment">
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/songListRecyclerView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Header -->
+            <LinearLayout
+                android:id="@+id/headerLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/yourLibraryText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Your Library"
+                    android:textColor="@android:color/white"
+                    android:textSize="22sp"
+                    android:fontFamily="@font/poppinsbold" />
+
+                <ImageButton
+                    android:id="@+id/addButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/add_icon"
+                    android:contentDescription="Add item" />
+            </LinearLayout>
+
+            <!-- Filter Buttons -->
+            <LinearLayout
+                android:id="@+id/filterButtonsLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="start"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp">
+
+                <Button
+                    android:id="@+id/btnAll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/background_button"
+                    android:backgroundTint="#1DB954"
+                    android:text="All"
+                    android:textColor="@android:color/white"
+                    android:layout_marginEnd="8dp"
+                    android:fontFamily="@font/poppins" />
+
+                <Button
+                    android:id="@+id/btnLiked"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/background_button"
+                    android:backgroundTint="#2a2a2a"
+                    android:text="Liked"
+                    android:textColor="@android:color/white"
+                    android:fontFamily="@font/poppins" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- RecyclerView tetap di luar ScrollView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/songListRecyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:padding="16dp"
+        android:nestedScrollingEnabled="true"
+        app:layout_constraintTop_toBottomOf="@id/scrollView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:contentDescription="Songs list" />
+</androidx.constraintlayout.widget.ConstraintLayout>

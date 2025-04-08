@@ -6,14 +6,16 @@ import androidx.lifecycle.ViewModel
 import com.mad.besokminggu.data.model.Song
 import com.mad.besokminggu.data.repositories.SongRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
 class SongTracksViewModel @Inject constructor(
     private val songRepository: SongRepository
 ) : ViewModel() {
-    private val _playedSong = MutableLiveData<Song>()
-    val playedSong: LiveData<Song> get() = _playedSong
+
+    private val _playedSong = MutableLiveData<Song?>()
+    val playedSong: LiveData<Song?> get() = _playedSong
 
     private val _previousSongsQueue = MutableLiveData<List<Song>>(emptyList())
     val previousSongsQueue: LiveData<List<Song>> get() = _previousSongsQueue
@@ -30,6 +32,16 @@ class SongTracksViewModel @Inject constructor(
     private val _isFullPlayerVisible = MutableLiveData(false)
     val isFullPlayerVisible: LiveData<Boolean> get() = _isFullPlayerVisible
 
+    private val _currentSongDuration = MutableLiveData<Int>()
+    val currentSongDuration: LiveData<Int> get() = _currentSongDuration
+
+    private val _isLiked = MutableLiveData<Boolean>(false)
+    val isLiked : LiveData<Boolean> get() = _isLiked;
+
+    fun updateSongDuration(duration: Int) {
+        _currentSongDuration.value = duration
+    }
+
     fun showFullPlayer() {
         _isFullPlayerVisible.value = true
     }
@@ -44,18 +56,26 @@ class SongTracksViewModel @Inject constructor(
     }
 
     fun togglePlayPause() {
-        _isPlaying.value = _isPlaying.value?.not() != false
+        var newVal = false;
+        if(_isPlaying.value != null)
+            newVal = !_isPlaying.value!!
+
+        _isPlaying.value = newVal
+    }
+
+    fun updatePlayPause(newVal : Boolean){
+        _isPlaying.value = newVal
     }
 
 
     fun playSong(song: Song){
-        _playedSong.value = song;
-
+        val newSong = song.copy(lastPlayedAt =  Date())
+        _playedSong.value = newSong;
     }
 
     suspend fun skipToNext() {
         val nextQueue = _nextSongsQueue.value?.toMutableList() ?: return
-        val currentSong = _playedSong.value ?: return
+        val currentSong = _playedSong.value?.copy(lastPlayedAt =  Date()) ?: return
         if (nextQueue.isNotEmpty()) {
             val nextSong = nextQueue.removeAt(0)
             val prevQueue = _previousSongsQueue.value?.toMutableList() ?: mutableListOf()
@@ -69,7 +89,11 @@ class SongTracksViewModel @Inject constructor(
             prevQueue.add(currentSong)
             _previousSongsQueue.value = prevQueue
         }
+
+        songRepository.update(currentSong)
     }
+
+
 
     fun skipToPrevious() {
         val prevQueue = _previousSongsQueue.value?.toMutableList() ?: return
@@ -103,10 +127,41 @@ class SongTracksViewModel @Inject constructor(
     }
 
     fun resetPlayback() {
-
         _previousSongsQueue.value = emptyList()
         _nextSongsQueue.value = emptyList()
         _isPlaying.value = false
+        _playedSong.value = null
+        _currentSeekPosition.value = 0
+    }
+
+    fun resetPrevQueue(){
+        _previousSongsQueue.value = emptyList()
+    }
+
+    fun isAnySongPlayed() : Boolean{
+        return _playedSong.value != null;
+    }
+
+    fun updateIsLike(like : Boolean){
+        _isLiked.value = like
+    }
+
+    suspend fun likeSong() {
+        val current = _playedSong.value ?: return
+        val liked = _isLiked.value ?: false
+        val updated = !liked
+        val updatedSong = current.copy(isLiked = updated)
+
+        _isLiked.value = updated
+        songRepository.update(updatedSong)
+    }
+
+    fun toggleShuffle(){
+
+    }
+
+    fun toggleRepeat(){
+
     }
 
 }

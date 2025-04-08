@@ -131,16 +131,15 @@ class AddSongsFragment : BottomSheetDialogFragment() {
             return
         }
 
-
         val audioExt = FileHelper.getFileExtension(requireContext(),selectedSongUri!!)
         val imageExt = FileHelper.getFileExtension(requireContext(),selectedImageUri!!)
 
-        //  Save to internal storage using FileHelper
-        val audioFile = com.mad.besokminggu.manager.FileHelper.saveFileGenerated(
+
+        val audioFile = FileHelper.saveFileGenerated(
             audioBytes, extension = audioExt, subDir = "audio"
         )
-        val imageFile = com.mad.besokminggu.manager.FileHelper.saveFileGenerated(
-            imageBytes, extension = imageExt, subDir = "covers"
+        val imageFile = FileHelper.saveFileGenerated(
+            imageBytes, extension = imageExt, subDir = "cover"
         )
 
         if (audioFile == null || imageFile == null) {
@@ -155,7 +154,6 @@ class AddSongsFragment : BottomSheetDialogFragment() {
             coverFileName = imageFile.name,
             audioFileName = audioFile.name,
             isLiked = false,
-            isPlayed = false,
             createdAt = Date(),
             lastPlayedAt = null
         )
@@ -164,6 +162,7 @@ class AddSongsFragment : BottomSheetDialogFragment() {
 
         Toast.makeText(requireContext(), "Song added: $title by $artist", Toast.LENGTH_SHORT).show()
         dismiss()
+
     }
 
 }

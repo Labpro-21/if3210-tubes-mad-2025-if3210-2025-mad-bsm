@@ -74,9 +74,9 @@
         <ImageView
             android:id="@+id/song_image"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="307dp"
             android:layout_weight="0"
-            android:scaleType="fitXY"
+            android:scaleType="center"
             app:srcCompat="@drawable/cover_starboy" />
         <Space
             android:layout_width="match_parent"
@@ -228,8 +228,8 @@
                 android:background="@drawable/background_button"
                 android:contentDescription="Play"
 
-                app:srcCompat="@android:drawable/ic_media_play"
-                app:tint="#1A1313" />
+                app:srcCompat="@drawable/play_icon"
+                app:tint="#3E2B2B" />
 
             <ImageButton
                 android:id="@+id/next_button"

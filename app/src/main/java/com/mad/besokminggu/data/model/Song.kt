@@ -15,7 +15,6 @@ data class Song(
     val coverFileName: String = "",
     val audioFileName: String = "",
     val isLiked: Boolean = false,
-    val isPlayed: Boolean = false,
+    val lastPlayedAt: Date? = null,
     val createdAt: Date,
-    val lastPlayedAt: Date? = null
 )

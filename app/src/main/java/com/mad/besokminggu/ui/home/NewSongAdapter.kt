@@ -14,9 +14,10 @@ import com.mad.besokminggu.data.model.Song
 import com.mad.besokminggu.manager.FileHelper
 
 class NewSongAdapter(
-    private var songs: List<Song>,
     private val onClick: (Song) -> Unit = {}
 ) : RecyclerView.Adapter<NewSongAdapter.SongViewHolder>() {
+
+    private var songs: List<Song> = emptyList()
 
     class SongViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvTitle: TextView = view.findViewById(R.id.tvTitle)
@@ -30,12 +31,13 @@ class NewSongAdapter(
     }
 
     override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
+
         val song = songs[position]
+
         holder.tvTitle.text = song.title
         holder.tvArtist.text = song.artist
         Glide.with(holder.itemView.context).load(FileHelper.getCoverImage(song.coverFileName)).into(holder.ivCover)
 
-        // Marquee magic ✨
         holder.tvTitle.isSelected = true
         holder.tvArtist.isSelected = true
 

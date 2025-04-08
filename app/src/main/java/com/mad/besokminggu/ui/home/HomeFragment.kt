@@ -22,9 +22,6 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
 
-    private lateinit var newSongsAdapter: NewSongAdapter
-
-
     private lateinit var rvNewSongs: RecyclerView
     private lateinit var rvRecentlyPlayed: RecyclerView
 
@@ -41,18 +38,9 @@ class HomeFragment : Fragment() {
 
     private fun onSongClick(song: Song){
         Log.d("MiniPlayer", "Song playing: ${song.title}")
+        songViewModel.resetPrevQueue();
         songViewModel.playSong(song);
         songViewModel.showFullPlayer();
-
-        AudioPlayerManager.play(requireContext(), song,
-            { skipSong() }
-        )
-    }
-
-    private fun skipSong(){
-        viewLifecycleOwner.lifecycleScope.launch {
-            songViewModel.skipToNext();
-        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -61,13 +49,14 @@ class HomeFragment : Fragment() {
         rvNewSongs = view.findViewById(R.id.rvNewSongs)
         rvRecentlyPlayed = view.findViewById(R.id.rvRecentlyPlayed)
 
-        newSongsAdapter = NewSongAdapter(homeViewModel.newSongs.value!!,{
-            song -> onSongClick(song)
-        })
-        val recentlyPlayedAdapter = RecentlyAdapter({
-            song ->
+        val newSongsAdapter = NewSongAdapter { song ->
             onSongClick(song)
-        })
+        }
+
+        val recentlyPlayedAdapter = RecentlyAdapter { song ->
+            onSongClick(song)
+        }
+
 
         rvNewSongs.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         rvNewSongs.adapter = newSongsAdapter

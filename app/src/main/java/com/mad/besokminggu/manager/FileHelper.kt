@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.core.content.ContentProviderCompat.requireContext
 import java.io.File
@@ -15,7 +16,7 @@ object FileHelper {
 
     private lateinit var appContext : Context;
 
-    private val allowedSubDirs = setOf("audio", "convers")
+    private val allowedSubDirs = setOf("audio", "cover")
 
     fun init(context : Context){
         appContext = context
@@ -64,16 +65,24 @@ object FileHelper {
 
 
     fun getFile(fileName: String, subDir: String): File {
-        return File(validateDir(subDir), fileName)
+        val file =File(validateDir(subDir), fileName)
+        if(!file.exists()){
+            Log.e("FILE","file with directory of ${file.absolutePath} aren't found")
+        }
+        return file;
     }
 
-    fun getAudioFile(audioFileName : String) : File{
-        return getFile(audioFileName, "cover");
+    fun getAudioFile(audioFileName: String): File? {
+        val file = getFile(audioFileName, "audio")
+        return if (file.exists()) file else null
     }
 
-    fun getCoverImage(coverFileName: String): File{
-        return getFile(coverFileName, "cover");
+
+    fun getCoverImage(coverFileName: String): File? {
+        val file = getFile(coverFileName, "cover")
+        return if (file.exists()) file else null
     }
+
 
     fun getFileExtension(context: Context, uri: Uri): String {
         val type = context.contentResolver.getType(uri)

@@ -39,6 +39,4 @@ class SongRepository @Inject constructor(private val songDao: SongDao) {
     suspend fun isEmpty(): Boolean {
         return songDao.getSongsCount() == 0
     }
-
-
 }

@@ -43,9 +43,6 @@ class LibraryFragment : Fragment() {
 
         libraryViewModel.songs.observe(viewLifecycleOwner) { songList ->
             songAdapter.submitList(songList)
-            if (songList.isEmpty()) {
-                libraryViewModel.insertDummySongs()
-            }
         }
 
         // Open add songs sheet on clicking "add songs" button

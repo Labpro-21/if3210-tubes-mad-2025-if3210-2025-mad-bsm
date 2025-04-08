@@ -8,7 +8,7 @@ import androidx.room.TypeConverters
 import com.mad.besokminggu.data.dao.SongDao
 import com.mad.besokminggu.data.model.Song
 
-@Database(entities = [Song::class], version = 2)
+@Database(entities = [Song::class], version = 3)
 @TypeConverters(Converters::class)
 abstract class SongDatabase : RoomDatabase() {
     abstract fun songDao(): SongDao

@@ -6,23 +6,23 @@ import com.mad.besokminggu.data.model.Song
 
 object AudioPlayerManager {
     private var mediaPlayer: MediaPlayer? = null
+    private var onPreparedCallback: (() -> Unit)? = null
 
-    fun play(context: Context, song: Song, onComplete : (() -> Unit)? = null) {
+    fun play(song: Song, onComplete: (() -> Unit)? = null, onPrepared: (() -> Unit)? = null) {
         stop()
 
-        if(song.audioFileName == "") {
-            return;
-        }
+        if (song.audioFileName.isEmpty()) return
 
+        onPreparedCallback = onPrepared
 
         mediaPlayer = MediaPlayer().apply {
-            setDataSource(FileHelper.getAudioFile(song.audioFileName).absolutePath)
+            setDataSource(FileHelper.getAudioFile(song.audioFileName)?.absolutePath)
             setOnPreparedListener {
                 start()
+                onPreparedCallback?.invoke()
             }
             setOnCompletionListener {
-
-                onComplete?.invoke();
+                onComplete?.invoke()
             }
             prepareAsync()
         }

@@ -10,17 +10,12 @@ import android.util.Log
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.NavigationUI
-import androidx.navigation.ui.setupActionBarWithNavController
+
 import androidx.navigation.ui.setupWithNavController
-import androidx.work.Constraints
-import androidx.work.ExistingWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
+import androidx.transition.Visibility
 import com.mad.besokminggu.databinding.ActivityMainBinding
 import com.mad.besokminggu.worker.RefreshTokenWorker
+import com.mad.besokminggu.manager.FileHelper
 import com.mad.besokminggu.viewModels.SongTracksViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.concurrent.TimeUnit
@@ -32,7 +27,7 @@ class MainActivity : AppCompatActivity() {
 
     private val songViewModel : SongTracksViewModel by viewModels()
 
-    fun onOpenTrackSong(){
+    private fun onOpenTrackSong(){
 
         binding.fullPlayer.translationY = binding.fullPlayer.height.toFloat()
         binding.fullPlayer.alpha = 0f
@@ -54,14 +49,19 @@ class MainActivity : AppCompatActivity() {
                 binding.fullPlayer.visibility = View.GONE
                 binding.fullPlayer.translationY = 0f
                 binding.fullPlayer.alpha = 1f
-                binding.miniPlayer.visibility = View.VISIBLE
+                if(songViewModel.isAnySongPlayed()){
+                    binding.miniPlayer.visibility = View.VISIBLE
+                }else{
+                    binding.miniPlayer.visibility = View.GONE
+                }
             }
             .start()
-        binding.fullPlayer.visibility = View.GONE
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        FileHelper.init(context = applicationContext)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -88,6 +88,8 @@ class MainActivity : AppCompatActivity() {
         songViewModel.isFullPlayerVisible.observe(this) { isVisible ->
             if (isVisible){
                 onOpenTrackSong();
+                binding.miniPlayer.visibility = View.GONE
+
             }else{
                 onCloseTrackSong();
             }

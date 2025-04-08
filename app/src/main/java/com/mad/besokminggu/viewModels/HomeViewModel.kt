@@ -39,7 +39,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-
     private fun dummySongs(): List<Song> {
         val now = Date()
         return listOf(
@@ -47,8 +46,8 @@ class HomeViewModel @Inject constructor(
                 id = 1,
                 title = "Blinding Lights",
                 artist = "The Weeknd",
-                coverResId = R.drawable.cover_starboy,
-                filePath = "",
+                coverFileName = "cover_starboy.png",
+                audioFileName = "audio_starboy.mp3",
                 isLiked = false,
                 isPlayed = false,
                 createdAt = Date(now.time - 100000),
@@ -58,8 +57,8 @@ class HomeViewModel @Inject constructor(
                 id = 2,
                 title = "Here Comes The Sun",
                 artist = "The Beatles",
-                coverResId = R.drawable.cover_starboy,
-                filePath = "",
+                coverFileName = "cover_starboy.png",
+                audioFileName = "audio_starboy.mp3",
                 isLiked = false,
                 isPlayed = false,
                 createdAt = Date(now.time - 200000),
@@ -69,8 +68,8 @@ class HomeViewModel @Inject constructor(
                 id = 3,
                 title = "Midnight Pretenders",
                 artist = "Tomoko Aran",
-                coverResId = R.drawable.cover_starboy,
-                filePath = "",
+                coverFileName = "cover_blonde.png",
+                audioFileName = "audio_starboy.mp3",
                 isLiked = false,
                 isPlayed = true,
                 createdAt = Date(now.time - 300000),
@@ -80,8 +79,8 @@ class HomeViewModel @Inject constructor(
                 id = 4,
                 title = "Violent Crimes",
                 artist = "Kanye West",
-                coverResId = R.drawable.cover_starboy,
-                filePath = "",
+                coverFileName = "cover_blonde.png",
+                audioFileName = "audio_starboy.mp3",
                 isLiked = false,
                 isPlayed = true,
                 createdAt = Date(now.time - 400000),

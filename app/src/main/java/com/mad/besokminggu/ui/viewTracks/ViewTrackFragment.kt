@@ -6,11 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
-import com.mad.besokminggu.audio.AudioPlayerManager
+import com.mad.besokminggu.manager.AudioPlayerManager
 import com.mad.besokminggu.databinding.FragmentTrackViewBinding
+import com.mad.besokminggu.manager.FileHelper
 import com.mad.besokminggu.viewModels.SongTracksViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -40,7 +40,7 @@ class ViewTrackFragment : Fragment(){
             song -> binding.songTitle.text = song.title
             binding.songSinger.text = song.artist
             Glide.with(requireContext())
-                .load(song.coverResId)
+                .load(FileHelper.getCoverImage(song.coverFileName))
                 .into(binding.songImage)
         }
 

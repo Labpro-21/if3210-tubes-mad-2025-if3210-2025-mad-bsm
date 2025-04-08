@@ -12,7 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mad.besokminggu.R
-import com.mad.besokminggu.audio.AudioPlayerManager
+import com.mad.besokminggu.manager.AudioPlayerManager
 import com.mad.besokminggu.data.model.Song
 import com.mad.besokminggu.viewModels.HomeViewModel
 import com.mad.besokminggu.viewModels.SongTracksViewModel

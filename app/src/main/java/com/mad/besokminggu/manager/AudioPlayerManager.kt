@@ -1,4 +1,4 @@
-package com.mad.besokminggu.audio
+package com.mad.besokminggu.manager
 
 import android.content.Context
 import android.media.MediaPlayer
@@ -9,16 +9,19 @@ object AudioPlayerManager {
 
     fun play(context: Context, song: Song, onComplete : (() -> Unit)? = null) {
         stop()
-        if(song.filePath == ""){
+
+        if(song.audioFileName == "") {
             return;
         }
+
+
         mediaPlayer = MediaPlayer().apply {
-            setDataSource(song.filePath)
+            setDataSource(FileHelper.getAudioFile(song.audioFileName).absolutePath)
             setOnPreparedListener {
                 start()
             }
             setOnCompletionListener {
-                // You could auto-skip or update UI here
+
                 onComplete?.invoke();
             }
             prepareAsync()

@@ -35,11 +35,6 @@ class LibraryFragment : Fragment() {
         _binding = FragmentLibraryBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        // val textView: TextView = binding.textLibrary
-        // libraryViewModel.text.observe(viewLifecycleOwner) {
-        //     textView.text = it
-        // }
-
         songAdapter = SongAdapter()
         binding.songListRecyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())

@@ -17,6 +17,7 @@ import androidx.fragment.app.activityViewModels
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.mad.besokminggu.R
 import com.mad.besokminggu.data.model.Song
+import com.mad.besokminggu.manager.FileHelper
 import com.mad.besokminggu.ui.library.LibraryViewModel
 import java.util.Date
 
@@ -119,11 +120,40 @@ class AddSongsFragment : BottomSheetDialogFragment() {
             return
         }
 
+        val resolver = requireContext().contentResolver
+
+        //  Read bytes from selected URIs
+        val audioBytes = resolver.openInputStream(selectedSongUri!!)?.readBytes()
+        val imageBytes = resolver.openInputStream(selectedImageUri!!)?.readBytes()
+
+        if (audioBytes == null || imageBytes == null) {
+            Toast.makeText(requireContext(), "Failed to read selected files", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+
+        val audioExt = FileHelper.getFileExtension(requireContext(),selectedSongUri!!)
+        val imageExt = FileHelper.getFileExtension(requireContext(),selectedImageUri!!)
+
+        //  Save to internal storage using FileHelper
+        val audioFile = com.mad.besokminggu.manager.FileHelper.saveFileGenerated(
+            audioBytes, extension = audioExt, subDir = "audio"
+        )
+        val imageFile = com.mad.besokminggu.manager.FileHelper.saveFileGenerated(
+            imageBytes, extension = imageExt, subDir = "covers"
+        )
+
+        if (audioFile == null || imageFile == null) {
+            Toast.makeText(requireContext(), "Failed to save files", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // 🔽 Create Song with just the file names
         val newSong = Song(
             title = title,
             artist = artist,
-            coverResId = R.drawable.cover_starboy,
-            filePath = selectedSongUri.toString(),
+            coverFileName = imageFile.name,
+            audioFileName = audioFile.name,
             isLiked = false,
             isPlayed = false,
             createdAt = Date(),
@@ -133,7 +163,7 @@ class AddSongsFragment : BottomSheetDialogFragment() {
         viewModel.insertSong(newSong)
 
         Toast.makeText(requireContext(), "Song added: $title by $artist", Toast.LENGTH_SHORT).show()
-
         dismiss()
     }
+
 }

@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.mad.besokminggu.R
 import com.mad.besokminggu.data.model.Song
+import com.mad.besokminggu.manager.FileHelper
 
 class NewSongAdapter(
     private var songs: List<Song>,
@@ -32,7 +33,7 @@ class NewSongAdapter(
         val song = songs[position]
         holder.tvTitle.text = song.title
         holder.tvArtist.text = song.artist
-        Glide.with(holder.itemView.context).load(song.coverResId).into(holder.ivCover)
+        Glide.with(holder.itemView.context).load(FileHelper.getCoverImage(song.coverFileName)).into(holder.ivCover)
 
         // Marquee magic ✨
         holder.tvTitle.isSelected = true

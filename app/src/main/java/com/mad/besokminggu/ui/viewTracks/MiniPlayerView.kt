@@ -13,6 +13,7 @@ import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import com.bumptech.glide.Glide
 import com.mad.besokminggu.R
 import com.mad.besokminggu.data.model.Song
+import com.mad.besokminggu.manager.FileHelper
 import com.mad.besokminggu.viewModels.SongTracksViewModel
 import dagger.hilt.android.EntryPointAccessors
 
@@ -45,7 +46,7 @@ class MiniPlayerView @JvmOverloads constructor(
             tvTitle.text = song.title
             tvArtist.text = song.artist
             Glide.with(context)
-                .load(song.coverResId)
+                .load(FileHelper.getFile(song.coverFileName, "cover"))
                 .into(ivCover)
         }
     }

@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.mad.besokminggu.R
 import com.mad.besokminggu.data.model.Song
+import com.mad.besokminggu.manager.FileHelper
 
 class RecentlyAdapter (
     private val onItemClick: (Song) -> Unit
@@ -36,7 +37,7 @@ class RecentlyAdapter (
 
         holder.tvTitle.text = song.title
         holder.tvArtist.text = song.artist
-        Glide.with(holder.itemView).load(song.coverResId).into(holder.ivCover)
+        Glide.with(holder.itemView).load(FileHelper.getCoverImage(song.coverFileName)).into(holder.ivCover)
 
         holder.itemView.setOnClickListener(){
             onItemClick(song)

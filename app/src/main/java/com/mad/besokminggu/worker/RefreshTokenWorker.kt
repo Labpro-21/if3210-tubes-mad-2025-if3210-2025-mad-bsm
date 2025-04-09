@@ -1,6 +1,7 @@
 package com.mad.besokminggu.worker
 
 import android.content.Context
+import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
@@ -27,14 +28,14 @@ class RefreshTokenWorker @AssistedInject constructor(
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
-        println("Refresh Token Worker Running...")
+        Log.d("REFRESH_TOKEN_WORKER", "Refresh Token Worker Running...")
 
         val refreshToken = sessionManager.getRefreshToken()
                 .catch { e -> emit(null) }
                 .firstOrNull()
 
         if (refreshToken.isNullOrEmpty()) {
-            println("No refresh token found")
+            Log.d("REFRESH_TOKEN_WORKER", "No refresh token found")
             sessionManager.clearToken()
             scheduleNextRun(applicationContext)
             return Result.failure()
@@ -43,16 +44,16 @@ class RefreshTokenWorker @AssistedInject constructor(
         unprotectedRepository.refreshToken(refreshToken).collect { response ->
             when(response) {
                 is ApiResponse.Failure -> {
-                    println("Failed to refresh token: ${response.errorMessage}")
+                    Log.e("REFRESH_TOKEN_WORKER","Failed to refresh token: ${response.errorMessage}")
                 }
                 is ApiResponse.Success -> {
-                    println("Token refreshed successfully")
+                    Log.d("REFRESH_TOKEN_WORKER","Token refreshed successfully")
                     response.data.let { newToken ->
                         sessionManager.storeAccessToken(newToken.accessToken, newToken.refreshToken)
                     }
                 }
                 is ApiResponse.Loading -> {
-                    println("Refreshing token...")
+                    Log.d("REFRESH_TOKEN_WORKER","Refreshing token...")
                 }
             }
         }
@@ -62,7 +63,7 @@ class RefreshTokenWorker @AssistedInject constructor(
     }
 
     private fun scheduleNextRun(context: Context) {
-        println("Scheduling next run for RefreshTokenWorker...")
+        Log.d("REFRESH_TOKEN_WORKER","Scheduling next run for RefreshTokenWorker...")
 
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -75,9 +76,9 @@ class RefreshTokenWorker @AssistedInject constructor(
 
         try {
             WorkManager.getInstance(context).enqueue(request)
-            println("Re-scheduled RefreshTokenWorker successfully.")
+            Log.d("REFRESH_TOKEN_WORKER","Re-scheduled RefreshTokenWorker successfully.")
         } catch (e: Exception) {
-            println("Failed to re-schedule RefreshTokenWorker: ${e.message}")
+            Log.e("REFRESH_TOKEN_WORKER","Failed to re-schedule RefreshTokenWorker: ${e.message}")
             e.printStackTrace()
         }
     }

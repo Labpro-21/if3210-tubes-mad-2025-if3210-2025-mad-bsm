@@ -11,6 +11,7 @@ import android.util.Log
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentContainerView
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 
 import androidx.navigation.ui.setupWithNavController
@@ -25,6 +26,7 @@ import com.mad.besokminggu.ui.login.LoginActivity
 import com.mad.besokminggu.viewModels.SongTracksViewModel
 import com.mad.besokminggu.viewModels.TokenViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
@@ -104,6 +106,7 @@ class MainActivity : AppCompatActivity() {
 
         // Check Token
         tokenViewModel._accessToken.observe(this) {token ->
+
             if (token == null) {
                 Log.d("MainActivity", "Token is null, starting LoginActivity")
                 val intent = Intent(this, LoginActivity::class.java)
@@ -111,6 +114,11 @@ class MainActivity : AppCompatActivity() {
                 finish()
             }
         }
+
+        lifecycleScope.launch {
+            tokenViewModel.getToken()
+        }
+
         miniPlayer.visibility = View.GONE
         fullPlayer?.visibility = View.GONE
 

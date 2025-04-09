@@ -5,11 +5,14 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.mad.besokminggu.R
 import com.mad.besokminggu.data.model.Song
 import com.mad.besokminggu.ui.adapter.SongAdapter
 import com.mad.besokminggu.databinding.FragmentLibraryBinding
@@ -87,12 +90,26 @@ class LibraryFragment : Fragment() {
             songAdapter.submitList(songList)
         }
 
+        libraryViewModel.filteredSongs.observe(viewLifecycleOwner) { songs ->
+            songAdapter.submitList(songs)
+        }
+
         binding.addButton.setOnClickListener {
             val existingFragment = parentFragmentManager.findFragmentByTag("AddSongsBottomSheet")
             if (existingFragment == null) {
                 AddSongsFragment().show(parentFragmentManager, "AddSongsBottomSheet")
             }
         }
+
+        binding.btnLiked.setOnClickListener {
+            libraryViewModel.filterSongs(showLikedOnly = true)
+            setButtonSelected(binding.btnLiked, binding.btnAll)
+        }
+    }
+
+    private fun setButtonSelected(selected: Button, other: Button) {
+        selected.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.green)
+        other.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.gray)
     }
 
     override fun onDestroyView() {

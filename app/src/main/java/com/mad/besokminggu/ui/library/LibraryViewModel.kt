@@ -21,9 +21,26 @@ class LibraryViewModel @Inject constructor(
 
     val songs: LiveData<List<Song>> = repository.allSongs
 
+    private val _filteredSongs = MutableLiveData<List<Song>>()
+    val filteredSongs: LiveData<List<Song>> = _filteredSongs
+
     fun insertSong(song: Song) {
         viewModelScope.launch {
             repository.insert(song)
+        }
+    }
+
+    fun filterSongs(showLikedOnly: Boolean) {
+        _filteredSongs.value = if (showLikedOnly) {
+            songs.value?.filter { it.isLiked }
+        } else {
+            songs.value
+        }
+    }
+
+    init {
+        songs.observeForever {
+            filterSongs(showLikedOnly = false)
         }
     }
 

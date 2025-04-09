@@ -46,7 +46,7 @@ class MiniPlayerView @JvmOverloads constructor(
     }
 
     fun observeViewModel() {
-        var lastSongId: Int? = null
+
         val lifecycleOwner = findViewTreeLifecycleOwner() ?: return
 
         // Access Hilt-injected ViewModel manually (outside Fragment/Activity)
@@ -65,10 +65,6 @@ class MiniPlayerView @JvmOverloads constructor(
             Glide.with(context)
                 .load(FileHelper.getFile(song.coverFileName, "cover"))
                 .into(ivCover)
-
-
-            // Like Button
-
         }
 
 
@@ -110,9 +106,9 @@ class MiniPlayerView @JvmOverloads constructor(
         viewModel.isLiked.observe(lifecycleOwner) {
             liked ->
             if(liked){
-                likeButton.setImageResource(R.drawable.unlike_icon)
+                likeButton.setImageResource(R.drawable.love)
             }else{
-                likeButton.setImageResource(R.drawable.like)
+                likeButton.setImageResource(R.drawable.love_icon_filled)
             }
         }
 

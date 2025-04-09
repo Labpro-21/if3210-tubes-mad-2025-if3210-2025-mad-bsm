@@ -89,6 +89,13 @@ class ViewTrackFragment : Fragment(){
             binding.progressBar.max = duration
         }
 
+        viewModel.nextSongsQueue.observe(viewLifecycleOwner) {
+            queue ->
+            if(queue.size == 1 && viewModel.playedSong.value == null){
+                skipSong()
+            }
+        }
+
         // Love Button
         binding.loveButton.setOnClickListener {
             lifecycleScope.launch {

@@ -9,6 +9,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.Date
 import javax.inject.Inject
 
+enum class RepeatMode {
+    NONE,
+    REPEAT_ONE,
+    REPEAT_ALL
+}
+
+
 @HiltViewModel
 class SongTracksViewModel @Inject constructor(
     private val songRepository: SongRepository
@@ -37,6 +44,12 @@ class SongTracksViewModel @Inject constructor(
 
     private val _isLiked = MutableLiveData<Boolean>(false)
     val isLiked : LiveData<Boolean> get() = _isLiked;
+
+    private val _repeatMode = MutableLiveData(RepeatMode.NONE)
+    val repeatMode: LiveData<RepeatMode> get() = _repeatMode
+
+    private val _isShuffle = MutableLiveData(false)
+    val isShuffle: LiveData<Boolean> get() = _isShuffle
 
     fun updateSongDuration(duration: Int) {
         _currentSongDuration.value = duration
@@ -76,11 +89,13 @@ class SongTracksViewModel @Inject constructor(
     suspend fun skipToNext() {
         val nextQueue = _nextSongsQueue.value?.toMutableList() ?: return
         val currentSong = _playedSong.value?.copy(lastPlayedAt =  Date()) ?: return
+
+        handleRepeatOne(nextQueue, currentSong);
+
+
         if (nextQueue.isNotEmpty()) {
             val nextSong = nextQueue.removeAt(0)
-            val prevQueue = _previousSongsQueue.value?.toMutableList() ?: mutableListOf()
-            prevQueue.add(currentSong)
-            _previousSongsQueue.value = prevQueue
+            addToPrevQueue(currentSong)
             _playedSong.value = nextSong
             _nextSongsQueue.value = nextQueue
         }else{
@@ -94,6 +109,48 @@ class SongTracksViewModel @Inject constructor(
     }
 
 
+
+    private suspend fun handleRepeatOne(nextQueue : MutableList<Song>, currentSong : Song){
+        if (nextQueue.isNotEmpty()) {
+            val nextSong = if (_isShuffle.value == true) {
+                nextQueue.removeAt((0 until nextQueue.size).random())
+            } else {
+                nextQueue.removeAt(0)
+            }
+
+            val prevQueue = _previousSongsQueue.value?.toMutableList() ?: mutableListOf()
+            prevQueue.add(currentSong)
+
+            _playedSong.value = nextSong
+            _previousSongsQueue.value = prevQueue
+            _nextSongsQueue.value = nextQueue
+
+        }
+    }
+
+    private suspend fun handleRepeatAll(currentSong : Song){
+        if (_repeatMode.value == RepeatMode.REPEAT_ALL) {
+            val allSongs = songRepository.allSongs.value.orEmpty()
+            val restartQueue = allSongs.filterNot { it.id == currentSong.id }
+
+            val nextSong = if (_isShuffle.value == true) {
+                restartQueue.random()
+            } else {
+                restartQueue.firstOrNull()
+            }
+
+            if (nextSong != null) {
+                _playedSong.value = nextSong
+                _previousSongsQueue.value = mutableListOf(currentSong)
+                _nextSongsQueue.value = restartQueue.filterNot { it.id == nextSong.id }
+            }
+        } else {
+            addEmptyNextQueue(currentSong)
+            val prevQueue = _previousSongsQueue.value?.toMutableList() ?: mutableListOf()
+            prevQueue.add(currentSong)
+            _previousSongsQueue.value = prevQueue
+        }
+    }
 
     fun skipToPrevious() {
         val prevQueue = _previousSongsQueue.value?.toMutableList() ?: return
@@ -111,6 +168,10 @@ class SongTracksViewModel @Inject constructor(
 
     suspend fun addEmptyNextQueue(currentSong : Song){
         _playedSong.value = songRepository.getNextIteratedSong(currentSong);
+    }
+
+    suspend fun deleteSong(song : Song){
+        songRepository.deleteSong(song)
     }
 
 
@@ -156,12 +217,18 @@ class SongTracksViewModel @Inject constructor(
         songRepository.update(updatedSong)
     }
 
-    fun toggleShuffle(){
-
+    fun toggleRepeat() {
+        _repeatMode.value = when (_repeatMode.value) {
+            RepeatMode.NONE -> RepeatMode.REPEAT_ONE
+            RepeatMode.REPEAT_ONE -> RepeatMode.REPEAT_ALL
+            RepeatMode.REPEAT_ALL -> RepeatMode.NONE
+            else -> RepeatMode.NONE
+        }
     }
 
-    fun toggleRepeat(){
-
+    fun toggleShuffle() {
+        _isShuffle.value = !(_isShuffle.value ?: false)
     }
+
 
 }

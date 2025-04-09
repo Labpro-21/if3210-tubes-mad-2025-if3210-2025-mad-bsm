@@ -31,6 +31,10 @@ class SongRepository @Inject constructor(private val songDao: SongDao) {
         return songDao.getSong(id);
     }
 
+    suspend fun deleteSong(song: Song){
+        songDao.delete(song)
+    }
+
     suspend fun getNextIteratedSong(currentSong : Song) : Song{
         val nextSong = songDao.getNextIdSong(currentSong.id)
         return nextSong ?: songDao.getFirstSong()

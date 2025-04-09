@@ -42,14 +42,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onCloseTrackSong(){
-        binding.fullPlayer.animate()
-            .translationY(binding.fullPlayer.height.toFloat())
+        if(binding.fullPlayer == null){
+            return;
+        }
+
+        binding.fullPlayer!!.animate()
+            .translationY(binding.fullPlayer!!.height.toFloat())
             .alpha(0f)
             .setDuration(300)
             .withEndAction {
-                binding.fullPlayer.visibility = View.GONE
-                binding.fullPlayer.translationY = 0f
-                binding.fullPlayer.alpha = 1f
+                binding.fullPlayer!!.visibility = View.GONE
+                binding.fullPlayer!!.translationY = 0f
+                binding.fullPlayer!!.alpha = 1f
                 if(songViewModel.isAnySongPlayed()){
                     binding.miniPlayer.visibility = View.VISIBLE
                 }else{
@@ -86,7 +90,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.miniPlayer.visibility = View.GONE;
-        binding.fullPlayer.visibility = View.GONE;
+        binding.fullPlayer?.visibility = View.GONE;
 
         binding.miniPlayer.setOnClickListener {
             songViewModel.showFullPlayer()
@@ -105,8 +109,8 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        binding.fullPlayer.post {
-            val closeButton : ImageButton = binding.fullPlayer.findViewById(R.id.collapse_button)
+        binding.fullPlayer?.post {
+            val closeButton : ImageButton = binding.fullPlayer!!.findViewById(R.id.collapse_button)
             closeButton.setOnClickListener {
                 songViewModel.hideFullPlayer()
             }

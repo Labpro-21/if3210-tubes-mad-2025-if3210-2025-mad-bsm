@@ -61,7 +61,7 @@
             android:clipToPadding="false"
             android:nestedScrollingEnabled="false"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/item_recently"
+            tools:listitem="@layout/item_song"
             tools:itemCount="10" />
 
     </LinearLayout>

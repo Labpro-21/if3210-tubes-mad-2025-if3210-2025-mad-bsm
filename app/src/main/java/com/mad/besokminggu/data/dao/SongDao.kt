@@ -41,6 +41,12 @@ interface SongDao {
     suspend fun getFirstSong(): Song
 
     @Query("SELECT COUNT(*) FROM songs")
-    suspend fun getSongsCount(): Int
+    fun getSongsCount(): LiveData<Int>
+
+    @Query("SELECT COUNT(*) FROM songs WHERE isLiked = 1")
+    fun getLikedSongsCount(): LiveData<Int>
+
+    @Query("SELECT COUNT(*) FROM songs WHERE lastPlayedAt IS NOT NULL")
+    fun getListenedSongsCount(): LiveData<Int>
 
 }

@@ -10,6 +10,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import com.mad.besokminggu.databinding.FragmentProfileBinding
 import com.mad.besokminggu.network.ApiResponse
 import com.mad.besokminggu.ui.login.LoginActivity
@@ -47,6 +48,8 @@ class ProfileFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        val profileViewModel = ViewModelProvider(this)[ProfileViewModel::class.java]
+
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
@@ -55,6 +58,10 @@ class ProfileFragment : Fragment() {
         val profileImage = binding.profileImage
         val textUsername = binding.textUsername
         val textLocation = binding.textLocation
+
+        val likedSongsCount = binding.textLikedSongsNumber
+        val totalSongsCount = binding.textTotalSongsNumber
+        val listenedSongsCount = binding.textListenedSongsNumber
 
         val baseImageUrl = "http://34.101.226.132:3000/uploads/profile-picture/"
 
@@ -85,6 +92,18 @@ class ProfileFragment : Fragment() {
         }
 
         userViewModel.getProfile(errorHandler)
+
+        // Observe Song data
+        profileViewModel.likedSongsCount.observe(viewLifecycleOwner) { count ->
+            listenedSongsCount.text = count.toString()
+        }
+        profileViewModel.songsCount.observe(viewLifecycleOwner) { count ->
+            totalSongsCount.text = count.toString()
+        }
+        profileViewModel.listenedSongsCount.observe(viewLifecycleOwner) { count ->
+            likedSongsCount.text = count.toString()
+        }
+        profileViewModel.loadCounts()
 
         logoutButton.setOnClickListener({
             tokenViewModel.deleteToken()

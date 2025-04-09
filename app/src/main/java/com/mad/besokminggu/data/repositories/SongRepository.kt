@@ -31,12 +31,24 @@ class SongRepository @Inject constructor(private val songDao: SongDao) {
         return songDao.getSong(id);
     }
 
+    fun getLikedSongsCount() : LiveData<Int> {
+        return songDao.getLikedSongsCount()
+    }
+
+    fun getTotalSongsCount() : LiveData<Int>{
+        return songDao.getSongsCount()
+    }
+
+    fun getListenedSongsCount() : LiveData<Int>{
+        return songDao.getListenedSongsCount()
+    }
+
     suspend fun getNextIteratedSong(currentSong : Song) : Song{
         val nextSong = songDao.getNextIdSong(currentSong.id)
         return nextSong ?: songDao.getFirstSong()
     }
 
     suspend fun isEmpty(): Boolean {
-        return songDao.getSongsCount() == 0
+        return songDao.getSongsCount().value == 0
     }
 }

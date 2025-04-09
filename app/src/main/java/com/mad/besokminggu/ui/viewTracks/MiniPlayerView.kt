@@ -1,7 +1,5 @@
 package com.mad.besokminggu.ui.viewTracks
-
 import android.content.Context
-import android.media.Image
 import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,7 +8,9 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
@@ -20,7 +20,6 @@ import com.mad.besokminggu.data.model.Song
 import com.mad.besokminggu.manager.AudioPlayerManager
 import com.mad.besokminggu.manager.FileHelper
 import com.mad.besokminggu.viewModels.SongTracksViewModel
-import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.launch
 
 class MiniPlayerView @JvmOverloads constructor(
@@ -45,15 +44,7 @@ class MiniPlayerView @JvmOverloads constructor(
         progressBar = findViewById(R.id.progress_bar)
     }
 
-    fun observeViewModel() {
-        var lastSongId: Int? = null
-        val lifecycleOwner = findViewTreeLifecycleOwner() ?: return
-
-        // Access Hilt-injected ViewModel manually (outside Fragment/Activity)
-        val viewModelStoreOwner = findViewTreeViewModelStoreOwner() ?: return
-
-        val viewModel = ViewModelProvider(viewModelStoreOwner)[SongTracksViewModel::class.java]
-
+    private fun handlePlayedSong(viewModel: SongTracksViewModel, lifecycleOwner: LifecycleOwner) {
         viewModel.playedSong.observe(lifecycleOwner) { song ->
             if (song == null) return@observe
 
@@ -65,24 +56,22 @@ class MiniPlayerView @JvmOverloads constructor(
             Glide.with(context)
                 .load(FileHelper.getFile(song.coverFileName, "cover"))
                 .into(ivCover)
-
-
-            // Like Button
-
         }
+    }
 
-
-        // Progress Bar
+    private fun handleProgressBar(viewModel : SongTracksViewModel, lifecycleOwner : LifecycleOwner){
         viewModel.currentSongDuration.observe(lifecycleOwner) {
-            duration ->
+                duration ->
             progressBar.max = duration
         }
 
         viewModel.currentSeekPosition.observe(lifecycleOwner) {
-            position ->
+                position ->
             progressBar.progress = position
         }
+    }
 
+    private fun handleMediaController(viewModel : SongTracksViewModel, lifecycleOwner : LifecycleOwner){
         // Pause Button
         viewModel.isPlaying.observe(lifecycleOwner) { isPlay ->
             if(isPlay){
@@ -108,13 +97,24 @@ class MiniPlayerView @JvmOverloads constructor(
             }
         }
         viewModel.isLiked.observe(lifecycleOwner) {
-            liked ->
+                liked ->
             if(liked){
-                likeButton.setImageResource(R.drawable.unlike_icon)
+                likeButton.setImageResource(R.drawable.love)
             }else{
-                likeButton.setImageResource(R.drawable.like)
+                likeButton.setImageResource(R.drawable.love_icon_filled)
             }
         }
 
+    }
+
+    fun observeViewModel() {
+
+        val lifecycleOwner = findViewTreeLifecycleOwner() ?: return
+        val viewModelStoreOwner = findViewTreeViewModelStoreOwner() ?: return
+        val viewModel = ViewModelProvider(viewModelStoreOwner)[SongTracksViewModel::class.java]
+
+        handlePlayedSong(viewModel, lifecycleOwner)
+        handleProgressBar(viewModel, lifecycleOwner)
+        handleMediaController(viewModel, lifecycleOwner)
     }
 }

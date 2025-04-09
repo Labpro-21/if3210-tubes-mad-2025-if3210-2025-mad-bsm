@@ -17,6 +17,8 @@ import androidx.fragment.app.activityViewModels
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.mad.besokminggu.R
 import com.mad.besokminggu.data.model.Song
+import com.mad.besokminggu.manager.AudioFileHelper
+import com.mad.besokminggu.manager.CoverFileHelper
 import com.mad.besokminggu.manager.FileHelper
 import com.mad.besokminggu.ui.library.LibraryViewModel
 import java.util.Date
@@ -135,11 +137,11 @@ class AddSongsFragment : BottomSheetDialogFragment() {
         val imageExt = FileHelper.getFileExtension(requireContext(),selectedImageUri!!)
 
 
-        val audioFile = FileHelper.saveFileGenerated(
-            audioBytes, extension = audioExt, subDir = "audio"
+        val audioFile = AudioFileHelper.saveGeneratedFile(
+            audioBytes, extension = audioExt
         )
-        val imageFile = FileHelper.saveFileGenerated(
-            imageBytes, extension = imageExt, subDir = "cover"
+        val imageFile = CoverFileHelper.saveGeneratedFile(
+            imageBytes, extension = imageExt
         )
 
         if (audioFile == null || imageFile == null) {

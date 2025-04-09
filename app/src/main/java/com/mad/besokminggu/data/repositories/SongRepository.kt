@@ -9,12 +9,6 @@ import javax.inject.Inject
 class SongRepository @Inject constructor(private val songDao: SongDao) {
     val allSongs: LiveData<List<Song>> = songDao.getAllSongs()
 
-    suspend fun insertDummySongsIfEmpty(dummySongs: List<Song>) {
-        if(isEmpty()) {
-            songDao.insertAll(dummySongs)
-        }
-    }
-
     suspend fun insert(song: Song) {
         songDao.insert(song)
     }
@@ -43,12 +37,18 @@ class SongRepository @Inject constructor(private val songDao: SongDao) {
         return songDao.getListenedSongsCount()
     }
 
+    suspend fun deleteSong(song: Song){
+        songDao.delete(song)
+    }
+
     suspend fun getNextIteratedSong(currentSong : Song) : Song{
         val nextSong = songDao.getNextIdSong(currentSong.id)
         return nextSong ?: songDao.getFirstSong()
     }
 
-    suspend fun isEmpty(): Boolean {
-        return songDao.getSongsCount().value == 0
+
+    suspend fun getNextRandomSong(currentSong: Song): Song {
+        return songDao.getRandomSongExcluding(currentSong.id) ?: songDao.getFirstSong()
     }
+
 }

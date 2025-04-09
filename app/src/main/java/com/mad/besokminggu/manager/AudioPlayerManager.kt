@@ -1,6 +1,6 @@
 package com.mad.besokminggu.manager
 
-import android.content.Context
+
 import android.media.MediaPlayer
 import com.mad.besokminggu.data.model.Song
 
@@ -16,7 +16,7 @@ object AudioPlayerManager {
         onPreparedCallback = onPrepared
 
         mediaPlayer = MediaPlayer().apply {
-            setDataSource(FileHelper.getAudioFile(song.audioFileName)?.absolutePath)
+            setDataSource(AudioFileHelper.getFile(song.audioFileName)?.absolutePath)
             setOnPreparedListener {
                 start()
                 onPreparedCallback?.invoke()
@@ -43,7 +43,7 @@ object AudioPlayerManager {
     }
 
     fun isPlaying(): Boolean {
-        return mediaPlayer?.isPlaying ?: false
+        return mediaPlayer?.isPlaying == true
     }
 
     fun seekTo(position: Int) {

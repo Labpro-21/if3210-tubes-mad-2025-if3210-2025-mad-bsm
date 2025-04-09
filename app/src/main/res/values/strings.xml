@@ -15,6 +15,9 @@
     <string name="title_new_songs">New songs</string>
     <string name="cover_image">Song cover image</string>
     <string name="recently_played">Recently played</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="song_title">Nama lAGU</string>
     <string name="listened">LISTENED</string>
     <string name="liked">LIKED</string>
     <string name="total_songs">SONGS</string>

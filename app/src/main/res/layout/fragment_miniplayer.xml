@@ -73,7 +73,7 @@
                 android:contentDescription="Like"
                 android:cropToPadding="false"
                 android:scaleType="centerInside"
-                tools:src="@drawable/like" />
+                tools:src="@drawable/love" />
 
             <ImageButton
                 android:id="@+id/pause_button"

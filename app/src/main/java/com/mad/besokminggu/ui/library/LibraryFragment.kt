@@ -1,17 +1,25 @@
 package com.mad.besokminggu.ui.library
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.mad.besokminggu.adapter.SongAdapter
+import com.mad.besokminggu.data.model.Song
+import com.mad.besokminggu.ui.adapter.SongAdapter
 import com.mad.besokminggu.databinding.FragmentLibraryBinding
+import com.mad.besokminggu.ui.adapter.SongWithMenuAdapter
 import com.mad.besokminggu.ui.addsongs.AddSongsFragment
+import com.mad.besokminggu.ui.optionMenu.SongActionSheet
+import com.mad.besokminggu.viewModels.SongTracksViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import kotlin.getValue
 
 @AndroidEntryPoint
 class LibraryFragment : Fragment() {
@@ -22,20 +30,54 @@ class LibraryFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
-    private lateinit var songAdapter: SongAdapter
+    private val songViewModel : SongTracksViewModel by activityViewModels()
+    private val libraryViewModel : LibraryViewModel by activityViewModels()
+
+
+    private lateinit var songAdapter: SongWithMenuAdapter
+
+    private fun onSongClick(song: Song){
+        Log.d("MiniPlayer", "Song playing: ${song.title}")
+        if(song.id != songViewModel.playedSong.value?.id){
+            songViewModel.playSong(song);
+        }
+        songViewModel.showFullPlayer()
+    }
+
+    fun onOpenSheet(song : Song){
+        SongActionSheet(
+            song = song,
+            onQueue = {
+                lifecycleScope.launch {
+                    songViewModel.addToNextQueue(song)
+                }
+            },
+            onDelete = {
+                lifecycleScope.launch {
+                    songViewModel.deleteSong(song)
+                }
+            }
+        ).show(parentFragmentManager, "SongActionSheet")
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val libraryViewModel =
-            ViewModelProvider(this)[LibraryViewModel::class.java]
-
         _binding = FragmentLibraryBinding.inflate(inflater, container, false)
-        val root: View = binding.root
+        return binding.root
+    }
 
-        songAdapter = SongAdapter()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        songAdapter = SongWithMenuAdapter(
+            onItemClick = { song -> onSongClick(song) },
+            onMenuClick = { song -> onOpenSheet(song) }
+        )
+
         binding.songListRecyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = songAdapter
@@ -45,15 +87,12 @@ class LibraryFragment : Fragment() {
             songAdapter.submitList(songList)
         }
 
-        // Open add songs sheet on clicking "add songs" button
         binding.addButton.setOnClickListener {
             val existingFragment = parentFragmentManager.findFragmentByTag("AddSongsBottomSheet")
             if (existingFragment == null) {
-                val bottomSheet = AddSongsFragment()
-                bottomSheet.show(parentFragmentManager, "AddSongsBottomSheet")
+                AddSongsFragment().show(parentFragmentManager, "AddSongsBottomSheet")
             }
         }
-        return root
     }
 
     override fun onDestroyView() {

@@ -1,4 +1,4 @@
-package com.mad.besokminggu.adapter
+package com.mad.besokminggu.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -9,9 +9,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.mad.besokminggu.R
 import com.mad.besokminggu.data.model.Song
+import com.mad.besokminggu.manager.CoverFileHelper
 import com.mad.besokminggu.manager.FileHelper
 
-class SongAdapter : RecyclerView.Adapter<SongAdapter.SongViewHolder>() {
+class SongAdapter(
+    private val onItemClick: (Song) -> Unit,
+) : RecyclerView.Adapter<SongAdapter.SongViewHolder>() {
 
     private var songs = listOf<Song>()
 
@@ -38,7 +41,7 @@ class SongAdapter : RecyclerView.Adapter<SongAdapter.SongViewHolder>() {
         holder.title.text = song.title
         holder.artist.text = song.artist
         Glide.with(context)
-            .load(FileHelper.getCoverImage(song.coverFileName))
+            .load(CoverFileHelper.getFile(song.coverFileName))
             .into(holder.cover)
     }
 

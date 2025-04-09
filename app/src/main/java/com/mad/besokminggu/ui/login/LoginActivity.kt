@@ -54,7 +54,7 @@ class LoginActivity : AppCompatActivity() {
             runOnUiThread {
                 println("---------------- ERROR --------------")
                 println(message)
-                binding.loadingContainer.visibility = View.GONE
+                binding.loadingContainer?.visibility = View.GONE
                 showLoginFailed("Error! $message")
             }
         }
@@ -128,14 +128,14 @@ class LoginActivity : AppCompatActivity() {
         authViewModel.loginResponse.observe(this@LoginActivity) {
             when (it) {
                 is ApiResponse.Failure -> {
-                    loading.visibility = View.GONE
+                    loading?.visibility = View.GONE
                     println("-------------- ERROR --------------")
                     println(it.code)
                     println(it.errorMessage)
                     showLoginFailed(it.errorMessage)
                 }
                 is ApiResponse.Loading -> {
-                    loading.visibility = View.VISIBLE
+                    loading?.visibility = View.VISIBLE
                 }
                 is ApiResponse.Success -> {
                     println("-------------- SUCCESS --------------")
@@ -163,7 +163,7 @@ class LoginActivity : AppCompatActivity() {
                 startActivity(intent)
             }
 
-            loading.visibility = View.GONE
+            loading?.visibility = View.GONE
         }
 
 
@@ -196,7 +196,7 @@ class LoginActivity : AppCompatActivity() {
             }
 
             loginButton.setOnClickListener {
-                loading.visibility = View.VISIBLE
+                loading?.visibility = View.VISIBLE
                 if (loginButton.isEnabled){
                     authViewModel.login(
                         LoginBody(email.text.toString(), password.text.toString()),

@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mad.besokminggu.R
 import com.mad.besokminggu.manager.AudioPlayerManager
 import com.mad.besokminggu.data.model.Song
+import com.mad.besokminggu.ui.adapter.SongWithMenuAdapter
+import com.mad.besokminggu.ui.optionMenu.SongActionSheet
 import com.mad.besokminggu.viewModels.HomeViewModel
 import com.mad.besokminggu.viewModels.SongTracksViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -38,9 +40,25 @@ class HomeFragment : Fragment() {
 
     private fun onSongClick(song: Song){
         Log.d("MiniPlayer", "Song playing: ${song.title}")
-        songViewModel.resetPrevQueue();
-        songViewModel.playSong(song);
-        songViewModel.showFullPlayer();
+        if(song.id != songViewModel.playedSong.value?.id){
+            songViewModel.playSong(song);
+        }
+        songViewModel.showFullPlayer()
+
+    }
+
+    fun onOpenSheet(song : Song){
+        SongActionSheet(
+            song = song,
+            onQueue = {
+                songViewModel.addToNextQueue(song)
+            },
+            onDelete = {
+                lifecycleScope.launch {
+                    songViewModel.deleteSong(song)
+                }
+            }
+        ).show(parentFragmentManager, "SongActionSheet")
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -53,10 +71,14 @@ class HomeFragment : Fragment() {
             onSongClick(song)
         }
 
-        val recentlyPlayedAdapter = RecentlyAdapter { song ->
-            onSongClick(song)
-        }
-
+        val recentlyPlayedAdapter = SongWithMenuAdapter(
+            onItemClick = { song ->
+                onSongClick(song)
+            },
+            onMenuClick = {song ->
+                onOpenSheet(song)
+            },
+        )
 
         rvNewSongs.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         rvNewSongs.adapter = newSongsAdapter

@@ -2,23 +2,23 @@ package com.mad.besokminggu
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
 import android.widget.ImageButton
-import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
-import android.util.Log
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentContainerView
 import androidx.navigation.findNavController
 
 import androidx.navigation.ui.setupWithNavController
-import androidx.transition.Visibility
 import com.mad.besokminggu.databinding.ActivityMainBinding
-import com.mad.besokminggu.worker.RefreshTokenWorker
+import com.mad.besokminggu.manager.AudioFileHelper
+import com.mad.besokminggu.manager.AudioPlayerManager
+import com.mad.besokminggu.manager.CoverFileHelper
 import com.mad.besokminggu.manager.FileHelper
+import com.mad.besokminggu.ui.viewTracks.MiniPlayerView
 import com.mad.besokminggu.viewModels.SongTracksViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -27,33 +27,35 @@ class MainActivity : AppCompatActivity() {
 
     private val songViewModel : SongTracksViewModel by viewModels()
 
-
     fun onOpenTrackSong(){
+        val fullPlayer = binding.fullPlayer
+        if(fullPlayer == null)return
 
-        binding.fullPlayer?.translationY = binding.fullPlayer?.height!!.toFloat()
-        binding.fullPlayer?.alpha = 0f
-        binding.fullPlayer?.visibility = View.VISIBLE
-        binding.fullPlayer?.animate()
-            ?.translationY(0f)
-            ?.alpha(1f)
-            ?.setDuration(300)
-            ?.start()
+        fullPlayer.translationY = fullPlayer.height.toFloat()
+        fullPlayer.alpha = 0f
+        fullPlayer.visibility = View.VISIBLE
+        fullPlayer.animate()
+            .translationY(0f)
+            .alpha(1f)
+            .setDuration(300)
+            .start()
         binding.miniPlayer.visibility = View.GONE
     }
 
     fun onCloseTrackSong(){
-        if(binding.fullPlayer == null){
-            return;
+        val fullPlayer = binding.fullPlayer
+        if(fullPlayer == null){
+            return
         }
 
-        binding.fullPlayer!!.animate()
-            .translationY(binding.fullPlayer!!.height.toFloat())
+        fullPlayer.animate()
+            .translationY(fullPlayer.height.toFloat())
             .alpha(0f)
             .setDuration(300)
             .withEndAction {
-                binding.fullPlayer!!.visibility = View.GONE
-                binding.fullPlayer!!.translationY = 0f
-                binding.fullPlayer!!.alpha = 1f
+                fullPlayer.visibility = View.GONE
+                fullPlayer.translationY = 0f
+                fullPlayer.alpha = 1f
                 if(songViewModel.isAnySongPlayed()){
                     binding.miniPlayer.visibility = View.VISIBLE
                 }else{
@@ -72,8 +74,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val navView: BottomNavigationView? = binding.navView
+        val fullPlayer : FragmentContainerView? = binding.fullPlayer
+        val miniPlayer : MiniPlayerView = binding.miniPlayer
 
-        // Wait until views are loaded
+            // Wait until views are loaded
         binding.root.post {
             val navController = findNavController(R.id.nav_host_fragment_activity_main)
 
@@ -85,35 +89,45 @@ class MainActivity : AppCompatActivity() {
             sideNavView?.setNavigationItemSelectedListener { menuItem ->
                 menuItem.isChecked = true
                 navController.navigate(menuItem.itemId)
+                onCloseTrackSong()
                 true
             }
         }
 
-        binding.miniPlayer.visibility = View.GONE;
-        binding.fullPlayer?.visibility = View.GONE;
+        miniPlayer.visibility = View.GONE
+        fullPlayer?.visibility = View.GONE
 
-        binding.miniPlayer.setOnClickListener {
+        miniPlayer.setOnClickListener {
             songViewModel.showFullPlayer()
         }
 
-        binding.miniPlayer.observeViewModel();
+        miniPlayer.observeViewModel()
 
         songViewModel.isFullPlayerVisible.observe(this) { isVisible ->
             if (isVisible){
-                onOpenTrackSong();
+                onOpenTrackSong()
                 binding.miniPlayer.visibility = View.GONE
 
             }else{
-                onCloseTrackSong();
+                onCloseTrackSong()
             }
 
         }
 
-        binding.fullPlayer?.post {
-            val closeButton : ImageButton = binding.fullPlayer!!.findViewById(R.id.collapse_button)
+        fullPlayer?.post {
+            val closeButton : ImageButton = fullPlayer.findViewById(R.id.collapse_button)
             closeButton.setOnClickListener {
                 songViewModel.hideFullPlayer()
             }
         }
+
+        songViewModel.anySongDeleted.observe (this){song ->
+            AudioFileHelper.deleteFile(song.audioFileName)
+            CoverFileHelper.deleteFile(song.coverFileName)
+            AudioPlayerManager.stop()
+
+            Toast.makeText(this, "Song ${song.title} has been deleted", Toast.LENGTH_SHORT).show()
+        }
+
     }
 }

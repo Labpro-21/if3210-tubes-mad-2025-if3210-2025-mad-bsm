@@ -38,16 +38,19 @@ class LibraryFragment : Fragment() {
 
     private fun onSongClick(song: Song){
         Log.d("MiniPlayer", "Song playing: ${song.title}")
-        songViewModel.resetPrevQueue();
-        songViewModel.playSong(song);
-        songViewModel.showFullPlayer();
+        if(song.id != songViewModel.playedSong.value?.id){
+            songViewModel.playSong(song);
+        }
+        songViewModel.showFullPlayer()
     }
 
     fun onOpenSheet(song : Song){
         SongActionSheet(
             song = song,
             onQueue = {
-                songViewModel.addToNextQueue(song)
+                lifecycleScope.launch {
+                    songViewModel.addToNextQueue(song)
+                }
             },
             onDelete = {
                 lifecycleScope.launch {

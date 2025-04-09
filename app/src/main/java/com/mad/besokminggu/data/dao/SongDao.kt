@@ -43,4 +43,8 @@ interface SongDao {
     @Query("SELECT COUNT(*) FROM songs")
     suspend fun getSongsCount(): Int
 
+    @Query("SELECT * FROM songs WHERE id != :excludeId ORDER BY RANDOM() LIMIT 1")
+    suspend fun getRandomSongExcluding(excludeId: Int): Song?
+
+
 }

@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.mad.besokminggu.R
 import com.mad.besokminggu.data.model.Song
+import com.mad.besokminggu.manager.CoverFileHelper
 import com.mad.besokminggu.manager.FileHelper
 
 class NewSongAdapter(
@@ -36,7 +37,7 @@ class NewSongAdapter(
 
         holder.tvTitle.text = song.title
         holder.tvArtist.text = song.artist
-        Glide.with(holder.itemView.context).load(FileHelper.getCoverImage(song.coverFileName)).into(holder.ivCover)
+        Glide.with(holder.itemView.context).load(CoverFileHelper.getFile(song.coverFileName)).into(holder.ivCover)
 
         holder.tvTitle.isSelected = true
         holder.tvArtist.isSelected = true

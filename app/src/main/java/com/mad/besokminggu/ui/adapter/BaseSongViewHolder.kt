@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.mad.besokminggu.R
 import com.mad.besokminggu.data.model.Song
+import com.mad.besokminggu.manager.CoverFileHelper
 import com.mad.besokminggu.manager.FileHelper
 
 open class BaseSongViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -18,7 +19,7 @@ open class BaseSongViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         title.text = song.title
         artist.text = song.artist
         Glide.with(itemView.context)
-            .load(FileHelper.getCoverImage(song.coverFileName))
+            .load(CoverFileHelper.getFile(song.coverFileName))
             .into(cover)
 
         itemView.setOnClickListener { onClick(song) }

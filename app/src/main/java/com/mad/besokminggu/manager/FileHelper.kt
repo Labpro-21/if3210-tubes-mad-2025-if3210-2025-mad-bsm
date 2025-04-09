@@ -1,14 +1,10 @@
 package com.mad.besokminggu.manager
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import android.webkit.MimeTypeMap
-import androidx.core.content.ContentProviderCompat.requireContext
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 
@@ -72,18 +68,6 @@ object FileHelper {
         return file;
     }
 
-    fun getAudioFile(audioFileName: String): File? {
-        val file = getFile(audioFileName, "audio")
-        return if (file.exists()) file else null
-    }
-
-
-    fun getCoverImage(coverFileName: String): File? {
-        val file = getFile(coverFileName, "cover")
-        return if (file.exists()) file else null
-    }
-
-
     fun getFileExtension(context: Context, uri: Uri): String {
         val type = context.contentResolver.getType(uri)
         return if (type != null) {
@@ -94,14 +78,8 @@ object FileHelper {
         }
     }
 
-    fun listFiles(subDir: String): List<File> {
-        val dir = validateDir(subDir)
-        return dir.listFiles()?.toList() ?: emptyList()
-    }
-
     fun deleteFile(fileName: String, subDir: String): Boolean {
         val file = File(validateDir(subDir), fileName)
         return file.exists() && file.delete()
     }
-
 }

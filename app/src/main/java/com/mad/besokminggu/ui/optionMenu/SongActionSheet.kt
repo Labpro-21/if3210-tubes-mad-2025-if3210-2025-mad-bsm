@@ -12,6 +12,7 @@ import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.mad.besokminggu.R
 import com.mad.besokminggu.data.model.Song
+import com.mad.besokminggu.manager.CoverFileHelper
 import com.mad.besokminggu.manager.FileHelper
 
 class SongActionSheet(
@@ -40,7 +41,7 @@ class SongActionSheet(
         title.text = song.title
         artist.text = song.artist
         Glide.with(requireContext())
-            .load(FileHelper.getCoverImage(song.coverFileName))
+            .load(CoverFileHelper.getFile(song.coverFileName))
             .into(cover)
 
         queue.setOnClickListener {

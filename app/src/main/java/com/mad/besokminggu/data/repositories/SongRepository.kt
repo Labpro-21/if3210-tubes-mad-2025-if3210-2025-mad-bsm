@@ -1,6 +1,6 @@
 package com.mad.besokminggu.data.repositories
 
-import android.health.connect.datatypes.units.Length
+
 import androidx.lifecycle.LiveData
 import com.mad.besokminggu.data.dao.SongDao
 import com.mad.besokminggu.data.model.Song
@@ -9,18 +9,12 @@ import javax.inject.Inject
 class SongRepository @Inject constructor(private val songDao: SongDao) {
     val allSongs: LiveData<List<Song>> = songDao.getAllSongs()
 
-    suspend fun insertDummySongsIfEmpty(dummySongs: List<Song>) {
-        if(isEmpty()) {
-            songDao.insertAll(dummySongs)
-        }
-    }
-
     suspend fun insert(song: Song) {
         songDao.insert(song)
     }
 
     suspend fun update(song: Song){
-        songDao.update(song);
+        songDao.update(song)
     }
 
     suspend fun deleteAllSongs() {
@@ -43,4 +37,9 @@ class SongRepository @Inject constructor(private val songDao: SongDao) {
     suspend fun isEmpty(): Boolean {
         return songDao.getSongsCount() == 0
     }
+
+    suspend fun getNextRandomSong(currentSong: Song): Song {
+        return songDao.getRandomSongExcluding(currentSong.id) ?: songDao.getFirstSong()
+    }
+
 }

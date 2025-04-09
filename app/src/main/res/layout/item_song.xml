@@ -30,15 +30,16 @@
         android:orientation="vertical"
         android:layout_weight="1"
         >
-            <TextView
-                android:id="@+id/songTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Song Title"
-                android:textColor="@android:color/white"
-                android:textSize="16sp"
-                android:maxLines="1"
-                android:ellipsize="end"/>
+
+        <TextView
+            android:id="@+id/songTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/song_title"
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/songArtist"

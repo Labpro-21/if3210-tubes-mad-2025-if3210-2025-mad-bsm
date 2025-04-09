@@ -53,7 +53,6 @@ class ProfileFragment : Fragment() {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textProfile
         val logoutButton = binding.logoutButton
         val profileImage = binding.profileImage
         val textUsername = binding.textUsername
@@ -70,7 +69,7 @@ class ProfileFragment : Fragment() {
             when (profile) {
                 is ApiResponse.Success -> {
                     val userProfile = profile.data
-                    textView.text = userProfile.toString()
+
                     textUsername.text = userProfile.username
                     textLocation.text = userProfile.location
                     val imagePath = baseImageUrl + userProfile.profilePhoto
@@ -81,12 +80,12 @@ class ProfileFragment : Fragment() {
                         .into(profileImage)
                 }
                 is ApiResponse.Failure -> {
-                    textView.text = "Error: ${profile.errorMessage}"
+
                     textUsername.text = "No username available"
                     textLocation.text = "No location available"
                 }
                 is ApiResponse.Loading -> {
-                    textView.text = "Loading..."
+
                 }
             }
         }

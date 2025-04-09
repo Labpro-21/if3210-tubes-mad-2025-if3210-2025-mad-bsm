@@ -92,7 +92,13 @@ class MainActivity : AppCompatActivity() {
             val navController = findNavController(R.id.nav_host_fragment_activity_main)
 
             // Setup for BottomNavigationView (portrait)
-            navView?.setupWithNavController(navController)
+//            navView?.setupWithNavController(navController)
+            navView?.setOnNavigationItemSelectedListener{menuItem ->
+                onCloseTrackSong()
+                navController.navigate(menuItem.itemId)
+                menuItem.isChecked = true
+                true
+            }
 
             // Setup for NavigationView (landscape)
             val sideNavView = findViewById<com.google.android.material.navigation.NavigationView>(R.id.side_nav_view)

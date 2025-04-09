@@ -18,6 +18,7 @@ import com.mad.besokminggu.data.model.Song
 import com.mad.besokminggu.manager.AudioPlayerManager
 import com.mad.besokminggu.databinding.FragmentTrackViewBinding
 import com.mad.besokminggu.manager.AudioFileHelper
+import com.mad.besokminggu.manager.CoverFileHelper
 import com.mad.besokminggu.viewModels.RepeatMode
 import com.mad.besokminggu.viewModels.SongTracksViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -89,7 +90,7 @@ class ViewTrackFragment : Fragment(){
             songTitle.text = song.title
             songSinger.text = song.artist
             Glide.with(requireContext())
-                .load(AudioFileHelper.getFile(song.coverFileName))
+                .load(CoverFileHelper           .getFile(song.coverFileName))
                 .into(songImage)
 
             // Love Button

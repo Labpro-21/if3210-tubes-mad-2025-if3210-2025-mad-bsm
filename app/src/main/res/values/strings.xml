@@ -12,4 +12,7 @@
     <string name="invalid_email">Not a valid email</string>
     <string name="invalid_password">Password must be >=8 characters</string>
     <string name="login_failed">"Login failed"</string>
+    <string name="title_new_songs">New songs</string>
+    <string name="cover_image">Song cover image</string>
+    <string name="recently_played">Recently played</string>
 </resources>

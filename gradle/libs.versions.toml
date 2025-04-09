@@ -2,7 +2,7 @@
 activityKtx = "1.8.0"
 agp = "8.7.3"
 glide = "4.16.0"
-hiltAndroid = "2.51.1"
+hiltAndroid = "2.50"
 kotlin = "1.9.24"
 #noinspection GradleDependency
 coreKtx = "1.13.0"
@@ -27,6 +27,8 @@ roomCompilerProcessingTesting = "2.6.1"
 workRuntimeKtx = "2.9.0"
 hiltCommon = "1.2.0"
 hiltWork = "1.2.0"
+room = "2.6.1"
+roomCommon = "2.6.1"
 
 [libraries]
 androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityKtx" }
@@ -56,6 +58,11 @@ androidx-annotation = { group = "androidx.annotation", name = "annotation", vers
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 identity-jvm = { group = "com.android.identity", name = "identity-jvm", version.ref = "identityJvm" }
 androidx-room-compiler-processing-testing = { group = "androidx.room", name = "room-compiler-processing-testing", version.ref = "roomCompilerProcessingTesting" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
+androidx-room-common = { group = "androidx.room", name = "room-common", version.ref = "roomCommon" }
 androidx-hilt-common = { group = "androidx.hilt", name = "hilt-common", version.ref = "hiltCommon" }
 androidx-hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hiltWork" }
 

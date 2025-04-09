@@ -1,24 +1,31 @@
 package com.mad.besokminggu
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.viewModels
+import android.util.Log
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentContainerView
 import androidx.navigation.findNavController
 
 import androidx.navigation.ui.setupWithNavController
+import androidx.transition.Visibility
 import com.mad.besokminggu.databinding.ActivityMainBinding
 import com.mad.besokminggu.manager.AudioFileHelper
 import com.mad.besokminggu.manager.AudioPlayerManager
 import com.mad.besokminggu.manager.CoverFileHelper
 import com.mad.besokminggu.manager.FileHelper
 import com.mad.besokminggu.ui.viewTracks.MiniPlayerView
+import com.mad.besokminggu.ui.login.LoginActivity
 import com.mad.besokminggu.viewModels.SongTracksViewModel
+import com.mad.besokminggu.viewModels.TokenViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -26,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     private val songViewModel : SongTracksViewModel by viewModels()
+    private val tokenViewModel: TokenViewModel by viewModels()
 
     fun onOpenTrackSong(){
         val fullPlayer = binding.fullPlayer
@@ -94,6 +102,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // Check Token
+        tokenViewModel._accessToken.observe(this) {token ->
+            if (token == null) {
+                Log.d("MainActivity", "Token is null, starting LoginActivity")
+                val intent = Intent(this, LoginActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
+        }
         miniPlayer.visibility = View.GONE
         fullPlayer?.visibility = View.GONE
 
@@ -106,7 +123,7 @@ class MainActivity : AppCompatActivity() {
         songViewModel.isFullPlayerVisible.observe(this) { isVisible ->
             if (isVisible){
                 onOpenTrackSong()
-                binding.miniPlayer.visibility = View.GONE
+                miniPlayer.visibility = View.GONE
 
             }else{
                 onCloseTrackSong()

@@ -29,11 +29,15 @@ class TokenViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            tokenManager.getToken().collect{
-                withContext(Dispatchers.Main) {
-                    _accessToken.value = it.first
-                    _refreshToken.value = it.second
-                }
+            getToken()
+        }
+    }
+
+    suspend fun getToken(){
+        tokenManager.getToken().collect{
+            withContext(Dispatchers.Main) {
+                _accessToken.value = it.first
+                _refreshToken.value = it.second
             }
         }
     }

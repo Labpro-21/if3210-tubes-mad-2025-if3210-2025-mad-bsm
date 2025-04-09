@@ -3,6 +3,7 @@ package com.mad.besokminggu.ui.profile
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,8 +29,7 @@ class ProfileFragment : Fragment() {
 
     private val errorHandler = object : CoroutinesErrorHandler {
         override fun onError(message: String) {
-            println("---------------- ERROR --------------")
-            println(message)
+            Log.e("PROFILE_FRAGMENT", message)
             Toast.makeText(null, "Error! $message", Toast.LENGTH_SHORT).show()
         }
     }
@@ -95,13 +95,13 @@ class ProfileFragment : Fragment() {
 
         // Observe Song data
         profileViewModel.likedSongsCount.observe(viewLifecycleOwner) { count ->
-            listenedSongsCount.text = count.toString()
+            listenedSongsCount?.text = count.toString()
         }
         profileViewModel.songsCount.observe(viewLifecycleOwner) { count ->
-            totalSongsCount.text = count.toString()
+            totalSongsCount?.text = count.toString()
         }
         profileViewModel.listenedSongsCount.observe(viewLifecycleOwner) { count ->
-            likedSongsCount.text = count.toString()
+            likedSongsCount?.text = count.toString()
         }
         profileViewModel.loadCounts()
 

@@ -3,6 +3,7 @@ package com.mad.besokminggu.network
 import android.content.SharedPreferences
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import android.util.Log
 import com.mad.besokminggu.data.model.Profile
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -60,7 +61,7 @@ class SessionManager @Inject constructor(
                 apply()
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("SESSION_MANAGER",e.message.toString())
         }
     }
 
@@ -92,7 +93,7 @@ class SessionManager @Inject constructor(
 
             emit(Pair(decryptedAccessToken, decryptedRefreshToken))
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("SESSION_MANAGER",e.message.toString())
             return@flow
         }
     }
@@ -116,7 +117,7 @@ class SessionManager @Inject constructor(
 
             emit(decryptedAccessToken)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("SESSION_MANAGER",e.message.toString())
             return@flow
         }
 
@@ -141,7 +142,7 @@ class SessionManager @Inject constructor(
 
             emit(decryptedAccessToken)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("SESSION_MANAGER",e.message.toString())
             return@flow
         }
     }

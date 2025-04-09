@@ -52,8 +52,7 @@ class LoginActivity : AppCompatActivity() {
     private val errorHandler = object : CoroutinesErrorHandler {
         override fun onError(message: String) {
             runOnUiThread {
-                println("---------------- ERROR --------------")
-                println(message)
+                Log.e("LOGIN_ACTIVITY", "Error :  ${message}")
                 binding.loadingContainer?.visibility = View.GONE
                 showLoginFailed("Error! $message")
             }
@@ -103,7 +102,7 @@ class LoginActivity : AppCompatActivity() {
 
         // Register Connection State Monitor
         try {
-            println("-------------- Registering Connection Monitor --------------")
+            Log.d("LOGIN_ACTIVITY", "Registering Connection Monitor")
             connectionMonitor.enable()
         } catch (e: SecurityException) {
             // Handle case where permission is missing
@@ -129,17 +128,14 @@ class LoginActivity : AppCompatActivity() {
             when (it) {
                 is ApiResponse.Failure -> {
                     loading?.visibility = View.GONE
-                    println("-------------- ERROR --------------")
-                    println(it.code)
-                    println(it.errorMessage)
+                    Log.e("LOGIN_ACTIVITY", "Status : ${it.code} | Message: ${it.errorMessage}",)
                     showLoginFailed(it.errorMessage)
                 }
                 is ApiResponse.Loading -> {
                     loading?.visibility = View.VISIBLE
                 }
                 is ApiResponse.Success -> {
-                    println("-------------- SUCCESS --------------")
-                    println(it)
+                    Log.d("LOGIN_ACTIVITY", "Successfully Login",)
 
                     lifecycleScope.launch {
                         tokenViewModel.saveToken(it.data.accessToken, it.data.refreshToken)
@@ -224,17 +220,14 @@ class LoginActivity : AppCompatActivity() {
         userViewModel.profileResponse.observe(this@LoginActivity, Observer { it ->
             when (it) {
                 is ApiResponse.Failure -> {
-                    println("-------------- ERROR --------------")
-                    println(it.code)
-                    println(it.errorMessage)
+                    Log.e("LOGIN_ACTIVITY", "Status : ${it.code} | Message: ${it.errorMessage}")
                     showLoginFailed(it.errorMessage)
                 }
                 is ApiResponse.Loading -> {
                     binding.loadingContainer?.visibility = View.VISIBLE
                 }
                 is ApiResponse.Success -> {
-                    println("-------------- SUCCESS --------------")
-                    println(it)
+                    Log.d("LOGIN_ACTIVITY", "Successfully Login",)
                     binding.loadingContainer?.visibility = View.GONE
 
                     // Initiate successful logged-in experience
@@ -282,7 +275,8 @@ class LoginActivity : AppCompatActivity() {
 
             snackbar.show()
         } catch (e: Exception) {
-            println("Error showing Snackbar: ${e.message}")
+
+            Log.e("LOGIN_ACTIVITY", "Error showing Snackbar: ${e.message}")
         }
     }
 }

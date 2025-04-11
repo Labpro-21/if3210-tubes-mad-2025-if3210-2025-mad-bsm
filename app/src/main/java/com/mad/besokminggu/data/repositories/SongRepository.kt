@@ -16,7 +16,6 @@ class SongRepository @Inject constructor(private val songDao: SongDao) {
     val allSongs: LiveData<List<Song>> get() = _allSongs.value ?: MutableLiveData()
 
     fun getAllSongs(ownerId: Int): LiveData<List<Song>> {
-        Log.d("VALEN GET ALL SONG", "ownerId: $ownerId")
         return songDao.getAllSongs(ownerId)
     }
 

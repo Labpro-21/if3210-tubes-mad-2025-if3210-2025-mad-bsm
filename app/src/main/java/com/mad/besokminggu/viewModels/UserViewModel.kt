@@ -39,7 +39,6 @@ class UserViewModel @Inject constructor(
                     Log.e("USER_VIEW_MODEL", "Error :  ${message}")
                 }
             })
-            getProfileData()
         }
     }
 
@@ -50,26 +49,15 @@ class UserViewModel @Inject constructor(
         protectedRepository.getProfile()
     }
 
-    fun getProfileData() : Profile {
-        var profile = Profile(
-            id = -2,
-            username = "",
-            email = "",
-            profilePhoto = "",
-            location = "",
-            createdAt = Date(),
-            updatedAt = Date()
-        )
-
+    fun getProfileData() {
         viewModelScope.launch(Dispatchers.IO) {
             val response = protectedRepository.getProfile()
             response.collect { apiResponse ->
                 when (apiResponse) {
                     is ApiResponse.Success -> {
                         val profileResponse = apiResponse.data
-                        _profileImagePath.postValue(profile.profilePhoto)
-                        profile = profileResponse
-                        tokenManager.storeUserProfile(profile)
+                        _profileImagePath.postValue(profileResponse.profilePhoto)
+                        tokenManager.storeUserProfile(profileResponse)
                     }
                     is ApiResponse.Failure -> {
 
@@ -81,8 +69,6 @@ class UserViewModel @Inject constructor(
                 }
             }
         }
-
-        return profile
     }
 
 }

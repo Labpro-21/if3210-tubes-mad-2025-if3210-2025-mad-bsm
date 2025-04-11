@@ -23,17 +23,18 @@ class HomeViewModel @Inject constructor(
     private val tokenManager: SessionManager
 ): ViewModel() {
 
-    val profile = tokenManager.getUserProfile()
+    var profile = tokenManager.getUserProfile()
     var allSongs: LiveData<List<Song>> = songRepository.getAllSongs(profile?.id ?: -1)
 
+    val _newSongs = MutableLiveData<List<Song>>()
+    val newSongs: LiveData<List<Song>> = _newSongs
 
-    val newSongs: LiveData<List<Song>> = allSongs.map { songs ->
-        songs.filter { it.lastPlayedAt == null }
-    }
+    val _recentlyPlayed = MutableLiveData<List<Song>>()
+    val recentlyPlayed: LiveData<List<Song>> = _recentlyPlayed
 
-    val recentlyPlayed: LiveData<List<Song>> = allSongs.map{ songs ->
-        songs.filter { it.lastPlayedAt != null }
-            .sortedByDescending { it.lastPlayedAt }
+    fun refreshSong(ownerId: Int) {
+        profile = tokenManager.getUserProfile()
+        allSongs = songRepository.getAllSongs(ownerId)
     }
 
 }

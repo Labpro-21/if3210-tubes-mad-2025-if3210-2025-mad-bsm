@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.map
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mad.besokminggu.R
@@ -18,6 +19,7 @@ import com.mad.besokminggu.ui.adapter.SongWithMenuAdapter
 import com.mad.besokminggu.ui.optionMenu.SongActionSheet
 import com.mad.besokminggu.viewModels.HomeViewModel
 import com.mad.besokminggu.viewModels.SongTracksViewModel
+import com.mad.besokminggu.viewModels.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -27,7 +29,8 @@ class HomeFragment : Fragment() {
     private lateinit var rvNewSongs: RecyclerView
     private lateinit var rvRecentlyPlayed: RecyclerView
 
-    private val homeViewModel: HomeViewModel by activityViewModels()
+    private val  homeViewModel: HomeViewModel by activityViewModels()
+    private val userViewModel: UserViewModel by activityViewModels()
     private val songViewModel : SongTracksViewModel by activityViewModels()
 
 
@@ -87,10 +90,32 @@ class HomeFragment : Fragment() {
         rvRecentlyPlayed.adapter = recentlyPlayedAdapter
 
 
-        homeViewModel.allSongs.observe(viewLifecycleOwner){ songs ->
-            songs.forEach { song ->
-                Log.d("VALEN GANTENG", "${song.title} | Owner : ${song.ownerId}")
+        userViewModel.profile.observe(viewLifecycleOwner) {
+            homeViewModel.refreshSong(it.id)
+
+            homeViewModel.allSongs.observe(viewLifecycleOwner) { songs ->
+                val newSongs = songs.filter { newSong ->
+                    newSong.lastPlayedAt == null
+                }
+                homeViewModel._newSongs.postValue(newSongs)
+
+                val recentlyPlayedSongs = songs
+                    .filter { it.lastPlayedAt != null }
+                    .sortedByDescending { it.lastPlayedAt }
+                homeViewModel._recentlyPlayed.postValue(recentlyPlayedSongs)
             }
+        }
+
+        homeViewModel.allSongs.observe(viewLifecycleOwner){ songs ->
+            val newSongs = songs.filter { newSong ->
+                newSong.lastPlayedAt == null
+            }
+            homeViewModel._newSongs.postValue(newSongs)
+
+            val recentlyPlayedSongs = songs
+                .filter { it.lastPlayedAt != null }
+                .sortedByDescending { it.lastPlayedAt }
+            homeViewModel._recentlyPlayed.postValue(recentlyPlayedSongs)
         }
 
         homeViewModel.newSongs.observe(viewLifecycleOwner) { songs ->

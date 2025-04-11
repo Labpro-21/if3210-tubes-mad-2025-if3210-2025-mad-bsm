@@ -144,6 +144,8 @@ class LoginActivity : AppCompatActivity() {
 
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
+
+                    finish()
                 }
             }
         }
@@ -157,6 +159,8 @@ class LoginActivity : AppCompatActivity() {
 
                 val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
+
+                finish()
             }
 
             loading?.visibility = View.GONE
@@ -228,8 +232,12 @@ class LoginActivity : AppCompatActivity() {
                 }
                 is ApiResponse.Success -> {
                     Log.d("LOGIN_ACTIVITY", "Successfully Login",)
-                    binding.loadingContainer?.visibility = View.GONE
 
+                    userViewModel._profile.value = it.data
+
+                    userViewModel.getProfileData()
+
+                    binding.loadingContainer?.visibility = View.GONE
                     // Initiate successful logged-in experience
                     Toast.makeText(applicationContext, "$welcome ${it.data.username}", Toast.LENGTH_LONG).show()
                 }

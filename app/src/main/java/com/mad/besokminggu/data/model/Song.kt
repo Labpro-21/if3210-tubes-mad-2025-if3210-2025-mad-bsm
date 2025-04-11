@@ -12,6 +12,7 @@ data class Song(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val title: String,
     val artist: String,
+    val ownerId: Int,
     val coverFileName: String = "",
     val audioFileName: String = "",
     val isLiked: Boolean = false,

@@ -27,7 +27,7 @@ class HomeFragment : Fragment() {
     private lateinit var rvNewSongs: RecyclerView
     private lateinit var rvRecentlyPlayed: RecyclerView
 
-    private val homeViewModel: HomeViewModel by viewModels()
+    private val homeViewModel: HomeViewModel by activityViewModels()
     private val songViewModel : SongTracksViewModel by activityViewModels()
 
 
@@ -85,6 +85,13 @@ class HomeFragment : Fragment() {
 
         rvRecentlyPlayed.layoutManager = LinearLayoutManager(requireContext())
         rvRecentlyPlayed.adapter = recentlyPlayedAdapter
+
+
+        homeViewModel.allSongs.observe(viewLifecycleOwner){ songs ->
+            songs.forEach { song ->
+                Log.d("VALEN GANTENG", "${song.title} | Owner : ${song.ownerId}")
+            }
+        }
 
         homeViewModel.newSongs.observe(viewLifecycleOwner) { songs ->
             newSongsAdapter.updateSongs(songs)

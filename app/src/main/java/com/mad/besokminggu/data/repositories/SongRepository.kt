@@ -1,13 +1,24 @@
 package com.mad.besokminggu.data.repositories
 
 import android.health.connect.datatypes.units.Length
+import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.map
 import com.mad.besokminggu.data.dao.SongDao
 import com.mad.besokminggu.data.model.Song
+import com.mad.besokminggu.viewModels.UserViewModel
 import javax.inject.Inject
 
 class SongRepository @Inject constructor(private val songDao: SongDao) {
-    val allSongs: LiveData<List<Song>> = songDao.getAllSongs()
+
+    private val _allSongs = MutableLiveData<LiveData<List<Song>>>()
+    val allSongs: LiveData<List<Song>> get() = _allSongs.value ?: MutableLiveData()
+
+    fun getAllSongs(ownerId: Int): LiveData<List<Song>> {
+        Log.d("VALEN GET ALL SONG", "ownerId: $ownerId")
+        return songDao.getAllSongs(ownerId)
+    }
 
     suspend fun insert(song: Song) {
         songDao.insert(song)
@@ -25,30 +36,29 @@ class SongRepository @Inject constructor(private val songDao: SongDao) {
         return songDao.getSong(id);
     }
 
-    fun getLikedSongsCount() : LiveData<Int> {
-        return songDao.getLikedSongsCount()
+    fun getLikedSongsCount(ownerId: Int) : LiveData<Int> {
+        return songDao.getLikedSongsCount(ownerId)
     }
 
-    fun getTotalSongsCount() : LiveData<Int>{
-        return songDao.getSongsCount()
+    fun getTotalSongsCount(ownerId: Int) : LiveData<Int>{
+        return songDao.getSongsCount(ownerId)
     }
 
-    fun getListenedSongsCount() : LiveData<Int>{
-        return songDao.getListenedSongsCount()
+    fun getListenedSongsCount(ownerId: Int) : LiveData<Int>{
+        return songDao.getListenedSongsCount(ownerId)
     }
 
     suspend fun deleteSong(song: Song){
         songDao.delete(song)
     }
 
-    suspend fun getNextIteratedSong(currentSong : Song) : Song{
-        val nextSong = songDao.getNextIdSong(currentSong.id)
-        return nextSong ?: songDao.getFirstSong()
+    suspend fun getNextIteratedSong(currentSong : Song, ownerId: Int) : Song{
+        val nextSong = songDao.getNextIdSong(currentSong.id, ownerId)
+        return nextSong ?: songDao.getFirstSong(ownerId)
     }
 
-
-    suspend fun getNextRandomSong(currentSong: Song): Song {
-        return songDao.getRandomSongExcluding(currentSong.id) ?: songDao.getFirstSong()
+    suspend fun getNextRandomSong(currentSong: Song, ownerId: Int): Song {
+        return songDao.getRandomSongExcluding(currentSong.id, ownerId) ?: songDao.getFirstSong(ownerId)
     }
 
 }

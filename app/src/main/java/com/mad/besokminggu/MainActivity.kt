@@ -21,10 +21,12 @@ import com.mad.besokminggu.manager.AudioFileHelper
 import com.mad.besokminggu.manager.AudioPlayerManager
 import com.mad.besokminggu.manager.CoverFileHelper
 import com.mad.besokminggu.manager.FileHelper
+import com.mad.besokminggu.network.ApiResponse
 import com.mad.besokminggu.ui.viewTracks.MiniPlayerView
 import com.mad.besokminggu.ui.login.LoginActivity
 import com.mad.besokminggu.viewModels.SongTracksViewModel
 import com.mad.besokminggu.viewModels.TokenViewModel
+import com.mad.besokminggu.viewModels.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
@@ -35,6 +37,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     private val songViewModel : SongTracksViewModel by viewModels()
+    private val userViewModel : UserViewModel by viewModels()
     private val tokenViewModel: TokenViewModel by viewModels()
 
     fun onOpenTrackSong(){
@@ -158,6 +161,22 @@ class MainActivity : AppCompatActivity() {
             AudioPlayerManager.stop()
 
             Toast.makeText(this, "Song ${song.title} has been deleted", Toast.LENGTH_SHORT).show()
+        }
+
+
+        // User View
+        userViewModel.profileResponse.observe(this) { response ->
+            when (response) {
+                is ApiResponse.Success -> {
+                    userViewModel._profile.postValue(response.data)
+                }
+                is ApiResponse.Failure -> {
+
+                }
+                is ApiResponse.Loading -> {
+
+                }
+            }
         }
 
     }

@@ -94,13 +94,13 @@ class ProfileFragment : Fragment() {
 
         // Observe Song data
         profileViewModel.likedSongsCount.observe(viewLifecycleOwner) { count ->
-            listenedSongsCount?.text = count.toString()
+            likedSongsCount?.text = count.toString()
         }
         profileViewModel.songsCount.observe(viewLifecycleOwner) { count ->
             totalSongsCount?.text = count.toString()
         }
         profileViewModel.listenedSongsCount.observe(viewLifecycleOwner) { count ->
-            likedSongsCount?.text = count.toString()
+            listenedSongsCount?.text = count.toString()
         }
         profileViewModel.loadCounts()
 

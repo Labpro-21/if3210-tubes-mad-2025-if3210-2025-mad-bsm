@@ -84,6 +84,10 @@ class LibraryFragment : Fragment() {
         }
 
         libraryViewModel.songs.observe(viewLifecycleOwner) { songList ->
+            Log.d("VALEN LIBRARY", "onViewCreated: $songList")
+            songList.forEach {
+                Log.d("VALEN LIBRARY", "onViewCreated: ${it.title} | ${it.artist} | ${it.ownerId}")
+            }
             songAdapter.submitList(songList)
         }
 

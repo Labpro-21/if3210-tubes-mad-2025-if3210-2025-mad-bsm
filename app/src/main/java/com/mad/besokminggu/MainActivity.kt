@@ -8,20 +8,28 @@ import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.viewModels
 import android.util.Log
+import android.view.Gravity
+import android.widget.FrameLayout
+import android.widget.TextView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 
 import androidx.navigation.ui.setupWithNavController
 import androidx.transition.Visibility
+import com.google.android.material.snackbar.Snackbar
 import com.mad.besokminggu.databinding.ActivityMainBinding
 import com.mad.besokminggu.manager.AudioFileHelper
 import com.mad.besokminggu.manager.AudioPlayerManager
 import com.mad.besokminggu.manager.CoverFileHelper
 import com.mad.besokminggu.manager.FileHelper
 import com.mad.besokminggu.network.ApiResponse
+import com.mad.besokminggu.network.ConnectionStateMonitor
+import com.mad.besokminggu.network.OnNetworkAvailableCallbacks
 import com.mad.besokminggu.ui.viewTracks.MiniPlayerView
 import com.mad.besokminggu.ui.login.LoginActivity
 import com.mad.besokminggu.viewModels.SongTracksViewModel
@@ -39,6 +47,8 @@ class MainActivity : AppCompatActivity() {
     private val songViewModel : SongTracksViewModel by viewModels()
     private val userViewModel : UserViewModel by viewModels()
     private val tokenViewModel: TokenViewModel by viewModels()
+
+    private lateinit var connectionMonitor: ConnectionStateMonitor
 
     fun onOpenTrackSong(){
         val fullPlayer = binding.fullPlayer
@@ -113,6 +123,44 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // Initialize Connection State Monitor
+        connectionMonitor = ConnectionStateMonitor(this, object : OnNetworkAvailableCallbacks {
+            override fun onPositive() {
+                runOnUiThread {
+                    showSnackbar(
+                        "Internet connection is available.",
+                        binding.root,
+                        1
+                    )
+                }
+            }
+
+            override fun onNegative() {
+                runOnUiThread {
+                    showSnackbar(
+                        "No Internet Connection",
+                        binding.root,
+                        2
+                    )
+                }
+            }
+
+            override fun onError(s: String) {
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity, s, Toast.LENGTH_LONG).show()
+                }
+            }
+        })
+
+        // Register Connection State Monitor
+        try {
+            Log.d("LOGIN_ACTIVITY", "Registering Connection Monitor")
+            connectionMonitor.enable()
+        } catch (e: SecurityException) {
+            // Handle case where permission is missing
+            Toast.makeText(this, "Network monitoring not available", Toast.LENGTH_LONG).show()
+        }
+
         // Check Token
         tokenViewModel._accessToken.observe(this) {token ->
 
@@ -178,6 +226,60 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
 
+    override fun onPause() {
+        // Unregister
+        connectionMonitor.disable()
+        super.onPause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        connectionMonitor.disable()
+    }
+
+    /**
+     * Show a Snackbar with a message.
+     *
+     * @param message The message to display in the Snackbar.
+     * @param view The view to find a parent from.
+     * @param type The type of Snackbar (1 for short notice (e.g. connection available), 2 for indefinite (e.g. no connection)).
+     */
+    private fun showSnackbar(message: String, view: View, type: Int = 1) {
+        try {
+            val snackbar = Snackbar.make(
+                view,
+                message,
+                if (type == 1) Snackbar.LENGTH_SHORT else Snackbar.LENGTH_INDEFINITE
+            )
+
+            val snackbarView = snackbar.view
+            val params = snackbarView.layoutParams as FrameLayout.LayoutParams
+            params.gravity = Gravity.TOP
+            snackbarView.layoutParams = params
+
+            snackbarView.setPadding(16, 4, 16, 4)
+
+            val textView = snackbarView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+            textView.textSize = 18f
+            textView.setTextColor(ContextCompat.getColor(this, R.color.white))
+            textView.textAlignment = View.TEXT_ALIGNMENT_CENTER
+            textView.setPadding(0,0,0,0)
+
+            snackbar.setText(message)
+
+            snackbar.setBackgroundTint(
+                ContextCompat.getColor(
+                    this,
+                    if (type == 1) R.color.accent else R.color.muted
+                )
+            )
+
+            snackbar.show()
+        } catch (e: Exception) {
+
+            Log.e("LOGIN_ACTIVITY", "Error showing Snackbar: ${e.message}")
+        }
     }
 }

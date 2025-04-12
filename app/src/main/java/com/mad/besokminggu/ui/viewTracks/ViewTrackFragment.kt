@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -89,6 +90,9 @@ class ViewTrackFragment : Fragment(){
 
             songTitle.text = song.title
             songSinger.text = song.artist
+
+            songTitle.isSelected = true
+            songSinger.isSelected = true
             Glide.with(requireContext())
                 .load(CoverFileHelper           .getFile(song.coverFileName))
                 .into(songImage)

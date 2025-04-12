@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.core.content.ContextCompat
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
@@ -35,7 +36,6 @@ class LibraryFragment : Fragment() {
 
     private val songViewModel : SongTracksViewModel by activityViewModels()
     private val libraryViewModel : LibraryViewModel by activityViewModels()
-
 
     private lateinit var songAdapter: SongWithMenuAdapter
 
@@ -136,6 +136,10 @@ class LibraryFragment : Fragment() {
         binding.btnLiked.setOnClickListener {
             libraryViewModel.filterSongs(showLikedOnly = true)
             setButtonSelected(binding.btnLiked, binding.btnAll)
+        }
+
+        binding.searchBar!!.doOnTextChanged { text, _, _, _ ->
+            libraryViewModel.searchSongs(text.toString())
         }
     }
 

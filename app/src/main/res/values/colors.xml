@@ -22,6 +22,7 @@
 
 
     <color name="white">#FFFFFFFF</color>
+    <color name="black">#000000</color>
     <color name="link">#4286F4</color>
     <color name="light_blue_400">#FF29B6F6</color>
     <color name="light_blue_600">#FF039BE5</color>

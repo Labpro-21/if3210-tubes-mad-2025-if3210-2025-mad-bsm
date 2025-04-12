@@ -13,7 +13,8 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:padding="16dp"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="16dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -38,6 +39,37 @@
             android:contentDescription="Add item" />
     </LinearLayout>
 
+    <EditText
+        android:id="@+id/searchBar"
+        style="@style/EditTextStyle"
+        android:autofillHints="Search for a song here"
+        android:background="@drawable/background_input"
+        android:elegantTextHeight="true"
+        android:fontFamily="@font/poppins"
+        android:gravity="center_vertical"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp"
+        android:paddingVertical="10dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:selectAllOnFocus="true"
+        android:textSize="14sp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/search"
+        android:textColor="@android:color/white"
+        android:textColorHint="#AAAAAA"
+        android:inputType="text"
+        android:maxLines="1"
+        android:maxLength="40"
+        android:drawableStart="@drawable/edit_icon"
+        android:drawablePadding="8dp"
+        app:layout_constraintTop_toBottomOf="@id/headerLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:height="48dp"
+        android:layout_marginTop="12dp"/>
+
     <!-- Filter Buttons -->
     <LinearLayout
         android:id="@+id/filterButtonsLayout"
@@ -48,7 +80,7 @@
         android:layout_marginTop="12dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        app:layout_constraintTop_toBottomOf="@id/headerLayout"
+        app:layout_constraintTop_toBottomOf="@id/searchBar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 

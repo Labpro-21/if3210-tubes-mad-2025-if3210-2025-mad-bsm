@@ -138,7 +138,9 @@ class LibraryFragment : Fragment() {
 
     private fun setButtonSelected(selected: Button, other: Button) {
         selected.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.green)
+        selected.setTextColor(ContextCompat.getColorStateList(requireContext(), R.color.black))
         other.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.disabled_2)
+        other.setTextColor(ContextCompat.getColorStateList(requireContext(), R.color.white))
     }
 
     override fun onDestroyView() {

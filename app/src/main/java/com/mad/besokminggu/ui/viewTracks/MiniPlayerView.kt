@@ -99,9 +99,9 @@ class MiniPlayerView @JvmOverloads constructor(
         viewModel.isLiked.observe(lifecycleOwner) {
                 liked ->
             if(liked){
-                likeButton.setImageResource(R.drawable.love)
-            }else{
                 likeButton.setImageResource(R.drawable.love_icon_filled)
+            }else{
+                likeButton.setImageResource(R.drawable.love)
             }
         }
 

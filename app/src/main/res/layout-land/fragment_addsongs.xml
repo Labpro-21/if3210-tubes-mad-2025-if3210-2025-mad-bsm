@@ -181,7 +181,6 @@
                     android:inputType="text"
                     android:maxLines="1"
                     android:elegantTextHeight="true"
-                    android:maxLength="40"
                     android:gravity="center_vertical|fill_vertical"
                     android:paddingHorizontal="15dp"
                     android:paddingVertical="10dp"/>
@@ -212,7 +211,6 @@
                     android:textSize="16sp"
                     android:inputType="text"
                     android:maxLines="1"
-                    android:maxLength="40"
                     android:elegantTextHeight="true"
                     android:selectAllOnFocus="true"
                     android:paddingHorizontal="15dp"

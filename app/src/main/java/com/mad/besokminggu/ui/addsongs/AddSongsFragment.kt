@@ -17,6 +17,7 @@ import android.media.MediaMetadataRetriever
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.activityViewModels
 import android.app.Dialog
+import androidx.core.content.FileProvider
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -44,12 +45,23 @@ class AddSongsFragment : BottomSheetDialogFragment() {
     private lateinit var uploadPhotoIcon: ImageView
     private lateinit var uploadPhotoLabel: TextView
     private lateinit var uploadFileLabel: TextView
+    private lateinit var uploadSongLabel: TextView
 
     private var selectedImageUri: Uri? = null
     private var selectedSongUri: Uri? = null
 
     private val viewModel: LibraryViewModel by activityViewModels()
     private val userViewModel: UserViewModel by activityViewModels()
+
+    private var isEditMode = false
+    private var songID: Int? = null
+    private var songTitleArg: String? = null
+    private var artistName: String? = null
+    private var songFilePath: String? = null
+    private var songImagePath: String? = null
+
+    private var coverEdited = false
+    private var fileEdited = false
 
     override fun getTheme(): Int {
         return R.style.BottomSheetDialogTheme
@@ -63,7 +75,22 @@ class AddSongsFragment : BottomSheetDialogFragment() {
         return inflater.inflate(R.layout.fragment_addsongs, container, false)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        arguments?.let { bundle ->
+            isEditMode = bundle.getBoolean("isEditMode", false)
+            songID = bundle.getInt("songID")
+            songTitleArg = bundle.getString("songTitle")
+            artistName = bundle.getString("artistName")
+            songFilePath = bundle.getString("songFilePath")
+            songImagePath = bundle.getString("songImagePath")
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         uploadPhoto = view.findViewById(R.id.uploadPhoto)
         uploadFile = view.findViewById(R.id.uploadFile)
         songTitle = view.findViewById(R.id.titleEdit)
@@ -73,6 +100,30 @@ class AddSongsFragment : BottomSheetDialogFragment() {
         uploadPhotoIcon = view.findViewById(R.id.uploadPhotoIcon)
         uploadPhotoLabel = view.findViewById(R.id.uploadPhotoLabel)
         uploadFileLabel = view.findViewById(R.id.uploadFileLabel)
+        uploadSongLabel = view.findViewById(R.id.uploadSongLabel)
+
+        if (isEditMode) {
+            uploadSongLabel.setText("Edit Song")
+            songTitle.setText(songTitleArg)
+            songArtist.setText(artistName)
+
+            songImagePath?.let { image ->
+                val File = CoverFileHelper.getFile(image)
+                File?.let { file ->
+                    val uri = Uri.fromFile(file)
+                    uploadPhotoIcon.setImageURI(uri)
+                    selectedImageUri = uri
+                }
+            }
+
+            songFilePath?.let { file ->
+                val File = AudioFileHelper.getFile(file)
+                File?.let { file ->
+                    val uri = Uri.fromFile(file)
+                    selectedSongUri = uri
+                }
+            }
+        }
 
         uploadPhoto.setOnClickListener {
             pickImage()
@@ -116,6 +167,7 @@ class AddSongsFragment : BottomSheetDialogFragment() {
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
+            coverEdited = true
             selectedImageUri = it
             uploadPhotoIcon.setImageURI(it)
             uploadPhotoLabel.text = getFileNameFromUri(it)
@@ -131,7 +183,7 @@ class AddSongsFragment : BottomSheetDialogFragment() {
             fos.close()
             androidx.core.content.FileProvider.getUriForFile(
                 requireContext(),
-                "${requireContext().packageName}.provider", // update this to match your manifest FileProvider
+                "${requireContext().packageName}.provider",
                 file
             )
         } catch (e: Exception) {
@@ -142,6 +194,7 @@ class AddSongsFragment : BottomSheetDialogFragment() {
 
     private val pickAudioLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
+            fileEdited = true
             selectedSongUri = it
             uploadFileLabel.text = getFileNameFromUri(it)
 
@@ -168,9 +221,9 @@ class AddSongsFragment : BottomSheetDialogFragment() {
                     val bitmap = android.graphics.BitmapFactory.decodeByteArray(embeddedPicture, 0, embeddedPicture.size)
                     uploadPhotoIcon.setImageBitmap(bitmap)
 
-                    // Optional: Save the image to a file if needed later
                     selectedImageUri = saveEmbeddedImageToTempFile(bitmap)
                     uploadPhotoLabel.text = "Embedded Cover"
+                    coverEdited = true
                 }
 
             } catch (e: Exception) {
@@ -201,43 +254,81 @@ class AddSongsFragment : BottomSheetDialogFragment() {
         val resolver = requireContext().contentResolver
 
         //  Read bytes from selected URIs
-        val audioBytes = resolver.openInputStream(selectedSongUri!!)?.readBytes()
-        val imageBytes = resolver.openInputStream(selectedImageUri!!)?.readBytes()
+        var audioFile: File? = null
+        if (fileEdited) {
+            val audioBytes = resolver.openInputStream(selectedSongUri!!)?.readBytes()
 
-        if (audioBytes == null || imageBytes == null) {
-            Toast.makeText(requireContext(), "Failed to read selected files", Toast.LENGTH_SHORT).show()
-            return
+            if (audioBytes == null) {
+                Toast.makeText(requireContext(), "Failed to read selected files", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            val audioExt = FileHelper.getFileExtension(requireContext(),selectedSongUri!!)
+            audioFile = AudioFileHelper.saveGeneratedFile(
+                audioBytes, extension = audioExt
+            )
+
+            if (audioFile == null) {
+                Toast.makeText(requireContext(), "Failed to save audio file", Toast.LENGTH_SHORT).show()
+                return
+            }
         }
 
-        val audioExt = FileHelper.getFileExtension(requireContext(),selectedSongUri!!)
-        val imageExt = FileHelper.getFileExtension(requireContext(),selectedImageUri!!)
+        var imageFile: File? = null
+        if (coverEdited) {
+            val imageBytes = resolver.openInputStream(selectedImageUri!!)?.readBytes()
 
+            if (imageBytes == null) {
+                Toast.makeText(requireContext(), "Failed to read cover file", Toast.LENGTH_SHORT).show()
+                return
+            }
 
-        val audioFile = AudioFileHelper.saveGeneratedFile(
-            audioBytes, extension = audioExt
-        )
-        val imageFile = CoverFileHelper.saveGeneratedFile(
-            imageBytes, extension = imageExt
-        )
+            val imageExt = FileHelper.getFileExtension(requireContext(),selectedImageUri!!)
+            imageFile = CoverFileHelper.saveGeneratedFile(
+                imageBytes, extension = imageExt
+            )
 
-        if (audioFile == null || imageFile == null) {
-            Toast.makeText(requireContext(), "Failed to save files", Toast.LENGTH_SHORT).show()
-            return
+            if (imageFile == null) {
+                Toast.makeText(requireContext(), "Failed to save files", Toast.LENGTH_SHORT).show()
+                return
+            }
         }
 
-        // 🔽 Create Song with just the file names
-        val newSong = Song(
-            title = title,
-            artist = artist,
-            ownerId = userViewModel.profile.value?.id ?: -1,
-            coverFileName = imageFile.name,
-            audioFileName = audioFile.name,
-            isLiked = false,
-            createdAt = Date(),
-            lastPlayedAt = null
-        )
+        if (isEditMode) {
+            songID?.let { id ->
+                viewModel.getSong(id).observe(viewLifecycleOwner) { song ->
+                    val updatedSong = Song(
+                        id = song.id,
+                        title = title,
+                        artist = artist,
+                        ownerId = song.ownerId,
+                        coverFileName = imageFile?.name ?: song.coverFileName,
+                        audioFileName = audioFile?.name ?: song.audioFileName,
+                        isLiked = song.isLiked,
+                        createdAt = song.createdAt,
+                        lastPlayedAt = song.lastPlayedAt
+                    )
 
-        viewModel.insertSong(newSong)
+                    viewModel.updateSong(updatedSong)
+                }
+            }
+        } else {
+            if (imageFile != null && audioFile != null) {
+                val newSong = Song(
+                    title = title,
+                    artist = artist,
+                    ownerId = userViewModel.profile.value?.id ?: -1,
+                    coverFileName = imageFile.name,
+                    audioFileName = audioFile.name,
+                    isLiked = false,
+                    createdAt = Date(),
+                    lastPlayedAt = null
+                )
+
+                viewModel.insertSong(newSong)
+            }
+        }
+
 
         Toast.makeText(requireContext(), "Song added: $title by $artist", Toast.LENGTH_SHORT).show()
         dismiss()

@@ -31,7 +31,7 @@ class SongRepository @Inject constructor(private val songDao: SongDao) {
         songDao.deleteAll()
     }
 
-    suspend fun getSong(id : Int) : Song{
+    fun getSong(id : Int) : LiveData<Song> {
         return songDao.getSong(id);
     }
 

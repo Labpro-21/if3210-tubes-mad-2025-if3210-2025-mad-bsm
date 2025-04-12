@@ -20,6 +20,7 @@ import com.mad.besokminggu.ui.optionMenu.SongActionSheet
 import com.mad.besokminggu.viewModels.HomeViewModel
 import com.mad.besokminggu.viewModels.SongTracksViewModel
 import com.mad.besokminggu.viewModels.UserViewModel
+import com.mad.besokminggu.ui.addsongs.AddSongsFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -55,6 +56,24 @@ class HomeFragment : Fragment() {
             song = song,
             onQueue = {
                 songViewModel.addToNextQueue(song)
+            },
+            onEdit = {
+                val existingFragment = parentFragmentManager.findFragmentByTag("AddSongsBottomSheet")
+                if (existingFragment == null) {
+                    val editFragment = AddSongsFragment()
+
+                    val args = Bundle().apply {
+                        putBoolean("isEditMode", true)
+                        putInt("songID", song.id)
+                        putString("songTitle", song.title)
+                        putString("artistName", song.artist)
+                        putString("songFilePath", song.audioFileName)
+                        putString("songImagePath", song.coverFileName)
+                    }
+
+                    editFragment.arguments = args
+                    editFragment.show(parentFragmentManager, "AddSongsBottomSheet")
+                }
             },
             onDelete = {
                 lifecycleScope.launch {

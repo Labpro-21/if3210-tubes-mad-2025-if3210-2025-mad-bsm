@@ -30,9 +30,19 @@ class LibraryViewModel @Inject constructor(
 
     private var showLikedOnly = false
 
+    fun getSong(id: Int): LiveData<Song> {
+        return repository.getSong(id)
+    }
+
     fun insertSong(song: Song) {
         viewModelScope.launch {
             repository.insert(song)
+        }
+    }
+
+    fun updateSong(song: Song) {
+        viewModelScope.launch {
+            repository.update(song)
         }
     }
 

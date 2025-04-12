@@ -55,6 +55,24 @@ class LibraryFragment : Fragment() {
                     songViewModel.addToNextQueue(song)
                 }
             },
+            onEdit = {
+                val existingFragment = parentFragmentManager.findFragmentByTag("AddSongsBottomSheet")
+                if (existingFragment == null) {
+                    val editFragment = AddSongsFragment()
+
+                    val args = Bundle().apply {
+                        putBoolean("isEditMode", true)
+                        putInt("songID", song.id)
+                        putString("songTitle", song.title)
+                        putString("artistName", song.artist)
+                        putString("songFilePath", song.audioFileName)
+                        putString("songImagePath", song.coverFileName)
+                    }
+
+                    editFragment.arguments = args
+                    editFragment.show(parentFragmentManager, "AddSongsBottomSheet")
+                }
+            },
             onDelete = {
                 lifecycleScope.launch {
                     songViewModel.deleteSong(song)

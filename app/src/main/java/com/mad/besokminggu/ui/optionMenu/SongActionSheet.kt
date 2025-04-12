@@ -18,6 +18,7 @@ import com.mad.besokminggu.manager.FileHelper
 class SongActionSheet(
     private val song: Song,
     private val onQueue: () -> Unit,
+    private val onEdit: () -> Unit,
     private val onDelete: () -> Unit
 ) : BottomSheetDialogFragment() {
 
@@ -36,6 +37,7 @@ class SongActionSheet(
         val artist = view.findViewById<TextView>(R.id.songArtist)
         val cover = view.findViewById<ImageView>(R.id.songCover)
         val queue = view.findViewById<LinearLayout>(R.id.queue_button)
+        val edit = view.findViewById<LinearLayout>(R.id.edit_button)
         val delete = view.findViewById<LinearLayout>(R.id.delete_button)
 
         title.text = song.title
@@ -47,6 +49,11 @@ class SongActionSheet(
         queue.setOnClickListener {
             onQueue()
             dismiss()
+        }
+
+        edit.setOnClickListener {
+            dismiss()
+            onEdit()
         }
 
         delete.setOnClickListener {

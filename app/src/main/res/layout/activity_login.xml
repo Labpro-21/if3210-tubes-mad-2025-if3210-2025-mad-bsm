@@ -117,6 +117,7 @@
             android:imeActionLabel="@string/action_sign_in_short"
             android:imeOptions="actionDone"
             android:inputType="textPassword"
+            android:paddingEnd="48dp"
             android:paddingHorizontal="20dp"
             android:paddingVertical="10dp"
             android:selectAllOnFocus="true"
@@ -124,6 +125,17 @@
             app:layout_constraintBottom_toTopOf="@+id/Button_Login"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageView
+            android:id="@+id/password_toggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/eye_off"
+            android:contentDescription="Password Eye Patch"
+            app:layout_constraintBottom_toBottomOf="@+id/password"
+            app:layout_constraintEnd_toEndOf="@+id/password"
+            app:layout_constraintTop_toTopOf="@+id/password" />
 
         <Button
             android:id="@+id/Button_Login"

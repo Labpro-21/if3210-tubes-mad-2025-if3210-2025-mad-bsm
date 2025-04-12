@@ -30,6 +30,8 @@ class LibraryViewModel @Inject constructor(
 
     private var showLikedOnly = false
 
+    private var searchQuery: String = ""
+
     fun getSong(id: Int): LiveData<Song> {
         return repository.getSong(id)
     }
@@ -59,11 +61,27 @@ class LibraryViewModel @Inject constructor(
 
     private fun applyFilter(songs: List<Song>?) {
         _filteredSongs.value = if (showLikedOnly) {
-            songs?.filter { it.isLiked }
+            songs?.filter {
+                it.isLiked && (
+                    it.title.contains(searchQuery, ignoreCase = true) ||
+                    it.artist.contains(searchQuery, ignoreCase = true)
+                )
+            }
         } else {
-            songs
+            songs?.filter {
+                it.title.contains(searchQuery, ignoreCase = true) ||
+                it.artist.contains(searchQuery, ignoreCase = true)
+            }
         } ?: emptyList()
     }
 
-
+    fun searchSongs(query: String) {
+        _filteredSongs.value = songs.value?.filter { song ->
+            ((showLikedOnly && song.isLiked) || !showLikedOnly) && (
+                song.title.contains(query, ignoreCase = true) ||
+                song.artist.contains(query, ignoreCase = true)
+            )
+        }
+        searchQuery = query
+    }
 }

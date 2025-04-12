@@ -23,7 +23,9 @@ object DatabaseModule {
             appContext,
             SongDatabase::class.java,
             "songs.db"
-        ).build()
+        )
+        .fallbackToDestructiveMigration()
+        .build()
     }
 
     @Provides

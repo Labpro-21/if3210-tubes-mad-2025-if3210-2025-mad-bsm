@@ -3,9 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp">
-<!--    android:background="@drawable/rounded_top_sheet_bg"-->
-<!--    >-->
+    android:padding="16dp"
+    android:background="@color/primary">
 
     <!-- Drag Handle -->
     <View
@@ -79,15 +78,15 @@
                     android:src="@drawable/image_icon"/>
             </LinearLayout>
 
-            <ImageView
-                android:id="@+id/editPhotoIndicator"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_gravity="bottom|end"
-                android:layout_margin="6dp"
-                android:background="@drawable/square_white"
-                android:padding="4dp"
-                android:src="@drawable/edit_icon"/>
+<!--            <ImageView-->
+<!--                android:id="@+id/editPhotoIndicator"-->
+<!--                android:layout_width="24dp"-->
+<!--                android:layout_height="24dp"-->
+<!--                android:layout_gravity="bottom|end"-->
+<!--                android:layout_margin="6dp"-->
+<!--                android:background="@drawable/square_white"-->
+<!--                android:padding="4dp"-->
+<!--                android:src="@drawable/edit_icon"/>-->
         </FrameLayout>
 
         <!-- Upload File -->
@@ -121,15 +120,15 @@
                     android:src="@drawable/upload_song_icon"/>
             </LinearLayout>
 
-            <ImageView
-                android:id="@+id/editFileIndicator"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_gravity="bottom|end"
-                android:layout_margin="6dp"
-                android:background="@drawable/square_white"
-                android:padding="4dp"
-                android:src="@drawable/edit_icon"/>
+<!--            <ImageView-->
+<!--                android:id="@+id/editFileIndicator"-->
+<!--                android:layout_width="24dp"-->
+<!--                android:layout_height="24dp"-->
+<!--                android:layout_gravity="bottom|end"-->
+<!--                android:layout_margin="6dp"-->
+<!--                android:background="@drawable/square_white"-->
+<!--                android:padding="4dp"-->
+<!--                android:src="@drawable/edit_icon"/>-->
         </FrameLayout>
 
     </LinearLayout>
@@ -164,6 +163,9 @@
         android:hint="Title"
         android:textColor="@android:color/white"
         android:textColorHint="#AAAAAA"
+        android:inputType="text"
+        android:maxLines="1"
+        android:maxLength="40"
         app:layout_constraintTop_toBottomOf="@id/titleLabel"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -187,11 +189,11 @@
     <EditText
         android:id="@+id/artistEdit"
         style="@style/EditTextStyle"
+        android:gravity="center_vertical|fill_vertical"
         android:background="@drawable/background_input"
         android:elegantTextHeight="true"
-        android:fontFamily="@font/poppins"
-        android:gravity="center_vertical|fill_vertical"
         android:paddingHorizontal="15dp"
+        android:fontFamily="@font/poppins"
         android:paddingVertical="10dp"
         android:selectAllOnFocus="true"
         android:textSize="16sp"
@@ -200,6 +202,9 @@
         android:hint="Artist"
         android:textColor="@android:color/white"
         android:textColorHint="#AAAAAA"
+        android:inputType="text"
+        android:maxLines="1"
+        android:maxLength="40"
         app:layout_constraintTop_toBottomOf="@id/artistLabel"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -218,6 +223,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Cancel"
+        android:textAllCaps="false"
         android:layout_marginEnd="8dp"
         app:layout_constraintTop_toBottomOf="@id/artistEdit"
         app:layout_constraintStart_toStartOf="parent"
@@ -233,10 +239,11 @@
         android:backgroundTint="@color/button_selector"
         android:enabled="true"
         android:fontFamily="@font/poppinsmedium"
-        android:textColor="@color/enable_selector"
+        android:textColor="#000000"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Save"
+        android:textAllCaps="false"
         android:layout_marginStart="8dp"
         app:layout_constraintTop_toTopOf="@id/cancelButton"
         app:layout_constraintStart_toEndOf="@id/cancelButton"

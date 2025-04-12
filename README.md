@@ -34,10 +34,6 @@ To run this project locally, follow these steps:
 4. **Run the application**  
    Click the green triangle-shaped "Run" button at the top of Android Studio to launch the app on your selected device or emulator.
 
----
-
-Let me know if you want me to also write the **"Getting Started"** section, or maybe merge this into a full README layout.
-
 # Used Libraries
 | Library | Description |
 |--------|-------------|

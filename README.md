@@ -2,10 +2,13 @@
 <p align="center">
     <img src="./screenshot/preview.gif" alt="preview" width="300">
 </p>
+<p align="center">
+    <img src="./screenshot/landscape.gif" alt="landscape" width="600">
+</p>
 <hr>
 <br>
 
-*Purrytify* is a Spotify-inspired music player Android app that lets users upload and play songs stored in their local device. The features available in this app include:
+*Purrytify* is a Spotify-inspired music player app for Android that lets users upload and play songs stored in their local device. The features available in this app include:
 
 * On-background music player to play song files stored in local device
 * Pause song, play previous/next song, queue, loop, and shuffle songs
@@ -15,6 +18,8 @@
 * Editing and deleting songs
 * Login/logout and personalized data for each user
 * Responsive layout for portrait and landscape
+
+This project was made using Kotlin, Gradle, and Android Studio and was developed as an assignment for the course IF3210 Mobile App Development in Bandung Institute of Technology's Informatics Engineering Department.
 
 # How to Run
 To run this project locally, follow these steps:
@@ -74,6 +79,10 @@ To run this project locally, follow these steps:
     <img src="./screenshot/login_password.jpg" alt="login_password" width="300">
 </p>
 
+<p align="center">
+    <img src="./screenshot/login.gif" alt="login_password" width="300">
+</p>
+
 ## Home 
 <p align="center">
     <img src="./screenshot/home_portrait.jpg" alt="home_portrait" width="300">
@@ -95,12 +104,21 @@ To run this project locally, follow these steps:
     <img src="./screenshot/library_landscape.jpg" alt="library_landscape" width="1000">
 </p> 
 
-## Profile
+## Search
+<p align="center">
+    <img src="./screenshot/search.gif" alt="library_portrait" width="300">
+</p> 
+<hr>
+
 
 ## Currently Playing Song
 <p align="center">
     <img src="./screenshot/playing_song_portrait.jpg" alt="playing_song_portrait" width="300">
 </p> 
+<hr>
+<p align="center">
+    <img src="./screenshot/play.gif" alt="playing_song_portrait" width="300">
+</p>
 
 ## Miniplayer
 <p align="center">
@@ -109,12 +127,17 @@ To run this project locally, follow these steps:
 
 ## Upload Songs
 <p align="center">
-    <img src="./screenshot/upload_song_portrait.jpg" alt="upload_song_portrait" width="300">
+    <img src="./screenshot/upload_song_landscape.jpg" alt="upload_song_landscape" width="1000">
 </p> 
 <hr>
 
 <p align="center">
     <img src="./screenshot/upload_song_landscape.jpg" alt="upload_song_landscape" width="1000">
+</p> 
+<hr>
+
+<p align="center">
+    <img src="./screenshot/upload.gif" alt="upload_song_landscape" width="1000">
 </p> 
 
 ## Song Actions
@@ -122,10 +145,19 @@ To run this project locally, follow these steps:
     <img src="./screenshot/song_actions.jpg" alt="song_actions" width="300">
 </p> 
 
+## Landscape Preview
+
 # Developers
-| NIM / Student ID | Name | Development Role | Planning Hours | Development Hours |
-|------------------|------|------------------|----------------|-------------------|
-| 13522144 | Shabrina Maharani | test | 20 | 20
-| 13522157 | Muhammad Davis Adhipramana | test | 20 | 20
-| 13522158 | Muhammad Rasheed Qais Tandjung | test | 20 | 20
-| 13522164 | Valentino Chryslie Triadi | test | 20 | 20
+| NIM / Student ID | Name | Task |
+|------------------|------|------------------|
+| 13522134 | Shabrina Maharani | Implement home page with recyclerview, landscape layout for all page, add eye patch in password, add function for liked songs |
+| 13522157 | Muhammad Davis Adhipramana | Implement SongTrackView, MiniPlayer, Integrasi Flow dari song data, Play Song, Love Song, Repeat, Shuffle, Queue |
+| 13522158 | Muhammad Rasheed Qais Tandjung | Implement library page with recyclerview, create upload songs page and mechanism, initialize room database, search songs feature |
+| 13522164 | Valentino Chryslie Triadi | Bottom Navbar, Login Page, API Fetch, Token/Session Manager, Network Sensing, Profile, Background Process, Personalized Songs |
+
+| NIM / Student ID | Name | Planning Hours | Development Hours |
+|------------------|------|------|---------------------|
+| 13522134 | Shabrina Maharani | 3 | 38
+| 13522157 | Muhammad Davis Adhipramana | 4 | 52
+| 13522158 | Muhammad Rasheed Qais Tandjung | 5 | 38
+| 13522164 | Valentino Chryslie Triadi | - | 120

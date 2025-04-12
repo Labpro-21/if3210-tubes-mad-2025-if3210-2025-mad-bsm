@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
+import android.text.InputType
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
@@ -35,6 +36,8 @@ import com.mad.besokminggu.viewModels.TokenViewModel
 import com.mad.besokminggu.viewModels.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import android.widget.ImageView
+
 
 
 @AndroidEntryPoint
@@ -46,6 +49,10 @@ class LoginActivity : AppCompatActivity() {
 
     private val _profile = MutableLiveData<Profile>()
     val profile: LiveData<Profile> get() = _profile
+
+    var isPasswordVisible = false
+
+
 
     private lateinit var connectionMonitor: ConnectionStateMonitor
 
@@ -70,6 +77,9 @@ class LoginActivity : AppCompatActivity() {
         val password = binding.password
         val loginButton = binding.ButtonLogin
         val loading = binding.loadingContainer
+
+        val passwordEditText = findViewById<EditText>(R.id.password)
+        val togglePassword = findViewById<ImageView>(R.id.password_toggle)
 
         // Initialize Connection State Monitor
         connectionMonitor = ConnectionStateMonitor(this, object : OnNetworkAvailableCallbacks {
@@ -204,8 +214,28 @@ class LoginActivity : AppCompatActivity() {
                     )
                 }
             }
+
+            togglePassword.setOnClickListener {
+                isPasswordVisible = !isPasswordVisible
+
+                if (isPasswordVisible) {
+                    passwordEditText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                    togglePassword.setImageResource(R.drawable.eye_on)
+                } else {
+                    passwordEditText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                    togglePassword.setImageResource(R.drawable.eye_off)
+                }
+
+                // Keep cursor at the end
+                passwordEditText.setSelection(passwordEditText.text.length)
+            }
         }
     }
+
+
+
+
+
 
     override fun onPause() {
         // Unregister

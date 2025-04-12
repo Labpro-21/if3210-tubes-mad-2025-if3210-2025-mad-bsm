@@ -160,4 +160,4 @@ To run this project locally, follow these steps:
 | 13522134 | Shabrina Maharani | 3 | 38
 | 13522157 | Muhammad Davis Adhipramana | 4 | 52
 | 13522158 | Muhammad Rasheed Qais Tandjung | 5 | 38
-| 13522164 | Valentino Chryslie Triadi | - | 120
+| 13522164 | Valentino Chryslie Triadi | - | 72

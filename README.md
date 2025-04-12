@@ -17,8 +17,40 @@
 * Responsive layout for portrait and landscape
 
 # How to Run
+To run this project locally, follow these steps:
+
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/Labpro-21/if3210-tubes-mad-2025-if3210-2025-mad-bsm.git
+   ```
+
+2. **Open the project in Android Studio**  
+   Launch Android Studio and choose `Open an existing project`, then select the cloned directory.
+
+3. **Build the project**  
+   In the top-right corner of Android Studio, click the "Build" button (represented by a hammer icon). Wait until the Build Analyzer shows a "Successful" message.
+
+4. **Run the application**  
+   Click the green triangle-shaped "Run" button at the top of Android Studio to launch the app on your selected device or emulator.
 
 # Used Libraries
+| Library | Description |
+|--------|-------------|
+| **[Hilt (Dagger)](https://dagger.dev/hilt/)**  
+`com.google.dagger:hilt-android`, `androidx.hilt:*` | Dependency injection library built on top of Dagger with Android Jetpack integration. |
+| **[Glide](https://github.com/bumptech/glide)**  
+`com.github.bumptech.glide:glide` | Image loading and caching library for Android. |
+| **[Retrofit](https://square.github.io/retrofit/)**  
+`com.squareup.retrofit2:*` | Type-safe HTTP client for Android and Java. |
+| **[OkHttp Logging Interceptor](https://square.github.io/okhttp/)**  
+`com.squareup.okhttp3:logging-interceptor` | Logs HTTP request and response data for debugging. |
+| **[Room](https://developer.android.com/jetpack/androidx/releases/room)**  
+`androidx.room:*` | SQLite abstraction library for robust local data persistence. |
+| **[Material Components](https://m3.material.io/)**  
+`com.google.android.material:material` | Modern UI components based on Material Design. |
+| **[Android Identity Credential](https://developer.android.com/guide/topics/identity/identity-credential)**  
+`com.android.identity:identity-jvm` | Secure storage and transmission of digital identity credentials. |
 
 # App Preview
 

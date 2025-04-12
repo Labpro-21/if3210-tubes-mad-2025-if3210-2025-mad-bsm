@@ -13,6 +13,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import android.media.MediaMetadataRetriever
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.activityViewModels
 import android.app.Dialog
@@ -29,6 +30,8 @@ import com.mad.besokminggu.ui.library.LibraryViewModel
 import com.mad.besokminggu.viewModels.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Date
+import java.io.File
+import java.io.FileOutputStream
 
 @AndroidEntryPoint
 class AddSongsFragment : BottomSheetDialogFragment() {
@@ -119,10 +122,62 @@ class AddSongsFragment : BottomSheetDialogFragment() {
         }
     }
 
+    private fun saveEmbeddedImageToTempFile(bitmap: android.graphics.Bitmap): Uri? {
+        return try {
+            val file = File.createTempFile("cover_", ".jpg", requireContext().cacheDir)
+            val fos = FileOutputStream(file)
+            bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, fos)
+            fos.flush()
+            fos.close()
+            androidx.core.content.FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.provider", // update this to match your manifest FileProvider
+                file
+            )
+        } catch (e: Exception) {
+            Log.e("AddSongsFragment", "Failed to save embedded image: ${e.message}")
+            null
+        }
+    }
+
     private val pickAudioLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
             selectedSongUri = it
             uploadFileLabel.text = getFileNameFromUri(it)
+
+            // Initialize MediaMetadataRetriever
+            val retriever = android.media.MediaMetadataRetriever()
+            try {
+                retriever.setDataSource(requireContext(), it)
+
+                // Extract title and artist from metadata
+                val extractedTitle = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
+                val extractedArtist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
+
+                if (!extractedTitle.isNullOrBlank()) {
+                    songTitle.setText(extractedTitle)
+                }
+
+                if (!extractedArtist.isNullOrBlank()) {
+                    songArtist.setText(extractedArtist)
+                }
+
+                // Extract embedded picture
+                val embeddedPicture = retriever.embeddedPicture
+                if (embeddedPicture != null) {
+                    val bitmap = android.graphics.BitmapFactory.decodeByteArray(embeddedPicture, 0, embeddedPicture.size)
+                    uploadPhotoIcon.setImageBitmap(bitmap)
+
+                    // Optional: Save the image to a file if needed later
+                    selectedImageUri = saveEmbeddedImageToTempFile(bitmap)
+                    uploadPhotoLabel.text = "Embedded Cover"
+                }
+
+            } catch (e: Exception) {
+                Log.e("AddSongsFragment", "Failed to extract metadata: ${e.message}")
+            } finally {
+                retriever.release()
+            }
         }
     }
 

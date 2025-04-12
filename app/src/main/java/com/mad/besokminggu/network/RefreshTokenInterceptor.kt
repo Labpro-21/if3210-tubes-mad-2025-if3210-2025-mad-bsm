@@ -28,6 +28,7 @@ class RefreshTokenInterceptor @Inject constructor(
 
         if (responseCount(response) > 3) {
             tokenManager.clearToken()
+            tokenManager.clearUserProfile()
             return response
         }
 
@@ -36,6 +37,7 @@ class RefreshTokenInterceptor @Inject constructor(
             tokenManager.getToken().firstOrNull()?.second
         } ?: run {
             tokenManager.clearToken()
+            tokenManager.clearUserProfile()
             return response
         }
 
@@ -59,6 +61,7 @@ class RefreshTokenInterceptor @Inject constructor(
             } ?: response
         } else {
             tokenManager.clearToken()
+            tokenManager.clearUserProfile()
             response
         }
     }

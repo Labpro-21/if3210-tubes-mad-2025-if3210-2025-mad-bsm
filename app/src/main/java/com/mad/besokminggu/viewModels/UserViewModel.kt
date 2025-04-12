@@ -51,20 +51,26 @@ class UserViewModel @Inject constructor(
 
     fun getProfileData() {
         viewModelScope.launch(Dispatchers.IO) {
-            val response = protectedRepository.getProfile()
-            response.collect { apiResponse ->
-                when (apiResponse) {
-                    is ApiResponse.Success -> {
-                        val profileResponse = apiResponse.data
-                        _profileImagePath.postValue(profileResponse.profilePhoto)
-                        tokenManager.storeUserProfile(profileResponse)
-                    }
-                    is ApiResponse.Failure -> {
+            val temp = tokenManager.getUserProfile()
+            if (temp != null) {
+                _profile.postValue(temp!!)
+            } else {
+                protectedRepository.getProfile().collect { apiResponse ->
+                    when (apiResponse) {
+                        is ApiResponse.Success -> {
+                            val profileResponse = apiResponse.data
+                            _profile.postValue(profileResponse)
+                            _profileImagePath.postValue(profileResponse.profilePhoto)
+                            tokenManager.storeUserProfile(profileResponse)
+                        }
 
-                    }
+                        is ApiResponse.Failure -> {
 
-                    is ApiResponse.Loading -> {
+                        }
 
+                        is ApiResponse.Loading -> {
+
+                        }
                     }
                 }
             }

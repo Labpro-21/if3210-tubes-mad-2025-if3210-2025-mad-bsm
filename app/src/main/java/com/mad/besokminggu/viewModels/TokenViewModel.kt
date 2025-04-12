@@ -51,6 +51,7 @@ class TokenViewModel @Inject constructor(
     fun deleteToken() {
         viewModelScope.launch(Dispatchers.IO) {
             tokenManager.clearToken()
+            tokenManager.clearUserProfile()
         }
     }
 

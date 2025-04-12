@@ -10,6 +10,7 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.mad.besokminggu.data.repositories.ProtectedRepository
 import com.mad.besokminggu.data.repositories.UnprotectedRepository
 import com.mad.besokminggu.network.ApiResponse
 import com.mad.besokminggu.network.SessionManager
@@ -24,6 +25,7 @@ class RefreshTokenWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted params: WorkerParameters,
     private val unprotectedRepository: UnprotectedRepository,
+    private val protectedRepository: ProtectedRepository,
     private val sessionManager: SessionManager
 ) : CoroutineWorker(context, params) {
 
@@ -37,6 +39,7 @@ class RefreshTokenWorker @AssistedInject constructor(
         if (refreshToken.isNullOrEmpty()) {
             Log.d("REFRESH_TOKEN_WORKER", "No refresh token found")
             sessionManager.clearToken()
+            sessionManager.clearUserProfile()
             scheduleNextRun(applicationContext)
             return Result.failure()
         }
@@ -51,6 +54,22 @@ class RefreshTokenWorker @AssistedInject constructor(
                     response.data.let { newToken ->
                         sessionManager.storeAccessToken(newToken.accessToken, newToken.refreshToken)
                     }
+
+                    protectedRepository.getProfile().collect() {
+                        when(it) {
+                            is ApiResponse.Failure -> {
+                                Log.e("REFRESH_TOKEN_WORKER", "Failed to update profile: ${it.errorMessage}")
+                            }
+                            is ApiResponse.Success -> {
+                                Log.d("REFRESH_TOKEN_WORKER","Update profile successfully")
+                                sessionManager.storeUserProfile(it.data)
+                            }
+                            is ApiResponse.Loading -> {
+                                Log.d("REFRESH_TOKEN_WORKER","Updating profile...")
+                            }
+                        }
+                    }
+
                 }
                 is ApiResponse.Loading -> {
                     Log.d("REFRESH_TOKEN_WORKER","Refreshing token...")

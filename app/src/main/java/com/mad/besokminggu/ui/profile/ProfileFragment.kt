@@ -114,8 +114,18 @@ class ProfileFragment : Fragment() {
                     }
                 }
             }
-
             userViewModel.getProfile(errorHandler)
+
+            userViewModel.profile.observe(viewLifecycleOwner) {
+                textUsername.text = it.username
+                textLocation.text = it.location
+                val imagePath = baseImageUrl + it.profilePhoto
+
+                // Load the image using Glide
+                Glide.with(this)
+                    .load(imagePath)
+                    .into(profileImage)
+            }
 
             // Observe Song data
             profileViewModel.likedSongsCount.observe(viewLifecycleOwner) { count ->

@@ -95,14 +95,21 @@ class LibraryFragment : Fragment() {
         }
 
         libraryViewModel.filteredSongs.observe(viewLifecycleOwner) { songs ->
-            songAdapter.submitList(songs)
+            songAdapter.submitList(songs ?: emptyList())
         }
+
+        libraryViewModel.filterSongs(showLikedOnly = false)
 
         binding.addButton.setOnClickListener {
             val existingFragment = parentFragmentManager.findFragmentByTag("AddSongsBottomSheet")
             if (existingFragment == null) {
                 AddSongsFragment().show(parentFragmentManager, "AddSongsBottomSheet")
             }
+        }
+
+        binding.btnAll.setOnClickListener {
+            libraryViewModel.filterSongs(showLikedOnly = false)
+            setButtonSelected(binding.btnAll, binding.btnLiked)
         }
 
         binding.btnLiked.setOnClickListener {
@@ -113,7 +120,7 @@ class LibraryFragment : Fragment() {
 
     private fun setButtonSelected(selected: Button, other: Button) {
         selected.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.green)
-        other.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.gray)
+        other.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.disabled_2)
     }
 
     override fun onDestroyView() {

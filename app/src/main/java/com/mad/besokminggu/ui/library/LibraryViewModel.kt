@@ -3,6 +3,7 @@ package com.mad.besokminggu.ui.library
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mad.besokminggu.R
@@ -24,8 +25,10 @@ class LibraryViewModel @Inject constructor(
     val profile = tokenManager.getUserProfile()
     val songs: LiveData<List<Song>> = repository.getAllSongs(profile?.id ?: -1)
 
-    private val _filteredSongs = MutableLiveData<List<Song>>()
+    private val _filteredSongs = MediatorLiveData<List<Song>>()
     val filteredSongs: LiveData<List<Song>> = _filteredSongs
+
+    private var showLikedOnly = false
 
     fun insertSong(song: Song) {
         viewModelScope.launch {
@@ -33,18 +36,24 @@ class LibraryViewModel @Inject constructor(
         }
     }
 
-    fun filterSongs(showLikedOnly: Boolean) {
-        _filteredSongs.value = if (showLikedOnly) {
-            songs.value?.filter { it.isLiked }
-        } else {
-            songs.value
+    init {
+        _filteredSongs.addSource(songs) { newSongs ->
+            applyFilter(newSongs)
         }
     }
 
-    init {
-        songs.observeForever {
-            filterSongs(showLikedOnly = false)
-        }
+    fun filterSongs(showLikedOnly: Boolean) {
+        this.showLikedOnly = showLikedOnly
+        applyFilter(songs.value)
     }
+
+    private fun applyFilter(songs: List<Song>?) {
+        _filteredSongs.value = if (showLikedOnly) {
+            songs?.filter { it.isLiked }
+        } else {
+            songs
+        } ?: emptyList()
+    }
+
 
 }

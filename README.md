@@ -1,7 +1,7 @@
 # App Description
-<div style="text-align: center;">
+<p align="center">
     <img src="./screenshot/preview.gif" alt="preview" width="300">
-</div>
+</p>
 <hr>
 <br>
 
@@ -23,72 +23,72 @@
 # App Preview
 
 ## Login
-<div style="text-align: center;">
+<p align="center">
     <img src="./screenshot/login_blank.jpg" alt="login_blank" width="300">
-</div>
+</p>
 <hr>
 
-<div style="text-align: center;">
+<p align="center">
     <img src="./screenshot/login_portrait.jpg" alt="login_portrait" width="300">
-</div>
+</p>
 <hr>
 
-<div style="text-align: center;">
+<p align="center">
     <img src="./screenshot/login_landscape.jpg" alt="login_landscape" width="1000">
-</div>
+</p>
 <hr>
 
-<div style="text-align: center;">
+<p align="center">
     <img src="./screenshot/login_password.jpg" alt="login_password" width="300">
-</div>
+</p>
 
 ## Home 
-<div style="text-align: center;">
+<p align="center">
     <img src="./screenshot/home_portrait.jpg" alt="home_portrait" width="300">
-</div> 
+</p> 
 <hr>
 
-<div style="text-align: center;">
+<p align="center">
     <img src="./screenshot/home_landscape.jpg" alt="home_landscape" width="1000">
-</div> 
+</p> 
 
 ## Library
-<div style="text-align: center;">
+<p align="center">
     <img src="./screenshot/library_portrait.jpg" alt="library_portrait" width="300">
-</div> 
+</p> 
 <hr>
 
 
-<div style="text-align: center;">
+<p align="center">
     <img src="./screenshot/library_landscape.jpg" alt="library_landscape" width="1000">
-</div> 
+</p> 
 
 ## Profile
 
 ## Currently Playing Song
-<div style="text-align: center;">
+<p align="center">
     <img src="./screenshot/playing_song_portrait.jpg" alt="playing_song_portrait" width="300">
-</div> 
+</p> 
 
 ## Miniplayer
-<div style="text-align: center;">
+<p align="center">
     <img src="./screenshot/miniplayer.jpg" alt="miniplayer" width="300">
-</div> 
+</p> 
 
 ## Upload Songs
-<div style="text-align: center;">
+<p align="center">
     <img src="./screenshot/upload_song_portrait.jpg" alt="upload_song_portrait" width="300">
-</div> 
+</p> 
 <hr>
 
-<div style="text-align: center;">
+<p align="center">
     <img src="./screenshot/upload_song_landscape.jpg" alt="upload_song_landscape" width="1000">
-</div> 
+</p> 
 
 ## Song Actions
-<div style="text-align: center;">
+<p align="center">
     <img src="./screenshot/song_actions.jpg" alt="song_actions" width="300">
-</div> 
+</p> 
 
 # Developers
 | NIM / Student ID | Name | Development Role | Planning Hours | Development Hours |

@@ -29,12 +29,14 @@ class SongTracksViewModel @Inject constructor(
     private val _playedSong = MutableLiveData<Song?>()
     val playedSong: LiveData<Song?> get() = _playedSong
 
+    // Keep tracking of previous queue
     private val _previousSongsQueue = MutableLiveData<List<Song>>(emptyList())
     val previousSongsQueue: LiveData<List<Song>> get() = _previousSongsQueue
 
+    // Keep tracking of next queue
     private val _nextSongsQueue = MutableLiveData<List<Song>>(emptyList())
 
-
+    // Keep trakcing of playing/pausing
     private val _isPlaying = MutableLiveData<Boolean>(false)
     val isPlaying: LiveData<Boolean> get() = _isPlaying
 
@@ -101,16 +103,26 @@ class SongTracksViewModel @Inject constructor(
         resetPrevQueue();
     }
 
+
     suspend fun skipToNext() {
 
         val currentSong : Song = _playedSong.value?.copy(lastPlayedAt =  Date()) ?: return
+        songRepository.update(currentSong);
         when(_repeatMode.value){
             RepeatMode.REPEAT_ONE -> {
                 _playedSong.value = currentSong.copy(lastPlayedAt = Date())
                 return
             }
             RepeatMode.REPEAT_ALL -> {
-                handleRepeatAll(currentSong)
+                val nextQueue = _nextSongsQueue.value?.toMutableList() ?: return
+                if(nextQueue.isNotEmpty()){
+                    // exist a queue
+                    handleNextSongFromQueue(currentSong);
+                    addToNextQueue(currentSong);
+                }else{
+                    // Only single song played, do the same as repeat_one
+                    _playedSong.value = currentSong.copy(lastPlayedAt = Date())
+                }
                 return;
             }
             else -> {
@@ -120,11 +132,14 @@ class SongTracksViewModel @Inject constructor(
 
     }
 
+
+
     suspend fun handleNextSongFromQueue(currentSong : Song){
         val nextQueue = _nextSongsQueue.value?.toMutableList() ?: return
 
-        // Check shuffle
+
         val nextSong = if (nextQueue.isNotEmpty()) {
+            // Handle shuffle
             if (_isShuffle.value == true) {
                 nextQueue.removeAt((nextQueue.indices).random())
             } else {
@@ -144,30 +159,6 @@ class SongTracksViewModel @Inject constructor(
         songRepository.update(currentSong)
     }
 
-    private suspend fun handleRepeatAll(currentSong : Song){
-        if (_repeatMode.value == RepeatMode.REPEAT_ALL) {
-            val allSongs = songRepository.allSongs.value.orEmpty()
-            val restartQueue = allSongs.filterNot { it.id == currentSong.id }
-
-            val nextSong = if (_isShuffle.value == true) {
-                restartQueue.random()
-            } else {
-                restartQueue.firstOrNull()
-            }
-
-            if (nextSong != null) {
-                _playedSong.value = nextSong
-                _previousSongsQueue.value = mutableListOf(currentSong)
-                _nextSongsQueue.value = restartQueue.filterNot { it.id == nextSong.id }
-            }
-        } else {
-            addEmptyNextQueue(currentSong)
-            val prevQueue = _previousSongsQueue.value?.toMutableList() ?: mutableListOf()
-            prevQueue.add(currentSong)
-            _previousSongsQueue.value = prevQueue
-        }
-    }
-
     fun skipToPrevious() {
         val prevQueue = _previousSongsQueue.value?.toMutableList() ?: return
         val currentSong = _playedSong.value ?: return
@@ -182,9 +173,6 @@ class SongTracksViewModel @Inject constructor(
         }
     }
 
-    suspend fun addEmptyNextQueue(currentSong : Song){
-        _playedSong.value = songRepository.getNextIteratedSong(currentSong, ownerId);
-    }
 
     suspend fun deleteSong(song : Song){
         if(song.id == _playedSong.value?.id){
@@ -198,13 +186,16 @@ class SongTracksViewModel @Inject constructor(
     suspend fun addToNextQueue(song: Song) {
         val updatedQueue = _nextSongsQueue.value?.toMutableList() ?: mutableListOf()
         updatedQueue.add(song)
+
         Log.d("NextQueue", "Size of Queue: ${updatedQueue.size}")
-        if(updatedQueue.size == 1){
+
+        if (updatedQueue.size == 1 && _playedSong.value == null) {
             playSong(song)
         }
-        _nextSongsQueue.value = updatedQueue
 
+        _nextSongsQueue.value = updatedQueue
     }
+
 
     private fun addToPrevQueue(song : Song){
         val prevQueue = _previousSongsQueue.value?.toMutableList() ?: mutableListOf()

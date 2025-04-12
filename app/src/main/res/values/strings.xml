@@ -12,4 +12,27 @@
     <string name="invalid_email">Not a valid email</string>
     <string name="invalid_password">Password must be >=8 characters</string>
     <string name="login_failed">"Login failed"</string>
+    <string name="title_new_songs">New songs</string>
+    <string name="cover_image">Song cover image</string>
+    <string name="recently_played">Recently played</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="song_title">Song Name</string>
+    <string name="search">Search for songs…</string>
+    <string name="listened">LISTENED</string>
+    <string name="liked">LIKED</string>
+    <string name="total_songs">SONGS</string>
+    <string name="background_login">background_login</string>
+    <string name="millions_of_songs_only_on_purritify">Millions of Songs. Only on Purritify.</string>
+    <string name="queue_icon">queue_icon</string>
+    <string name="logo">logo</string>
+    <string name="delete_song">delete_song</string>
+    <string name="upload_photo">Upload Photo</string>
+    <string name="image_icon">image_icon</string>
+    <string name="square_white">square_white</string>
+    <string name="upload_file">Upload File</string>
+    <string name="title">Title</string>
+    <string name="artist">Artist</string>
+    <string name="upload_song">Upload Song</string>
+    <string name="artist_name">Artist Name</string>
 </resources>

@@ -3,6 +3,7 @@ package com.mad.besokminggu.network
 import android.content.SharedPreferences
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import android.util.Log
 import com.mad.besokminggu.data.model.Profile
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -60,7 +61,7 @@ class SessionManager @Inject constructor(
                 apply()
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("SESSION_MANAGER",e.message.toString())
         }
     }
 
@@ -92,7 +93,7 @@ class SessionManager @Inject constructor(
 
             emit(Pair(decryptedAccessToken, decryptedRefreshToken))
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("SESSION_MANAGER",e.message.toString())
             return@flow
         }
     }
@@ -116,7 +117,7 @@ class SessionManager @Inject constructor(
 
             emit(decryptedAccessToken)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("SESSION_MANAGER",e.message.toString())
             return@flow
         }
 
@@ -137,10 +138,11 @@ class SessionManager @Inject constructor(
             val encryptedBytes = Base64.getDecoder().decode(encryptedRefreshToken)
 
             cipher.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(128, iv))
+            val decryptedAccessToken = String(cipher.doFinal(encryptedBytes))
 
-            String(cipher.doFinal(encryptedBytes))
+            emit(decryptedAccessToken)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("SESSION_MANAGER",e.message.toString())
             return@flow
         }
     }
@@ -172,7 +174,7 @@ class SessionManager @Inject constructor(
         }
 
         with (sharedPreferences.edit()) {
-            putString("userId", profile.id)
+            putString("userId", profile.id.toString())
             putString("username", profile.username)
             putString("email", profile.email)
             putString("location", profile.location)
@@ -193,7 +195,7 @@ class SessionManager @Inject constructor(
         val updatedAt = sharedPreferences.getString("updatedAt", null)
         return if (userId != null && username != null && email != null && location != null && profilePhoto != null && createdAt != null && updatedAt != null) {
             Profile(
-                id = userId,
+                id = userId.toInt(),
                 username = username,
                 email = email,
                 profilePhoto = profilePhoto,

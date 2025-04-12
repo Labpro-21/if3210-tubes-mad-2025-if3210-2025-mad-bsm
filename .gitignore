@@ -13,3 +13,8 @@
 .externalNativeBuild
 .cxx
 local.properties
+audio
+cover
+/app/src/main/java/com/mad/besokminggu/audio/
+/app/src/main/java/com/mad/besokminggu/cover/
+screenshot/script.py

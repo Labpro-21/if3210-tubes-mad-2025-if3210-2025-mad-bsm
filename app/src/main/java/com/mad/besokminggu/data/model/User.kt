@@ -3,7 +3,7 @@ package com.mad.besokminggu.data.model
 import java.util.Date
 
 data class Profile(
-    val id: String,
+    val id: Int,
     val username: String,
     val email: String,
     val profilePhoto: String,

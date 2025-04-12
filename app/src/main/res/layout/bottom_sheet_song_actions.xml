@@ -31,7 +31,7 @@
             android:layout_height="50dp"
             android:layout_gravity="center_horizontal"
             android:layout_marginEnd="16dp"
-            android:contentDescription="TODO"
+            android:contentDescription="@string/background_login"
             android:scaleType="centerCrop"
             android:src="@drawable/cover_starboy" />
 
@@ -88,6 +88,7 @@
                 android:layout_width="30dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0"
+                android:contentDescription="@string/queue_icon"
                 android:padding="5dp"
                 android:scaleType="centerInside"
                 app:srcCompat="@drawable/queue_icon" />
@@ -114,6 +115,7 @@
                 android:layout_width="30dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0"
+                android:contentDescription="@string/delete_song"
                 android:padding="5dp"
                 android:scaleType="centerInside"
                 app:srcCompat="@drawable/delete_song" />

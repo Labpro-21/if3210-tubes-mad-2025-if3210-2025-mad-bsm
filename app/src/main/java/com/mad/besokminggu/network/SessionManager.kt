@@ -174,7 +174,7 @@ class SessionManager @Inject constructor(
         }
 
         with (sharedPreferences.edit()) {
-            putString("userId", profile.id)
+            putString("userId", profile.id.toString())
             putString("username", profile.username)
             putString("email", profile.email)
             putString("location", profile.location)
@@ -195,7 +195,7 @@ class SessionManager @Inject constructor(
         val updatedAt = sharedPreferences.getString("updatedAt", null)
         return if (userId != null && username != null && email != null && location != null && profilePhoto != null && createdAt != null && updatedAt != null) {
             Profile(
-                id = userId,
+                id = userId.toInt(),
                 username = username,
                 email = email,
                 profilePhoto = profilePhoto,

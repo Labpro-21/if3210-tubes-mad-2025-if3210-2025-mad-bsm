@@ -7,11 +7,11 @@ import com.mad.besokminggu.data.model.Song
 @Dao
 interface SongDao {
 
-    @Query("SELECT * FROM songs")
-    fun getAllSongs(): LiveData<List<Song>>
+    @Query("SELECT * FROM songs WHERE ownerId=:ownerId")
+    fun getAllSongs(ownerId: Int): LiveData<List<Song>>
 
-    @Query("SELECT * FROM songs WHERE isLiked = 1")
-    fun getLikedSongs(): LiveData<List<Song>>
+    @Query("SELECT * FROM songs WHERE isLiked = 1 and ownerId=:ownerId")
+    fun getLikedSongs(ownerId: Int): LiveData<List<Song>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(song: Song)
@@ -34,23 +34,23 @@ interface SongDao {
     @Query("DELETE FROM songs")
     suspend fun deleteAll()
 
-    @Query("SELECT * FROM songs WHERE `id` > :currentIndex ORDER BY `id` ASC LIMIT 1")
-    suspend fun getNextIdSong(currentIndex : Int): Song?
+    @Query("SELECT * FROM songs WHERE `id` > :currentIndex AND ownerId = :ownerId ORDER BY `id` ASC LIMIT 1")
+    suspend fun getNextIdSong(currentIndex : Int, ownerId: Int): Song?
 
-    @Query("SELECT * FROM songs ORDER BY `id` ASC LIMIT 1")
-    suspend fun getFirstSong(): Song
+    @Query("SELECT * FROM songs WHERE ownerId = :ownerId ORDER BY `id` ASC LIMIT 1")
+    suspend fun getFirstSong(ownerId: Int): Song
 
-    @Query("SELECT COUNT(*) FROM songs")
-    fun getSongsCount(): LiveData<Int>
+    @Query("SELECT COUNT(*) FROM songs WHERE ownerId = :ownerId")
+    fun getSongsCount(ownerId: Int): LiveData<Int>
 
-    @Query("SELECT COUNT(*) FROM songs WHERE isLiked = 1")
-    fun getLikedSongsCount(): LiveData<Int>
+    @Query("SELECT COUNT(*) FROM songs WHERE isLiked = 1 AND ownerId = :ownerId")
+    fun getLikedSongsCount(ownerId: Int): LiveData<Int>
 
-    @Query("SELECT COUNT(*) FROM songs WHERE lastPlayedAt IS NOT NULL")
-    fun getListenedSongsCount(): LiveData<Int>
+    @Query("SELECT COUNT(*) FROM songs WHERE lastPlayedAt IS NOT NULL AND ownerId = :ownerId")
+    fun getListenedSongsCount(ownerId: Int): LiveData<Int>
 
-    @Query("SELECT * FROM songs WHERE id != :excludeId ORDER BY RANDOM() LIMIT 1")
-    suspend fun getRandomSongExcluding(excludeId: Int): Song?
+    @Query("SELECT * FROM songs WHERE id != :excludeId AND ownerId = :ownerId ORDER BY RANDOM() LIMIT 1")
+    suspend fun getRandomSongExcluding(excludeId: Int, ownerId: Int): Song?
 
 
 }

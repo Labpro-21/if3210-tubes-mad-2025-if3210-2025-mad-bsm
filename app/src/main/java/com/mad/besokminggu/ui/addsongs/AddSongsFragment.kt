@@ -3,6 +3,7 @@ package com.mad.besokminggu.ui.addsongs
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,13 +20,17 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mad.besokminggu.R
+import com.mad.besokminggu.data.model.Profile
 import com.mad.besokminggu.data.model.Song
 import com.mad.besokminggu.manager.AudioFileHelper
 import com.mad.besokminggu.manager.CoverFileHelper
 import com.mad.besokminggu.manager.FileHelper
 import com.mad.besokminggu.ui.library.LibraryViewModel
+import com.mad.besokminggu.viewModels.UserViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.Date
 
+@AndroidEntryPoint
 class AddSongsFragment : BottomSheetDialogFragment() {
     private lateinit var uploadPhoto: FrameLayout
     private lateinit var uploadFile: FrameLayout
@@ -41,6 +46,7 @@ class AddSongsFragment : BottomSheetDialogFragment() {
     private var selectedSongUri: Uri? = null
 
     private val viewModel: LibraryViewModel by activityViewModels()
+    private val userViewModel: UserViewModel by activityViewModels()
 
     override fun getTheme(): Int {
         return R.style.BottomSheetDialogTheme
@@ -168,6 +174,7 @@ class AddSongsFragment : BottomSheetDialogFragment() {
         val newSong = Song(
             title = title,
             artist = artist,
+            ownerId = userViewModel.profile.value?.id ?: -1,
             coverFileName = imageFile.name,
             audioFileName = audioFile.name,
             isLiked = false,

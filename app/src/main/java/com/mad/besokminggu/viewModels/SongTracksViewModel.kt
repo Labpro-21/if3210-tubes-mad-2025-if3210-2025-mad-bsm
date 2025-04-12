@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.mad.besokminggu.data.model.Song
 import com.mad.besokminggu.data.repositories.SongRepository
+import com.mad.besokminggu.network.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.Date
 import javax.inject.Inject
@@ -19,8 +20,11 @@ enum class RepeatMode {
 
 @HiltViewModel
 class SongTracksViewModel @Inject constructor(
-    private val songRepository: SongRepository
+    private val songRepository: SongRepository,
+    private val tokenManager: SessionManager
 ) : ViewModel() {
+
+    private val ownerId = tokenManager.getUserProfile()?.id ?: -1
 
     private val _playedSong = MutableLiveData<Song?>()
     val playedSong: LiveData<Song?> get() = _playedSong
@@ -127,9 +131,9 @@ class SongTracksViewModel @Inject constructor(
             }
         } else {
             if (_isShuffle.value == true) {
-                songRepository.getNextRandomSong(currentSong)
+                songRepository.getNextRandomSong(currentSong, ownerId)
             } else {
-                songRepository.getNextIteratedSong(currentSong)
+                songRepository.getNextIteratedSong(currentSong, ownerId)
             }
         }
 
@@ -178,7 +182,7 @@ class SongTracksViewModel @Inject constructor(
     }
 
     suspend fun addEmptyNextQueue(currentSong : Song){
-        _playedSong.value = songRepository.getNextIteratedSong(currentSong);
+        _playedSong.value = songRepository.getNextIteratedSong(currentSong, ownerId);
     }
 
     suspend fun deleteSong(song : Song){

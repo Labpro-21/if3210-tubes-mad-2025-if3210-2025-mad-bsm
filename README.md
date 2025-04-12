@@ -132,12 +132,12 @@ To run this project locally, follow these steps:
 <hr>
 
 <p align="center">
-    <img src="./screenshot/upload_song_landscape.jpg" alt="upload_song_landscape" width="300">
+    <img src="./screenshot/upload_song_landscape.jpg" alt="upload_song_landscape" width="1000">
 </p> 
 <hr>
 
 <p align="center">
-    <img src="./screenshot/upload.gif" alt="upload_song_landscape" width="1000">
+    <img src="./screenshot/upload.gif" alt="upload_song_landscape" width="300">
 </p> 
 
 ## Song Actions

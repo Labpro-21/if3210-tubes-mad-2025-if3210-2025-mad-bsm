@@ -127,7 +127,7 @@ To run this project locally, follow these steps:
 
 ## Upload Songs
 <p align="center">
-    <img src="./screenshot/upload_song.jpg" alt="upload_song_landscape" width="1000">
+    <img src="./screenshot/upload_song_portrait.jpg" alt="upload_song_landscape" width="300">
 </p> 
 <hr>
 

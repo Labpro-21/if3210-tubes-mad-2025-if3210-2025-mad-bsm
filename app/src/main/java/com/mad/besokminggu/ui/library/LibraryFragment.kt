@@ -42,7 +42,10 @@ class LibraryFragment : Fragment() {
     private fun onSongClick(song: Song){
         Log.d("MiniPlayer", "Song playing: ${song.title}")
         if(song.id != songViewModel.playedSong.value?.id){
-            songViewModel.playSong(song);
+            lifecycleScope.launch {
+
+                songViewModel.playSong(song);
+            }
         }
         songViewModel.showFullPlayer()
     }

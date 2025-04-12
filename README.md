@@ -1,7 +1,10 @@
-
-![](./screenshot/preview.gif)
-
 # App Description
+<div style="text-align: center;">
+    <img src="./screenshot/preview.gif" alt="preview" width="300">
+</div>
+<hr>
+<br>
+
 *Purrytify* is a Spotify-inspired music player Android app that lets users upload and play songs stored in their local device. The features available in this app include:
 
 * On-background music player to play song files stored in local device
@@ -20,34 +23,72 @@
 # App Preview
 
 ## Login
-![login_blank](./screenshot/login_blank.jpg)
-![login_portrait](./screenshot/login_portrait.jpg)
-![login_landscape](./screenshot/login_landscape.jpg)
-![login_password](./screenshot/login_password.jpg)
+<div style="text-align: center;">
+    <img src="./screenshot/login_blank.jpg" alt="login_blank" width="300">
+</div>
+<hr>
+
+<div style="text-align: center;">
+    <img src="./screenshot/login_portrait.jpg" alt="login_portrait" width="300">
+</div>
+<hr>
+
+<div style="text-align: center;">
+    <img src="./screenshot/login_landscape.jpg" alt="login_landscape" width="1000">
+</div>
+<hr>
+
+<div style="text-align: center;">
+    <img src="./screenshot/login_password.jpg" alt="login_password" width="300">
+</div>
 
 ## Home 
-![home_portrait](./screenshot/home_portrait.jpg)
-![home_landscape](./screenshot/home_landscape.jpg)
+<div style="text-align: center;">
+    <img src="./screenshot/home_portrait.jpg" alt="home_portrait" width="300">
+</div> 
+<hr>
+
+<div style="text-align: center;">
+    <img src="./screenshot/home_landscape.jpg" alt="home_landscape" width="1000">
+</div> 
 
 ## Library
-![library_portrait](./screenshot/library_portrait.jpg)
-![library_landscape](./screenshot/library_landscape.jpg)
+<div style="text-align: center;">
+    <img src="./screenshot/library_portrait.jpg" alt="library_portrait" width="300">
+</div> 
+<hr>
+
+
+<div style="text-align: center;">
+    <img src="./screenshot/library_landscape.jpg" alt="library_landscape" width="1000">
+</div> 
 
 ## Profile
 
 ## Currently Playing Song
-![playing_song_portrait](./screenshot/playing_song_portrait.jpg)
+<div style="text-align: center;">
+    <img src="./screenshot/playing_song_portrait.jpg" alt="playing_song_portrait" width="300">
+</div> 
 
 ## Miniplayer
-![miniplayer](./screenshot/miniplayer.jpg)
+<div style="text-align: center;">
+    <img src="./screenshot/miniplayer.jpg" alt="miniplayer" width="300">
+</div> 
 
 ## Upload Songs
-![upload_song_portrait](./screenshot/upload_song_portrait.jpg)
-![upload_song_landscape](./screenshot/upload_song_landscape.jpg)
+<div style="text-align: center;">
+    <img src="./screenshot/upload_song_portrait.jpg" alt="upload_song_portrait" width="300">
+</div> 
+<hr>
+
+<div style="text-align: center;">
+    <img src="./screenshot/upload_song_landscape.jpg" alt="upload_song_landscape" width="1000">
+</div> 
 
 ## Song Actions
-![song_actions](./screenshot/song_actions.jpg)
-
+<div style="text-align: center;">
+    <img src="./screenshot/song_actions.jpg" alt="song_actions" width="300">
+</div> 
 
 # Developers
 | NIM / Student ID | Name | Development Role | Planning Hours | Development Hours |

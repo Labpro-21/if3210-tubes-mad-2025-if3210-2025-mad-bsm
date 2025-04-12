@@ -1,14 +1,11 @@
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:background="@color/primary"
-    tools:context=".ui.home.HomeFragment">
 
     <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:fillViewport="true"
+        android:background="@color/primary"
+        tools:context=".ui.home.HomeFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -40,16 +37,16 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvNewSongs"
             android:layout_width="match_parent"
-            android:layout_height="140dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:clipToPadding="false"
+            android:overScrollMode="never"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:scrollbars="horizontal"
-            android:overScrollMode="never"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/item_newsong"
-            tools:itemCount="5" />
+            tools:itemCount="5"
+            tools:listitem="@layout/item_newsong" />
 
 
 
@@ -78,4 +75,3 @@
             tools:itemCount="10" />
 
     </LinearLayout>
-</ScrollView>

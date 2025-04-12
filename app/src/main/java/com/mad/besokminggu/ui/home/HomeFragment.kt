@@ -45,7 +45,10 @@ class HomeFragment : Fragment() {
     private fun onSongClick(song: Song){
         Log.d("MiniPlayer", "Song playing: ${song.title}")
         if(song.id != songViewModel.playedSong.value?.id){
+            lifecycleScope.launch {
+
             songViewModel.playSong(song);
+            }
         }
         songViewModel.showFullPlayer()
 
@@ -55,7 +58,9 @@ class HomeFragment : Fragment() {
         SongActionSheet(
             song = song,
             onQueue = {
+                lifecycleScope.launch {
                 songViewModel.addToNextQueue(song)
+                }
             },
             onEdit = {
                 val existingFragment = parentFragmentManager.findFragmentByTag("AddSongsBottomSheet")

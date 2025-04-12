@@ -93,9 +93,10 @@ class SongTracksViewModel @Inject constructor(
     }
 
 
-    fun playSong(song: Song){
+    suspend  fun playSong(song: Song){
         val newSong = song.copy(lastPlayedAt =  Date())
         _playedSong.value = newSong
+        songRepository.update(newSong);
         showFullPlayer();
         resetPrevQueue();
     }
@@ -194,7 +195,7 @@ class SongTracksViewModel @Inject constructor(
     }
 
 
-    fun addToNextQueue(song: Song) {
+    suspend fun addToNextQueue(song: Song) {
         val updatedQueue = _nextSongsQueue.value?.toMutableList() ?: mutableListOf()
         updatedQueue.add(song)
         Log.d("NextQueue", "Size of Queue: ${updatedQueue.size}")

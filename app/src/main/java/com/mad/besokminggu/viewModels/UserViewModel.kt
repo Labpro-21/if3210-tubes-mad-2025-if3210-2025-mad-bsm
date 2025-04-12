@@ -39,6 +39,7 @@ class UserViewModel @Inject constructor(
                     Log.e("USER_VIEW_MODEL", "Error :  ${message}")
                 }
             })
+            getProfileData()
         }
     }
 
@@ -53,6 +54,7 @@ class UserViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val temp = tokenManager.getUserProfile()
             if (temp != null) {
+                Log.d("USER_VIEW_MODEL", "Profile: ${temp}")
                 _profile.postValue(temp!!)
             } else {
                 protectedRepository.getProfile().collect { apiResponse ->

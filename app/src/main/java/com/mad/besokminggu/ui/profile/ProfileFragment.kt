@@ -114,7 +114,7 @@ class ProfileFragment : Fragment() {
                     }
                 }
             }
-            userViewModel.getProfile(errorHandler)
+//            userViewModel.getProfile(errorHandler)
 
             userViewModel.profile.observe(viewLifecycleOwner) {
                 textUsername.text = it.username

@@ -26,7 +26,7 @@ interface SongDao {
     suspend fun delete(song: Song)
 
     @Query("SELECT * FROM songs WHERE id = :id")
-    suspend fun getSong(id: Int): Song
+    fun getSong(id: Int): LiveData<Song>
 
     @Query("SELECT * FROM songs WHERE id = :id AND isLiked= 1")
     suspend fun getLikedSong(id: Int): Song

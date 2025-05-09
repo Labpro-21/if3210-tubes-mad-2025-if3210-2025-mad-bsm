@@ -16,4 +16,12 @@ class UnprotectedRepository @Inject constructor(
     fun refreshToken(refreshToken: String) = apiRequestFlow {
         unprotectedApiService.refreshToken(RefreshTokenBody(refreshToken))
     }
+
+    fun topSongsGlobal() = apiRequestFlow {
+        unprotectedApiService.topSongsGlobal()
+    }
+
+    fun topSongsCountry(country: String) = apiRequestFlow {
+        unprotectedApiService.topSongsCountry(country)
+    }
 }

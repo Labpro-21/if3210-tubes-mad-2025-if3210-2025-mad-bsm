@@ -8,6 +8,7 @@
         android:startColor="#00667A"
         android:centerColor="#002f38"
         android:endColor="#121212"
-        android:centerX="0.5"
-        android:centerY="0.5"/>
+        />
+<!--        android:centerX="0.5"-->
+<!--        android:centerY="0.45"/>-->
 </shape>

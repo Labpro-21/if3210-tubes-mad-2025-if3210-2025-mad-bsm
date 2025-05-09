@@ -22,4 +22,10 @@
         android:name="com.mad.besokminggu.ui.profile.ProfileFragment"
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_profile" />
+
+    <fragment
+        android:id="@+id/navigation_top_global"
+        android:name="com.mad.besokminggu.ui.topSongs.TopGlobalFragment"
+        android:label="Top Global"
+        tools:layout="@layout/fragment_top_global" />
 </navigation>

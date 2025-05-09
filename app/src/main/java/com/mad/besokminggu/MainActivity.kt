@@ -21,6 +21,7 @@ import androidx.navigation.findNavController
 
 import androidx.navigation.ui.setupWithNavController
 import androidx.transition.Visibility
+import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
 import com.mad.besokminggu.databinding.ActivityMainBinding
 import com.mad.besokminggu.manager.AudioFileHelper
@@ -32,8 +33,10 @@ import com.mad.besokminggu.network.ConnectionStateMonitor
 import com.mad.besokminggu.network.OnNetworkAvailableCallbacks
 import com.mad.besokminggu.ui.viewTracks.MiniPlayerView
 import com.mad.besokminggu.ui.login.LoginActivity
+import com.mad.besokminggu.viewModels.CoroutinesErrorHandler
 import com.mad.besokminggu.viewModels.SongTracksViewModel
 import com.mad.besokminggu.viewModels.TokenViewModel
+import com.mad.besokminggu.viewModels.TopSongsViewModel
 import com.mad.besokminggu.viewModels.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -47,6 +50,7 @@ class MainActivity : AppCompatActivity() {
     private val songViewModel : SongTracksViewModel by viewModels()
     private val userViewModel : UserViewModel by viewModels()
     private val tokenViewModel: TokenViewModel by viewModels()
+    private val topSongsViewModel: TopSongsViewModel by viewModels()
 
     private lateinit var connectionMonitor: ConnectionStateMonitor
 
@@ -114,7 +118,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             // Setup for NavigationView (landscape)
-            val sideNavView = findViewById<com.google.android.material.navigation.NavigationView>(R.id.side_nav_view)
+            val sideNavView = findViewById<NavigationView>(R.id.side_nav_view)
             sideNavView?.setNavigationItemSelectedListener { menuItem ->
                 menuItem.isChecked = true
                 navController.navigate(menuItem.itemId)
@@ -226,6 +230,36 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+//
+//        // Top Songs
+//        topSongsViewModel.topSongs.observe(this) { response ->
+//            when (response) {
+//                is ApiResponse.Success -> {
+//                    Log.d("TOP_SONGS", "Top Songs: ${response.data}")
+//                }
+//                is ApiResponse.Failure -> {
+//                    Log.e("TOP_SONGS", "Top Songs: Failed to load")
+//                }
+//                is ApiResponse.Loading -> {
+//                    Log.d("TOP_SONGS", "Top Songs: Loading...")
+//                }
+//            }
+//        }
+//        topSongsViewModel.getTopSongsGlobal(
+//            coroutinesErrorHandler = object : CoroutinesErrorHandler {
+//                override fun onError(message: String) {
+//                    Log.e("TOP_SONGS", "Error: ${message}")
+//                }
+//            },
+//        )
+//        topSongsViewModel.getTopSongsCountry(
+//            country = "ID",
+//            coroutinesErrorHandler = object : CoroutinesErrorHandler {
+//                override fun onError(message: String) {
+//                    Log.e("TOP_SONGS", "Error: ${message}")
+//                }
+//            },
+//        )
     }
 
     override fun onPause() {

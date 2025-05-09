@@ -5,16 +5,19 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.map
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mad.besokminggu.R
 import com.mad.besokminggu.manager.AudioPlayerManager
 import com.mad.besokminggu.data.model.Song
+import com.mad.besokminggu.databinding.FragmentTopGlobalBinding
 import com.mad.besokminggu.ui.adapter.SongWithMenuAdapter
 import com.mad.besokminggu.ui.optionMenu.SongActionSheet
 import com.mad.besokminggu.viewModels.HomeViewModel
@@ -30,7 +33,7 @@ class HomeFragment : Fragment() {
     private lateinit var rvNewSongs: RecyclerView
     private lateinit var rvRecentlyPlayed: RecyclerView
 
-    private val  homeViewModel: HomeViewModel by activityViewModels()
+    private val homeViewModel: HomeViewModel by activityViewModels()
     private val userViewModel: UserViewModel by activityViewModels()
     private val songViewModel : SongTracksViewModel by activityViewModels()
 
@@ -93,6 +96,15 @@ class HomeFragment : Fragment() {
 
         rvNewSongs = view.findViewById(R.id.rvNewSongs)
         rvRecentlyPlayed = view.findViewById(R.id.rvRecentlyPlayed)
+
+        // Set up on button click listeners
+        val topGlobalButton = view.findViewById<ImageButton>(R.id.topGlobal)
+        val topLocalButton = view.findViewById<ImageButton>(R.id.topLocal)
+
+        // Redirect to fragment
+        topGlobalButton.setOnClickListener {
+            findNavController().navigate(R.id.navigation_top_global)
+        }
 
         val newSongsAdapter = NewSongAdapter { song ->
             onSongClick(song)

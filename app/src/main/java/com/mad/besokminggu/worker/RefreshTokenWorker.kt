@@ -40,7 +40,7 @@ class RefreshTokenWorker @AssistedInject constructor(
             Log.d("REFRESH_TOKEN_WORKER", "No refresh token found")
             sessionManager.clearToken()
             sessionManager.clearUserProfile()
-            scheduleNextRun(applicationContext)
+//            scheduleNextRun(applicationContext)
             return Result.failure()
         }
 
@@ -63,6 +63,7 @@ class RefreshTokenWorker @AssistedInject constructor(
                             is ApiResponse.Success -> {
                                 Log.d("REFRESH_TOKEN_WORKER","Update profile successfully")
                                 sessionManager.storeUserProfile(it.data)
+                                scheduleNextRun(applicationContext)
                             }
                             is ApiResponse.Loading -> {
                                 Log.d("REFRESH_TOKEN_WORKER","Updating profile...")
@@ -77,7 +78,6 @@ class RefreshTokenWorker @AssistedInject constructor(
             }
         }
 
-        scheduleNextRun(applicationContext)
         return Result.success()
     }
 
@@ -94,7 +94,11 @@ class RefreshTokenWorker @AssistedInject constructor(
             .build()
 
         try {
-            WorkManager.getInstance(context).enqueue(request)
+            WorkManager.getInstance(context).enqueueUniqueWork(
+                "refresh_token_worker",
+                ExistingWorkPolicy.REPLACE,
+                request
+            )
             Log.d("REFRESH_TOKEN_WORKER","Re-scheduled RefreshTokenWorker successfully.")
         } catch (e: Exception) {
             Log.e("REFRESH_TOKEN_WORKER","Failed to re-schedule RefreshTokenWorker: ${e.message}")

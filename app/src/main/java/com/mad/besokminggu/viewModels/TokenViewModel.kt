@@ -1,11 +1,8 @@
 package com.mad.besokminggu.viewModels
 
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mad.besokminggu.data.model.LoginBody
 import com.mad.besokminggu.data.model.RefreshTokenResponse
-import com.mad.besokminggu.data.repositories.ProtectedRepository
 import com.mad.besokminggu.data.repositories.UnprotectedRepository
 import com.mad.besokminggu.network.ApiResponse
 import com.mad.besokminggu.network.SessionManager

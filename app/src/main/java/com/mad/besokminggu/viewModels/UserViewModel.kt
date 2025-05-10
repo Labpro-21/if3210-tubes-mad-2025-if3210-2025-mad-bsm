@@ -1,20 +1,16 @@
 package com.mad.besokminggu.viewModels
 
 import android.util.Log
-import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.bumptech.glide.Glide
 import com.mad.besokminggu.network.ApiResponse
 import com.mad.besokminggu.data.model.Profile
 import com.mad.besokminggu.data.repositories.ProtectedRepository
 import com.mad.besokminggu.network.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -78,5 +74,4 @@ class UserViewModel @Inject constructor(
             }
         }
     }
-
 }

@@ -13,6 +13,7 @@
     <string name="invalid_password">Password must be >=8 characters</string>
     <string name="login_failed">"Login failed"</string>
     <string name="title_new_songs">New songs</string>
+    <string name="title_chart">Chart</string>
     <string name="cover_image">Song cover image</string>
     <string name="recently_played">Recently played</string>
     <string name="save">Save</string>
@@ -35,4 +36,8 @@
     <string name="artist">Artist</string>
     <string name="upload_song">Upload Song</string>
     <string name="artist_name">Artist Name</string>
+    <string name="desc_top_global">Your daily update of the most played tracks right now - Global.</string>
+    <string name="desc_top_local">Your daily update of the most played tracks right now - Local.</string>
+    <string name="top_global">Top Global</string>
+    <string name="top_local">Top Local</string>
 </resources>

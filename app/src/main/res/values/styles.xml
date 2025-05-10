@@ -35,4 +35,9 @@
     <style name="Widget.MyApp.Snackbar.TextView" parent="Widget.MaterialComponents.Snackbar.TextView">
         <item name="android:textColor">?attr/colorAccent</item>
     </style>
+
+    <style name="CustomShapeAppearance" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
 </resources>

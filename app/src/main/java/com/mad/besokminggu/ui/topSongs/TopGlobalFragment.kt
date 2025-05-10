@@ -1,6 +1,9 @@
 package com.mad.besokminggu.ui.topSongs
 
+import android.media.AudioAttributes
+import android.media.MediaPlayer
 import android.os.Bundle
+import android.provider.MediaStore.Audio.Media
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +21,7 @@ import com.mad.besokminggu.ui.adapter.SongWithMenuAdapter
 import com.mad.besokminggu.viewModels.CoroutinesErrorHandler
 import com.mad.besokminggu.viewModels.TopSongsViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import java.io.IOException
 
 @AndroidEntryPoint
 class TopGlobalFragment: Fragment() {
@@ -30,9 +34,30 @@ class TopGlobalFragment: Fragment() {
 
     private lateinit var songAdapter: OnlineSongAdapter
 
+    private val mediaPlayer = MediaPlayer().apply {
+        setAudioAttributes(
+            AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .build()
+        )
+        setScreenOnWhilePlaying(true)
+    }
+
     private fun onSongClick(song: OnlineSong){
         Log.d("MiniPlayer", "Song playing: ${song.title}")
         // TODO: Implement play song logic
+        val url = song.url
+        try {
+            mediaPlayer.reset()
+            mediaPlayer.setDataSource(url)
+            mediaPlayer.setOnPreparedListener {
+                it.start()
+            }
+            mediaPlayer.prepareAsync()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
     }
 
     override fun onCreateView(

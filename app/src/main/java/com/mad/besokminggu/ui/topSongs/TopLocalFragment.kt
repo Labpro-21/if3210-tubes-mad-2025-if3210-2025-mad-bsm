@@ -11,7 +11,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mad.besokminggu.data.model.OnlineSong
 import com.mad.besokminggu.data.model.Song
-import com.mad.besokminggu.databinding.FragmentTopGlobalBinding
+import com.mad.besokminggu.databinding.FragmentTopLocalBinding
 import com.mad.besokminggu.network.ApiResponse
 import com.mad.besokminggu.ui.adapter.OnlineSongAdapter
 import com.mad.besokminggu.ui.adapter.SongWithMenuAdapter
@@ -20,9 +20,9 @@ import com.mad.besokminggu.viewModels.TopSongsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class TopGlobalFragment: Fragment() {
+class TopLocalFragment: Fragment() {
 
-    private var _binding: FragmentTopGlobalBinding? = null
+    private var _binding: FragmentTopLocalBinding? = null
 
     private val binding get() = _binding!!
 
@@ -40,7 +40,7 @@ class TopGlobalFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentTopGlobalBinding.inflate(inflater, container, false)
+        _binding = FragmentTopLocalBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -62,13 +62,13 @@ class TopGlobalFragment: Fragment() {
         }
 
         topSongsViewModel.topSongs.observe(viewLifecycleOwner) { songList ->
-            Log.d("TopGlobalFragment", "Song List: $songList")
+            Log.d("TopLocalFragment", "Song List: $songList")
             when (songList) {
                 is ApiResponse.Loading -> {
 //                    binding.progressBar?.visibility = View.VISIBLE
                 }
                 is ApiResponse.Success -> {
-                    Log.d("TopGlobalFragment", "Success: ${songList.data}")
+                    Log.d("TopLocalFragment", "Success: ${songList.data}")
 
                     songAdapter.submitList(songList.data)
                 }
@@ -77,15 +77,16 @@ class TopGlobalFragment: Fragment() {
                     // Handle error state
                 }
                 else -> {
-                    Log.d("TopGlobalFragment", "State: ${songList.javaClass}")
+                    Log.d("TopLocalFragment", "State: ${songList.javaClass}")
                 }
             }
         }
 
-        topSongsViewModel.getTopSongsGlobal(
+        topSongsViewModel.getTopSongsCountry(
+            country = "ID",
             coroutinesErrorHandler = object : CoroutinesErrorHandler {
                 override fun onError(message: String) {
-                    Log.e("TopGlobalFragment", "Error: ${message}")
+                    Log.e("TopLocalFragment", "Error: ${message}")
                 }
             },
         )

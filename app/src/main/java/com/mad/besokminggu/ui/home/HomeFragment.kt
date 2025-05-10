@@ -106,6 +106,10 @@ class HomeFragment : Fragment() {
             findNavController().navigate(R.id.navigation_top_global)
         }
 
+        topLocalButton.setOnClickListener {
+            findNavController().navigate(R.id.navigation_top_local)
+        }
+
         val newSongsAdapter = NewSongAdapter { song ->
             onSongClick(song)
         }

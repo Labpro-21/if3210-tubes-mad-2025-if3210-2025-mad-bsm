@@ -28,4 +28,10 @@
         android:name="com.mad.besokminggu.ui.topSongs.TopGlobalFragment"
         android:label="Top Global"
         tools:layout="@layout/fragment_top_global" />
+
+    <fragment
+        android:id="@+id/navigation_top_local"
+        android:name="com.mad.besokminggu.ui.topSongs.TopLocalFragment"
+        android:label="Top Global"
+        tools:layout="@layout/fragment_top_global" />
 </navigation>

@@ -50,11 +50,13 @@ class MiniPlayerView @JvmOverloads constructor(
 
             Log.d("MiniPlayerView", "Got song: ${song.title}")
 
+            val isOnline = viewModel.isOnlineSong.value ?: false
+
             // General
             tvTitle.text = song.title
             tvArtist.text = song.artist
             Glide.with(context)
-                .load(FileHelper.getFile(song.coverFileName, "cover"))
+                .load(if (isOnline) song.coverFileName else FileHelper.getFile(song.coverFileName, "cover"))
                 .into(ivCover)
         }
     }

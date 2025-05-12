@@ -3,7 +3,6 @@ package com.mad.besokminggu
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -13,14 +12,11 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 
-import androidx.navigation.ui.setupWithNavController
-import androidx.transition.Visibility
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
 import com.mad.besokminggu.databinding.ActivityMainBinding
@@ -33,14 +29,12 @@ import com.mad.besokminggu.network.ConnectionStateMonitor
 import com.mad.besokminggu.network.OnNetworkAvailableCallbacks
 import com.mad.besokminggu.ui.viewTracks.MiniPlayerView
 import com.mad.besokminggu.ui.login.LoginActivity
-import com.mad.besokminggu.viewModels.CoroutinesErrorHandler
 import com.mad.besokminggu.viewModels.SongTracksViewModel
 import com.mad.besokminggu.viewModels.TokenViewModel
-import com.mad.besokminggu.viewModels.TopSongsViewModel
+import com.mad.besokminggu.ui.topSongs.TopSongsViewModel
 import com.mad.besokminggu.viewModels.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {

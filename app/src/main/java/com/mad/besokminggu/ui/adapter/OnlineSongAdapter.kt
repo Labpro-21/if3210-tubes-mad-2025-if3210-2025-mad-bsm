@@ -14,11 +14,10 @@ class OnlineSongAdapter(
     private val onMenuClick: (OnlineSong) -> Unit
 ) : RecyclerView.Adapter<OnlineSongViewHolder>() {
 
-    protected var songs = listOf<OnlineSong>()
+    var songs = listOf<OnlineSong>()
 
     fun submitList(newSongs: List<OnlineSong>) {
         songs = newSongs
-        Log.d("OnlineSongAdapter", "submitList: $songs")
         notifyDataSetChanged()
     }
 
@@ -27,13 +26,11 @@ class OnlineSongAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OnlineSongViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_song, parent, false)
-        Log.d("OnlineSongAdapter", "onCreateViewHolder: $view")
         return OnlineSongViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: OnlineSongViewHolder, position: Int) {
         val song = songs[position]
-        Log.d("OnlineSongAdapter", "onBindViewHolder: $song")
         if (holder is OnlineSongViewHolder) {
             holder.bind(song, onItemClick, onMenuClick)
         } else {

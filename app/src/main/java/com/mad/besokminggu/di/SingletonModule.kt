@@ -2,6 +2,7 @@ package com.mad.besokminggu.di
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.mad.besokminggu.data.repositories.OnlineSongRepository
 import com.mad.besokminggu.data.services.UnprotectedApiService
 import com.mad.besokminggu.data.services.ProtectedApiService
 import com.mad.besokminggu.network.AuthInterceptor
@@ -21,6 +22,12 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class SingletonModule {
+
+    @Provides
+    @Singleton
+    fun provideOnlineSongRepository(): OnlineSongRepository {
+        return OnlineSongRepository()
+    }
 
     @Singleton
     @Provides

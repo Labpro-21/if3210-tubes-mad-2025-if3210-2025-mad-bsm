@@ -8,7 +8,7 @@ object AudioPlayerManager {
     private var mediaPlayer: MediaPlayer? = null
     private var onPreparedCallback: (() -> Unit)? = null
 
-    fun play(song: Song, onComplete: (() -> Unit)? = null, onPrepared: (() -> Unit)? = null) {
+    fun play(song: Song, isOnline: Boolean = false, onComplete: (() -> Unit)? = null, onPrepared: (() -> Unit)? = null) {
         stop()
 
         if (song.audioFileName.isEmpty()) return
@@ -16,7 +16,7 @@ object AudioPlayerManager {
         onPreparedCallback = onPrepared
 
         mediaPlayer = MediaPlayer().apply {
-            setDataSource(AudioFileHelper.getFile(song.audioFileName)?.absolutePath)
+            setDataSource(if (isOnline) song.audioFileName else AudioFileHelper.getFile(song.audioFileName)?.absolutePath)
             setOnPreparedListener {
                 start()
                 onPreparedCallback?.invoke()

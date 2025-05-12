@@ -14,3 +14,17 @@ data class OnlineSong (
     val createdAt: Date,
     val updatedAt: Date
 )
+
+fun OnlineSong.toSong(): Song {
+    return Song(
+        id = id,
+        title = title,
+        artist = artist,
+        ownerId = -1,
+        coverFileName = artwork,
+        audioFileName = url,
+        isLiked = false,
+        lastPlayedAt = null,
+        createdAt = createdAt
+    )
+}

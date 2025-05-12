@@ -2,6 +2,7 @@ package com.mad.besokminggu.ui.viewTracks
 import android.annotation.SuppressLint
 import com.mad.besokminggu.R
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -67,15 +68,19 @@ class ViewTrackFragment : Fragment(){
         val songSinger : TextView= binding.songSinger
         val songImage : ImageView= binding.songImage
 
-        playedSong.observe(viewLifecycleOwner) {
-                song ->
+        playedSong.observe(viewLifecycleOwner) { song ->
 
             if(song == null){
                 AudioPlayerManager.stop()
                 return@observe
             }
 
+            val isOnline = viewModel.isOnlineSong.value ?: false
+
+            Log.d("ViewTrackFragment", "Song playing: ${song.title}")
+
             AudioPlayerManager.play(song,
+                isOnline = isOnline,
                 onComplete = { skipSong() },
                 onPrepared = {
                     val duration = AudioPlayerManager.getDuration()
@@ -94,7 +99,7 @@ class ViewTrackFragment : Fragment(){
             songTitle.isSelected = true
             songSinger.isSelected = true
             Glide.with(requireContext())
-                .load(CoverFileHelper           .getFile(song.coverFileName))
+                .load(if (isOnline) song.coverFileName else CoverFileHelper.getFile(song.coverFileName))
                 .into(songImage)
 
             // Love Button

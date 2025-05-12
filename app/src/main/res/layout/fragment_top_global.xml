@@ -141,6 +141,7 @@
                 android:layout_weight="1" />
 
             <ImageButton
+                android:id="@+id/playButton"
                 android:layout_width="54dp"
                 android:layout_height="54dp"
                 android:background="@color/transparent"

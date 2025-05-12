@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.mad.besokminggu.data.model.Song
+import com.mad.besokminggu.data.repositories.OnlineSongRepository
 import com.mad.besokminggu.data.repositories.SongRepository
 import com.mad.besokminggu.network.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,6 +22,7 @@ enum class RepeatMode {
 @HiltViewModel
 class SongTracksViewModel @Inject constructor(
     private val songRepository: SongRepository,
+    private val onlineSongRepository: OnlineSongRepository,
     private val tokenManager: SessionManager
 ) : ViewModel() {
 
@@ -28,6 +30,9 @@ class SongTracksViewModel @Inject constructor(
 
     private val _playedSong = MutableLiveData<Song?>()
     val playedSong: LiveData<Song?> get() = _playedSong
+
+    private val _isOnlineSong = MutableLiveData<Boolean>(false)
+    val isOnlineSong: LiveData<Boolean> get() = _isOnlineSong
 
     // Keep tracking of previous queue
     private val _previousSongsQueue = MutableLiveData<List<Song>>(emptyList())
@@ -95,19 +100,26 @@ class SongTracksViewModel @Inject constructor(
     }
 
 
-    suspend  fun playSong(song: Song){
+    suspend fun playSong(song: Song, isOnline: Boolean = false){
         val newSong = song.copy(lastPlayedAt =  Date())
+        _isOnlineSong.value = isOnline
+        Log.d("MiniPlayer", "Online?: ${_isOnlineSong.value}")
         _playedSong.value = newSong
-        songRepository.update(newSong);
+        Log.d("MiniPlayer", "Song playing: ${_playedSong.value}")
+        if (isOnline) {
+            songRepository.update(newSong);
+            resetPrevQueue();
+        }
         showFullPlayer();
-        resetPrevQueue();
     }
 
 
     suspend fun skipToNext() {
-
         val currentSong : Song = _playedSong.value?.copy(lastPlayedAt =  Date()) ?: return
-        songRepository.update(currentSong);
+        val isOnline = isOnlineSong.value ?: false
+        if (!isOnline) {
+            songRepository.update(currentSong);
+        }
         when(_repeatMode.value){
             RepeatMode.REPEAT_ONE -> {
                 _playedSong.value = currentSong.copy(lastPlayedAt = Date())
@@ -137,26 +149,35 @@ class SongTracksViewModel @Inject constructor(
     suspend fun handleNextSongFromQueue(currentSong : Song){
         val nextQueue = _nextSongsQueue.value?.toMutableList() ?: return
 
-
-        val nextSong = if (nextQueue.isNotEmpty()) {
-            // Handle shuffle
+        val nextSong = if (_isOnlineSong.value ?: false) {
             if (_isShuffle.value == true) {
-                nextQueue.removeAt((nextQueue.indices).random())
+                onlineSongRepository.getNextRandomSong(currentSong)
             } else {
-                nextQueue.removeAt(0)
+                onlineSongRepository.getNextIteratedSong(currentSong)
             }
         } else {
-            if (_isShuffle.value == true) {
-                songRepository.getNextRandomSong(currentSong, ownerId)
+            if (nextQueue.isNotEmpty()) {
+                // Handle shuffle
+                if (_isShuffle.value == true) {
+                    nextQueue.removeAt((nextQueue.indices).random())
+                } else {
+                    nextQueue.removeAt(0)
+                }
             } else {
-                songRepository.getNextIteratedSong(currentSong, ownerId)
+                if (_isShuffle.value == true) {
+                    songRepository.getNextRandomSong(currentSong, ownerId)
+                } else {
+                    songRepository.getNextIteratedSong(currentSong, ownerId)
+                }
             }
         }
 
         addToPrevQueue(currentSong)
         _playedSong.value = nextSong
         _nextSongsQueue.value = nextQueue
-        songRepository.update(currentSong)
+        if (isOnlineSong.value == false) {
+            songRepository.update(currentSong)
+        }
     }
 
     fun skipToPrevious() {
@@ -178,7 +199,8 @@ class SongTracksViewModel @Inject constructor(
         if(song.id == _playedSong.value?.id){
             resetPlayback()
         }
-        songRepository.deleteSong(song)
+        if (isOnlineSong.value == false)
+            songRepository.deleteSong(song)
         _anySongDeleted.value = song;
     }
 
@@ -190,7 +212,7 @@ class SongTracksViewModel @Inject constructor(
         Log.d("NextQueue", "Size of Queue: ${updatedQueue.size}")
 
         if (updatedQueue.size == 1 && _playedSong.value == null) {
-            playSong(song)
+            playSong(song, isOnlineSong.value ?: false)
         }
 
         _nextSongsQueue.value = updatedQueue
@@ -210,6 +232,7 @@ class SongTracksViewModel @Inject constructor(
         _isFullPlayerVisible.value = false
         _playedSong.value = null
         _currentSeekPosition.value = 0
+
     }
 
     fun resetPrevQueue(){
@@ -231,7 +254,8 @@ class SongTracksViewModel @Inject constructor(
         val updatedSong = current.copy(isLiked = updated)
 
         _isLiked.value = updated
-        songRepository.update(updatedSong)
+        if (isOnlineSong.value == false)
+            songRepository.update(updatedSong)
     }
 
     fun toggleRepeat() {

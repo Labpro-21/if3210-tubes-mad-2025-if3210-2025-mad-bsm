@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.map
 import com.mad.besokminggu.data.model.Song
 import com.mad.besokminggu.data.repositories.SongRepository
 import com.mad.besokminggu.network.SessionManager
@@ -64,6 +65,11 @@ class SongTracksViewModel @Inject constructor(
     // Trigger for if there any song was deleted
     private val _anySongDeleted = MutableLiveData<Song>()
     val anySongDeleted : LiveData<Song> get() = _anySongDeleted
+
+    val isPrevValid: LiveData<Boolean> =
+        previousSongsQueue.map { queue ->
+            queue.isNotEmpty()
+        }
 
     fun updateSongDuration(duration: Int) {
         _currentSongDuration.value = duration
@@ -157,6 +163,14 @@ class SongTracksViewModel @Inject constructor(
         _playedSong.value = nextSong
         _nextSongsQueue.value = nextQueue
         songRepository.update(currentSong)
+    }
+
+    fun updateShuffle(shuffle: Boolean) {
+        _isShuffle.value = shuffle
+    }
+
+    fun updateRepeat(repeat: RepeatMode) {
+        _repeatMode.value = repeat
     }
 
     fun skipToPrevious() {

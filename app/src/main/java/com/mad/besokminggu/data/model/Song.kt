@@ -1,11 +1,14 @@
 package com.mad.besokminggu.data.model
 
+import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.mad.besokminggu.data.Converters
+import kotlinx.parcelize.Parcelize
 import java.util.Date
 
+@Parcelize
 @Entity(tableName = "songs")
 @TypeConverters(Converters::class)
 data class Song(
@@ -18,4 +21,4 @@ data class Song(
     val isLiked: Boolean = false,
     val lastPlayedAt: Date? = null,
     val createdAt: Date,
-)
+) : Parcelable

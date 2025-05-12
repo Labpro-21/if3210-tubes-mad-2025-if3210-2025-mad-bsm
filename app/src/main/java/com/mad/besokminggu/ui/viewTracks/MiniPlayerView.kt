@@ -1,5 +1,7 @@
 package com.mad.besokminggu.ui.viewTracks
 import android.content.Context
+import android.content.Intent
+import android.support.v4.media.session.MediaControllerCompat
 import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
@@ -87,6 +89,7 @@ class MiniPlayerView @JvmOverloads constructor(
                 AudioPlayerManager.resume()
             }
             viewModel.togglePlayPause()
+
         }
 
 

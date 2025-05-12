@@ -1,7 +1,12 @@
 package com.mad.besokminggu
 
+import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
+import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaMetadataCompat
+import android.support.v4.media.session.MediaControllerCompat
+import android.support.v4.media.session.PlaybackStateCompat
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
@@ -17,11 +22,11 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.lifecycleScope
+import com.mad.besokminggu.R
 import androidx.navigation.findNavController
 
-import androidx.navigation.ui.setupWithNavController
-import androidx.transition.Visibility
 import com.google.android.material.snackbar.Snackbar
+import com.mad.besokminggu.data.services.MediaNotificationService
 import com.mad.besokminggu.databinding.ActivityMainBinding
 import com.mad.besokminggu.manager.AudioFileHelper
 import com.mad.besokminggu.manager.AudioPlayerManager
@@ -32,6 +37,7 @@ import com.mad.besokminggu.network.ConnectionStateMonitor
 import com.mad.besokminggu.network.OnNetworkAvailableCallbacks
 import com.mad.besokminggu.ui.viewTracks.MiniPlayerView
 import com.mad.besokminggu.ui.login.LoginActivity
+import com.mad.besokminggu.viewModels.RepeatMode
 import com.mad.besokminggu.viewModels.SongTracksViewModel
 import com.mad.besokminggu.viewModels.TokenViewModel
 import com.mad.besokminggu.viewModels.UserViewModel
@@ -47,12 +53,13 @@ class MainActivity : AppCompatActivity() {
     private val songViewModel : SongTracksViewModel by viewModels()
     private val userViewModel : UserViewModel by viewModels()
     private val tokenViewModel: TokenViewModel by viewModels()
+    private lateinit var mediaBrowser: MediaBrowserCompat
 
     private lateinit var connectionMonitor: ConnectionStateMonitor
 
     fun onOpenTrackSong(){
         val fullPlayer = binding.fullPlayer
-        if(fullPlayer == null)return
+        if(false)return
 
         fullPlayer.translationY = fullPlayer.height.toFloat()
         fullPlayer.alpha = 0f
@@ -67,7 +74,7 @@ class MainActivity : AppCompatActivity() {
 
     fun onCloseTrackSong(){
         val fullPlayer = binding.fullPlayer
-        if(fullPlayer == null){
+        if(false){
             return
         }
 
@@ -89,142 +96,210 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    super.onCreate(savedInstanceState)
 
-        FileHelper.init(context = applicationContext)
+    FileHelper.init(context = applicationContext)
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    binding = ActivityMainBinding.inflate(layoutInflater)
+    setContentView(binding.root)
 
-        val navView: BottomNavigationView? = binding.navView
-        val fullPlayer : FragmentContainerView? = binding.fullPlayer
-        val miniPlayer : MiniPlayerView = binding.miniPlayer
+    val navView: BottomNavigationView? = binding.navView
+    val fullPlayer : FragmentContainerView? = binding.fullPlayer
+    val miniPlayer : MiniPlayerView = binding.miniPlayer
 
-            // Wait until views are loaded
-        binding.root.post {
-            val navController = findNavController(R.id.nav_host_fragment_activity_main)
+        // Wait until views are loaded
+    binding.root.post {
+        val navController = findNavController(R.id.nav_host_fragment_activity_main)
 
-            // Setup for BottomNavigationView (portrait)
-//            navView?.setupWithNavController(navController)
-            navView?.setOnNavigationItemSelectedListener{menuItem ->
-                onCloseTrackSong()
-                navController.navigate(menuItem.itemId)
-                menuItem.isChecked = true
-                true
-            }
 
-            // Setup for NavigationView (landscape)
-            val sideNavView = findViewById<com.google.android.material.navigation.NavigationView>(R.id.side_nav_view)
-            sideNavView?.setNavigationItemSelectedListener { menuItem ->
-                menuItem.isChecked = true
-                navController.navigate(menuItem.itemId)
-                onCloseTrackSong()
-                true
+        navView?.setOnNavigationItemSelectedListener{menuItem ->
+            onCloseTrackSong()
+            navController.navigate(menuItem.itemId)
+            menuItem.isChecked = true
+            true
+        }
+
+        // Setup for NavigationView (landscape)
+        val sideNavView = findViewById<com.google.android.material.navigation.NavigationView>(R.id.side_nav_view)
+        sideNavView?.setNavigationItemSelectedListener { menuItem ->
+            menuItem.isChecked = true
+            navController.navigate(menuItem.itemId)
+            onCloseTrackSong()
+            true
+        }
+    }
+
+    // Initialize Connection State Monitor
+    connectionMonitor = ConnectionStateMonitor(this, object : OnNetworkAvailableCallbacks {
+        override fun onPositive() {
+            runOnUiThread {
+                showSnackbar(
+                    "Internet connection is available.",
+                    binding.root,
+                    1
+                )
             }
         }
 
-        // Initialize Connection State Monitor
-        connectionMonitor = ConnectionStateMonitor(this, object : OnNetworkAvailableCallbacks {
-            override fun onPositive() {
-                runOnUiThread {
-                    showSnackbar(
-                        "Internet connection is available.",
-                        binding.root,
-                        1
-                    )
-                }
-            }
-
-            override fun onNegative() {
-                runOnUiThread {
-                    showSnackbar(
-                        "No Internet Connection",
-                        binding.root,
-                        2
-                    )
-                }
-            }
-
-            override fun onError(s: String) {
-                runOnUiThread {
-                    Toast.makeText(this@MainActivity, s, Toast.LENGTH_LONG).show()
-                }
-            }
-        })
-
-        // Register Connection State Monitor
-        try {
-            Log.d("LOGIN_ACTIVITY", "Registering Connection Monitor")
-            connectionMonitor.enable()
-        } catch (e: SecurityException) {
-            // Handle case where permission is missing
-            Toast.makeText(this, "Network monitoring not available", Toast.LENGTH_LONG).show()
-        }
-
-        // Check Token
-        tokenViewModel._accessToken.observe(this) {token ->
-
-            if (token == null) {
-                Log.d("MainActivity", "Token is null, starting LoginActivity")
-                val intent = Intent(this, LoginActivity::class.java)
-                startActivity(intent)
-                finish()
+        override fun onNegative() {
+            runOnUiThread {
+                showSnackbar(
+                    "No Internet Connection",
+                    binding.root,
+                    2
+                )
             }
         }
 
-        lifecycleScope.launch {
-            tokenViewModel.getToken()
-        }
-
-        miniPlayer.visibility = View.GONE
-        fullPlayer?.visibility = View.GONE
-
-        miniPlayer.setOnClickListener {
-            songViewModel.showFullPlayer()
-        }
-
-        miniPlayer.observeViewModel()
-
-        songViewModel.isFullPlayerVisible.observe(this) { isVisible ->
-            if (isVisible){
-                onOpenTrackSong()
-                miniPlayer.visibility = View.GONE
-
-            }else{
-                onCloseTrackSong()
-            }
-
-        }
-
-        fullPlayer?.post {
-            val closeButton : ImageButton = fullPlayer.findViewById(R.id.collapse_button)
-            closeButton.setOnClickListener {
-                songViewModel.hideFullPlayer()
+        override fun onError(s: String) {
+            runOnUiThread {
+                Toast.makeText(this@MainActivity, s, Toast.LENGTH_LONG).show()
             }
         }
+    })
 
-        songViewModel.anySongDeleted.observe (this){song ->
-            AudioFileHelper.deleteFile(song.audioFileName)
-            CoverFileHelper.deleteFile(song.coverFileName)
+    // Register Connection State Monitor
+    try {
+        Log.d("LOGIN_ACTIVITY", "Registering Connection Monitor")
+        connectionMonitor.enable()
+    } catch (e: SecurityException) {
+        // Handle case where permission is missing
+        Toast.makeText(this, "Network monitoring not available", Toast.LENGTH_LONG).show()
+    }
+
+    // Handle Initiate Notification Player
+    mediaBrowser = MediaBrowserCompat(
+        this,
+        ComponentName(this, MediaNotificationService::class.java),
+        connectionCallback,
+        null
+    )
+
+    // Check Token
+    tokenViewModel._accessToken.observe(this) {token ->
+
+        if (token == null) {
+            Log.d("MainActivity", "Token is null, starting LoginActivity")
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+    }
+
+    lifecycleScope.launch {
+        tokenViewModel.getToken()
+    }
+
+//    songViewModel.playedSong.observe(this) { song ->
+//        song?.let {
+//            Intent(this, MediaNotificationService::class.java)
+//                .setAction(MediaNotificationService.ACTION_PLAY)
+//                .putExtra(MediaNotificationService.EXTRA_SONG, it)
+//                .also { intent ->
+//                    Log.d("NOTIFICATION_CENTER", "IS THIS CALLED?")
+//                    ContextCompat.startForegroundService(this, intent)
+//                }
+//        }
+//    }
+
+
+
+    miniPlayer.visibility = View.GONE
+    fullPlayer?.visibility = View.GONE
+
+    miniPlayer.setOnClickListener {
+        songViewModel.showFullPlayer()
+    }
+
+
+    miniPlayer.observeViewModel()
+
+    songViewModel.isFullPlayerVisible.observe(this) { isVisible ->
+        if (isVisible){
+            onOpenTrackSong()
+            miniPlayer.visibility = View.GONE
+
+        }else{
+            onCloseTrackSong()
+        }
+
+    }
+
+    fullPlayer?.post {
+        val closeButton : ImageButton = fullPlayer.findViewById(R.id.collapse_button)
+        closeButton.setOnClickListener {
+            songViewModel.hideFullPlayer()
+        }
+    }
+
+    songViewModel.anySongDeleted.observe (this){song ->
+        AudioFileHelper.deleteFile(song.audioFileName)
+        CoverFileHelper.deleteFile(song.coverFileName)
+        if(song == songViewModel.playedSong.value) {
             AudioPlayerManager.stop()
-
-            Toast.makeText(this, "Song ${song.title} has been deleted", Toast.LENGTH_SHORT).show()
         }
 
+        Toast.makeText(this, "Song ${song.title} has been deleted", Toast.LENGTH_SHORT).show()
+    }
+
+        songViewModel.isPrevValid.observe(this) { isPrevValid ->
+            MediaControllerCompat.getMediaController(this)
+                ?.transportControls
+                ?.sendCustomAction(
+                    if (isPrevValid)
+                        MediaNotificationService.ACTION_SET_PREV_VALID
+                    else
+                        MediaNotificationService.ACTION_SET_PREV_INVALID,
+                    null
+                )
+        }
 
         // User View
-        userViewModel.profileResponse.observe(this) { response ->
-            when (response) {
-                is ApiResponse.Success -> {
-                    userViewModel._profile.postValue(response.data)
-                }
-                is ApiResponse.Failure -> {
-
-                }
-                is ApiResponse.Loading -> {
-
-                }
+    userViewModel.profileResponse.observe(this) { response ->
+        when (response) {
+            is ApiResponse.Success -> {
+                userViewModel._profile.postValue(response.data)
             }
+            is ApiResponse.Failure -> {
+
+            }
+            is ApiResponse.Loading -> {
+
+            }
+        }
+    }
+    }
+
+    private val connectionCallback = object : MediaBrowserCompat.ConnectionCallback() {
+        override fun onConnected() {
+            val token = mediaBrowser.sessionToken
+            val controller = MediaControllerCompat(this@MainActivity, token)
+            MediaControllerCompat.setMediaController(this@MainActivity, controller)
+            controller.registerCallback(controllerCallback)
+        }
+    }
+
+    private val controllerCallback = object : MediaControllerCompat.Callback() {
+        override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
+
+            val playing = state?.state == PlaybackStateCompat.STATE_PLAYING
+            songViewModel.updatePlayPause(playing)
+        }
+
+
+        override fun onShuffleModeChanged(mode: Int) {
+            // Push shuffle state back into your VM:
+            songViewModel.updateShuffle(mode == PlaybackStateCompat.SHUFFLE_MODE_ALL)
+        }
+
+        override fun onRepeatModeChanged(mode: Int) {
+
+            val rm = when (mode) {
+                PlaybackStateCompat.REPEAT_MODE_ONE -> RepeatMode.REPEAT_ONE
+                PlaybackStateCompat.REPEAT_MODE_ALL -> RepeatMode.REPEAT_ALL
+                else                                -> RepeatMode.NONE
+            }
+            songViewModel.updateRepeat(rm)
         }
     }
 
@@ -262,6 +337,7 @@ class MainActivity : AppCompatActivity() {
             snackbarView.setPadding(16, 4, 16, 4)
 
             val textView = snackbarView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+
             textView.textSize = 18f
             textView.setTextColor(ContextCompat.getColor(this, R.color.white))
             textView.textAlignment = View.TEXT_ALIGNMENT_CENTER
@@ -282,4 +358,17 @@ class MainActivity : AppCompatActivity() {
             Log.e("LOGIN_ACTIVITY", "Error showing Snackbar: ${e.message}")
         }
     }
+
+    override fun onStart() {
+        super.onStart()
+        mediaBrowser.connect()
+    }
+
+    override fun onStop() {
+        MediaControllerCompat.getMediaController(this)
+            ?.unregisterCallback(controllerCallback)
+        mediaBrowser.disconnect()
+        super.onStop()
+    }
+
 }

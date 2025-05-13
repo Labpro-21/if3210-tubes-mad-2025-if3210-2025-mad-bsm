@@ -1,21 +1,26 @@
-package com.mad.besokminggu.ui.topSongs;
+package com.mad.besokminggu.ui.topSongs
 
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.mad.besokminggu.data.model.OnlineSong
+import com.mad.besokminggu.data.model.Song
 import com.mad.besokminggu.data.model.toSong
 import com.mad.besokminggu.data.repositories.OnlineSongRepository
+import com.mad.besokminggu.data.repositories.SongRepository
 import com.mad.besokminggu.data.repositories.UnprotectedRepository
 import com.mad.besokminggu.network.ApiResponse
 import com.mad.besokminggu.viewModels.BaseViewModel
 import com.mad.besokminggu.viewModels.CoroutinesErrorHandler
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
 @HiltViewModel
 class TopSongsViewModel @Inject constructor(
     private val unprotectedRepository: UnprotectedRepository,
-    private val songRepository: OnlineSongRepository,
+    private val onlineSongRepository: OnlineSongRepository,
+    private val songRepository: SongRepository,
 ): BaseViewModel() {
 
     private val _topSongs = MutableLiveData<ApiResponse<List<OnlineSong>>>()
@@ -28,7 +33,7 @@ class TopSongsViewModel @Inject constructor(
 
     fun updateSongsRepo(songs: List<OnlineSong>) {
         val mappedSongs = songs.map { it.toSong() }
-        songRepository.updateAllSongs(mappedSongs)
+        onlineSongRepository.updateAllSongs(mappedSongs)
     }
 
     fun updateTotalDuration() {
@@ -60,6 +65,12 @@ class TopSongsViewModel @Inject constructor(
         coroutinesErrorHandler
     ) {
         unprotectedRepository.topSongsCountry(country)
+    }
+
+    fun insertSong(song: Song) {
+        viewModelScope.launch {
+            songRepository.insert(song)
+        }
     }
 
     private fun parseDuration(duration: String): Int {

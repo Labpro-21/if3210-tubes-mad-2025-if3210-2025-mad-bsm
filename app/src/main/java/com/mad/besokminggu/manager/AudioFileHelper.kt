@@ -12,9 +12,9 @@ object AudioFileHelper {
         return if (file.exists()) file else null
     }
 
-    fun saveFile(bytes: ByteArray, fileName: String): File? {
-        return FileHelper.saveFile(bytes, fileName, SUB_DIR)
-    }
+//    fun saveFile(bytes: ByteArray, fileName: String): File? {
+//        return FileHelper.saveFile(bytes, fileName, SUB_DIR)
+//    }
 
     fun saveGeneratedFile(bytes: ByteArray, extension: String, prefix: String = "audio_"): File? {
         return FileHelper.saveFileGenerated(bytes, extension, SUB_DIR, prefix)

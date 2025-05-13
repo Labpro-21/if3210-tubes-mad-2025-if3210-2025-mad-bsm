@@ -40,4 +40,7 @@
     <string name="desc_top_local">Your daily update of the most played tracks right now - Local.</string>
     <string name="top_global">Top Global</string>
     <string name="top_local">Top Local</string>
+    <string name="download_icon">download_icon</string>
+    <string name="download_song">Download Song</string>
+    <string name="back">back</string>
 </resources>

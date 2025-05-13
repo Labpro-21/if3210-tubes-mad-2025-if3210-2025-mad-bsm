@@ -15,6 +15,10 @@ class OnlineSongRepository @Inject constructor() {
         Log.d("OnlineSongRepository", "updateAllSongs: $_allSongs")
     }
 
+//    fun getAllSongs() : List<Song> {
+//        return _allSongs
+//    }
+
     fun getNextIteratedSong(currentSong: Song): Song {
         val currentIndex = _allSongs.indexOfFirst { it.id == currentSong.id }
         val nextIndex = if (currentIndex >= 0) currentIndex + 1 else 0
@@ -22,7 +26,7 @@ class OnlineSongRepository @Inject constructor() {
     }
 
     fun getNextRandomSong(currentSong: Song): Song {
-        val currentIndex = _allSongs.indexOfFirst { it.id == currentSong.id }
+//        val currentIndex = _allSongs.indexOfFirst { it.id == currentSong.id }
         val nextIndex = _allSongs.indices.random()
         return _allSongs.getOrNull(nextIndex) ?: _allSongs.first()
     }

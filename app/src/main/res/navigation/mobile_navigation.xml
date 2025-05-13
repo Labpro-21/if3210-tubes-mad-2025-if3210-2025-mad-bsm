@@ -24,14 +24,13 @@
         tools:layout="@layout/fragment_profile" />
 
     <fragment
-        android:id="@+id/navigation_top_global"
-        android:name="com.mad.besokminggu.ui.topSongs.TopGlobalFragment"
-        android:label="Top Global"
-        tools:layout="@layout/fragment_top_global" />
-
-    <fragment
-        android:id="@+id/navigation_top_local"
-        android:name="com.mad.besokminggu.ui.topSongs.TopLocalFragment"
-        android:label="Top Global"
-        tools:layout="@layout/fragment_top_global" />
+        android:id="@+id/navigation_top_songs"
+        android:name="com.mad.besokminggu.ui.topSongs.TopSongsFragment"
+        android:label="Top Songs"
+        tools:layout="@layout/fragment_top_songs" >
+        <argument
+            android:name="isGlobal"
+            app:argType="boolean"
+            android:defaultValue="true" />
+    </fragment>
 </navigation>

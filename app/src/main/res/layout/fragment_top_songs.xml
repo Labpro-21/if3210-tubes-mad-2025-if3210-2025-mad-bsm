@@ -23,24 +23,13 @@
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/background"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/background_gradient"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed"
                 app:layout_collapseMode="pin"
                 android:fitsSystemWindows="true">
-
-                <ImageView
-                    android:id="@+id/top_global_background"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="gradient background"
-                    android:src="@drawable/background_gradient"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_collapseMode="pin"
-                    tools:ignore="HardcodedText" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/topGlobalLayout"
@@ -53,6 +42,7 @@
                     app:layout_collapseMode="pin">
 
                     <ImageButton
+                        android:contentDescription="@string/back"
                         android:id="@+id/backButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -163,6 +153,7 @@
                         app:layout_collapseMode="parallax">
 
                         <ImageButton
+                            android:id="@+id/download_button"
                             android:layout_width="27dp"
                             android:layout_height="27dp"
                             android:background="@color/transparent"
@@ -182,7 +173,9 @@
                             android:layout_height="54dp"
                             android:background="@color/transparent"
                             android:scaleType="fitCenter"
-                            android:src="@drawable/play" />
+                            android:contentDescription="play all"
+                            android:src="@drawable/play"
+                            tools:ignore="HardcodedText" />
 
                     </LinearLayout>
 

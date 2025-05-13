@@ -8,16 +8,12 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.map
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mad.besokminggu.R
-import com.mad.besokminggu.manager.AudioPlayerManager
 import com.mad.besokminggu.data.model.Song
-import com.mad.besokminggu.databinding.FragmentTopGlobalBinding
 import com.mad.besokminggu.ui.adapter.SongWithMenuAdapter
 import com.mad.besokminggu.ui.optionMenu.SongActionSheet
 import com.mad.besokminggu.viewModels.HomeViewModel
@@ -26,6 +22,7 @@ import com.mad.besokminggu.viewModels.UserViewModel
 import com.mad.besokminggu.ui.addsongs.AddSongsFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import androidx.core.os.bundleOf
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -50,7 +47,7 @@ class HomeFragment : Fragment() {
         if(song.id != songViewModel.playedSong.value?.id){
             lifecycleScope.launch {
 
-            songViewModel.playSong(song);
+            songViewModel.playSong(song)
             }
         }
         songViewModel.showFullPlayer()
@@ -103,11 +100,13 @@ class HomeFragment : Fragment() {
 
         // Redirect to fragment
         topGlobalButton.setOnClickListener {
-            findNavController().navigate(R.id.navigation_top_global)
+            val bundle = bundleOf("isGlobal" to true)
+            findNavController().navigate(R.id.navigation_top_songs, bundle)
         }
 
         topLocalButton.setOnClickListener {
-            findNavController().navigate(R.id.navigation_top_local)
+            val bundle = bundleOf("isGlobal" to false)
+            findNavController().navigate(R.id.navigation_top_songs, bundle)
         }
 
         val newSongsAdapter = NewSongAdapter { song ->

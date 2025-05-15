@@ -43,4 +43,10 @@
     <string name="download_icon">download_icon</string>
     <string name="download_song">Download Song</string>
     <string name="back">back</string>
+    <string name="your_sound_capsule">Your Sound Capsule</string>
+    <string name="detail_button">Detail Button</string>
+    <string name="share_button">Share Button</string>
+    <string name="time_listened">Time listened</string>
+    <string name="top_artist">Top Artist</string>
+    <string name="top_song">Top Song</string>
 </resources>

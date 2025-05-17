@@ -8,7 +8,7 @@
 
     <!-- Scrollable content -->
     <androidx.core.widget.NestedScrollView
-        android:id="@+id/scroll_profile_root"
+        android:id="@+id/profileLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true">

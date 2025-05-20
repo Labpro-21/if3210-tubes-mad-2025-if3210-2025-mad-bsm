@@ -2,9 +2,11 @@ package com.mad.besokminggu.ui.profile
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -27,10 +29,18 @@ import com.mad.besokminggu.viewModels.TokenViewModel
 import com.mad.besokminggu.viewModels.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import com.bumptech.glide.Glide
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.mad.besokminggu.network.ConnectionStateMonitor
 import com.mad.besokminggu.network.OnNetworkAvailableCallbacks
 import com.mad.besokminggu.ui.optionMenu.ProfileActionSheet
 import java.io.File
+import com.google.android.gms.location.*
+import android.location.Location
+import android.widget.TextView
+import androidx.core.app.ActivityCompat
+import com.mad.besokminggu.MainActivity
+import com.mad.besokminggu.MapsActivity
+import java.util.Locale
 
 @AndroidEntryPoint
 class ProfileFragment : Fragment() {
@@ -39,6 +49,8 @@ class ProfileFragment : Fragment() {
     private lateinit var imageUri: Uri
     private var selectedImageUri: Uri? = null
     private lateinit var profileImage: ImageView
+    private lateinit var textLocation: TextView
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private val userViewModel: UserViewModel by viewModels()
     private val tokenViewModel: TokenViewModel by viewModels()
@@ -75,7 +87,7 @@ class ProfileFragment : Fragment() {
         val logoutButton = binding.logoutButton
         profileImage = binding.profileImage
         val textUsername = binding.textUsername
-        val textLocation = binding.textLocation
+        textLocation = binding.textLocation
 
         val likedSongsCount = binding.textLikedSongsNumber
         val totalSongsCount = binding.textTotalSongsNumber
@@ -92,6 +104,11 @@ class ProfileFragment : Fragment() {
                     pickImage()
                 }
             ).show(parentFragmentManager, "ProfileActionSheet")
+        }
+
+        textLocation.setOnClickListener {
+            val intent = Intent(requireContext(), MapsActivity::class.java)
+            startActivityForResult(intent, 1002)
         }
 
 
@@ -156,25 +173,6 @@ class ProfileFragment : Fragment() {
                     .into(profileImage)
             }
 
-            // TEST UPLOAD PHOTO
-            userViewModel.profilePhotoResponse.observe(viewLifecycleOwner) {
-                when (it) {
-                    is ApiResponse.Success -> {
-                        val userProfile = it.data
-
-                        Log.d("ProfileFragment", "Uploaded New Image! ${userProfile.message}")
-                    }
-
-                    is ApiResponse.Failure -> {
-
-                    }
-
-                    is ApiResponse.Loading -> {
-
-                    }
-                }
-            }
-
             // Observe Song data
             profileViewModel.likedSongsCount.observe(viewLifecycleOwner) { count ->
                 likedSongsCount?.text = count.toString()
@@ -196,6 +194,48 @@ class ProfileFragment : Fragment() {
                 val intent = Intent(requireContext(), LoginActivity::class.java)
                 startActivity(intent)
             })
+
+
+            // Location
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+
+            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                fusedLocationClient.lastLocation
+                    .addOnSuccessListener { location: Location? ->
+                        location?.let {
+                            val countryCode = getCountryCodeFromLocation(location, requireContext())
+                            Log.d("LOCATION", "country Code: $countryCode")
+                            Log.d("LOCATION", "Latitude: ${location.latitude} Longitude: ${location.longitude}")
+
+
+                            userViewModel.getProfile(errorHandler)
+                            textLocation.text = countryCode
+                            userViewModel.patchProfile(errorHandler, location = countryCode)
+                        } ?: Log.d("LOCATION", "No location available")
+                    }
+            } else {
+                ActivityCompat.requestPermissions(
+                    requireActivity(),
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    1001
+                )
+
+                if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    fusedLocationClient.lastLocation
+                        .addOnSuccessListener { location: Location? ->
+                            location?.let {
+                                val countryCode = getCountryCodeFromLocation(location, requireContext())
+                                Log.d("LOCATION", "country Code: $countryCode")
+                                Log.d("LOCATION", "Latitude: ${location.latitude} Longitude: ${location.longitude}")
+
+
+                                userViewModel.getProfile(errorHandler)
+                                textLocation.text = countryCode
+                                userViewModel.patchProfile(errorHandler, location = countryCode)
+                            } ?: Log.d("LOCATION", "No location available")
+                        }
+                }
+            }
         } else {
             profileLayout?.visibility = View.GONE
             noConnectionLayout?.visibility = View.VISIBLE
@@ -273,6 +313,38 @@ class ProfileFragment : Fragment() {
 
     private fun takeImage() {
         checkAndLaunchCamera()
+    }
+
+    private fun getCountryCodeFromLocation(location: Location, context: Context): String? {
+        val geocoder = Geocoder(context, Locale.getDefault())
+        val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+        return if (addresses != null && addresses.isNotEmpty()) {
+            addresses[0].countryCode
+        } else {
+            null
+        }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 1002 && resultCode == RESULT_OK) {
+            val lat = data?.getDoubleExtra("lat", 0.0)
+            val lng = data?.getDoubleExtra("lng", 0.0)
+            val location = Location("").apply {
+                latitude = lat ?: 0.0
+                longitude = lng ?: 0.0
+            }
+
+            val countryCode = getCountryCodeFromLocation(location, requireContext())
+            Log.d("LOCATION", "country Code: $countryCode")
+            Log.d("LOCATION", "Latitude: ${location.latitude} Longitude: ${location.longitude}")
+
+
+            userViewModel.getProfile(errorHandler)
+            textLocation.text = countryCode
+            userViewModel.patchProfile(errorHandler, location = countryCode)
+        }
     }
 
     override fun onDestroyView() {

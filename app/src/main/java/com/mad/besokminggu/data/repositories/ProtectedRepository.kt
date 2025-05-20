@@ -1,5 +1,6 @@
 package com.mad.besokminggu.data.repositories
 
+import android.util.Log
 import com.mad.besokminggu.data.services.ProtectedApiService
 import com.mad.besokminggu.network.apiRequestFlow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -23,6 +24,7 @@ class ProtectedRepository @Inject constructor(
         val locationPart = location?.let {
             RequestBody.create("text/plain".toMediaTypeOrNull(), it)
         }
+        Log.d("ProtectedRepository", "patchProfile: $locationPart")
         val photoPart = profilePhoto?.let {
             val requestFile = it.asRequestBody("image/*".toMediaTypeOrNull())
             MultipartBody.Part.createFormData("profilePhoto", it.name, requestFile)

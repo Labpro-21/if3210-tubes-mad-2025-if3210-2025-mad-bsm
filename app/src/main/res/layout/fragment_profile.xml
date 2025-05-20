@@ -181,6 +181,25 @@
             </LinearLayout>
         </LinearLayout>
 
+        <ImageButton
+            android:id="@+id/editProfileButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="250dp"
+            android:layout_marginTop="235dp"
+            android:background="@drawable/background_button"
+
+            android:padding="10dp"
+            android:src="@drawable/edit"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
+            app:layout_editor_absoluteX="260dp"
+            app:layout_editor_absoluteY="235dp" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

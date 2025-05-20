@@ -1,14 +1,17 @@
 package com.mad.besokminggu.ui.profile
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
@@ -22,9 +25,15 @@ import dagger.hilt.android.AndroidEntryPoint
 import com.bumptech.glide.Glide
 import com.mad.besokminggu.network.ConnectionStateMonitor
 import com.mad.besokminggu.network.OnNetworkAvailableCallbacks
+import com.mad.besokminggu.ui.optionMenu.ProfileActionSheet
+import java.io.File
 
 @AndroidEntryPoint
 class ProfileFragment : Fragment() {
+
+
+    private var selectedImageUri: Uri? = null
+    private lateinit var profileImage: ImageView
 
     private val userViewModel: UserViewModel by viewModels()
     private val tokenViewModel: TokenViewModel by viewModels()
@@ -59,7 +68,7 @@ class ProfileFragment : Fragment() {
         val noConnectionLayout = binding.noConnectionProfileLayout
 
         val logoutButton = binding.logoutButton
-        val profileImage = binding.profileImage
+        profileImage = binding.profileImage
         val textUsername = binding.textUsername
         val textLocation = binding.textLocation
 
@@ -69,21 +78,33 @@ class ProfileFragment : Fragment() {
 
         val baseImageUrl = "http://34.101.226.132:3000/uploads/profile-picture/"
 
+        binding.editProfileButton?.setOnClickListener {
+            ProfileActionSheet(
+                onPhoto = {
+                },
+                onPicture = {
+                    pickImage()
+                }
+            ).show(parentFragmentManager, "ProfileActionSheet")
+        }
+
+
         // init connection monitor
-        connectionMonitor = ConnectionStateMonitor(requireContext(), object : OnNetworkAvailableCallbacks {
-            override fun onPositive() {
-                profileLayout?.visibility = View.VISIBLE
-                noConnectionLayout?.visibility = View.GONE
-            }
+        connectionMonitor =
+            ConnectionStateMonitor(requireContext(), object : OnNetworkAvailableCallbacks {
+                override fun onPositive() {
+                    profileLayout?.visibility = View.VISIBLE
+                    noConnectionLayout?.visibility = View.GONE
+                }
 
-            override fun onNegative() {
-                profileLayout?.visibility = View.GONE
-                noConnectionLayout?.visibility = View.VISIBLE
-            }
+                override fun onNegative() {
+                    profileLayout?.visibility = View.GONE
+                    noConnectionLayout?.visibility = View.VISIBLE
+                }
 
-            override fun onError(s: String) {
-            }
-        })
+                override fun onError(s: String) {
+                }
+            })
 
         if (connectionMonitor.hasNetworkConnection()) {
             profileLayout?.visibility = View.VISIBLE
@@ -104,11 +125,13 @@ class ProfileFragment : Fragment() {
                             .load(imagePath)
                             .into(profileImage)
                     }
+
                     is ApiResponse.Failure -> {
 
                         textUsername.text = "No username available"
                         textLocation.text = "No location available"
                     }
+
                     is ApiResponse.Loading -> {
 
                     }
@@ -125,6 +148,25 @@ class ProfileFragment : Fragment() {
                 Glide.with(this)
                     .load(imagePath)
                     .into(profileImage)
+            }
+
+            // TEST UPLOAD PHOTO
+            userViewModel.profilePhotoResponse.observe(viewLifecycleOwner) {
+                when (it) {
+                    is ApiResponse.Success -> {
+                        val userProfile = it.data
+
+                        Log.d("ProfileFragment", "Uploaded New Image! ${userProfile.message}")
+                    }
+
+                    is ApiResponse.Failure -> {
+
+                    }
+
+                    is ApiResponse.Loading -> {
+
+                    }
+                }
             }
 
             // Observe Song data
@@ -154,6 +196,33 @@ class ProfileFragment : Fragment() {
         }
 
         return root
+    }
+
+    private fun uriToFile(context: Context, uri: Uri): File {
+        val inputStream = context.contentResolver.openInputStream(uri)
+            ?: throw IllegalArgumentException("Unable to open input stream from URI")
+        val file = File.createTempFile("upload_", ".tmp", context.cacheDir)
+        file.outputStream().use { outputStream ->
+            inputStream.copyTo(outputStream)
+        }
+        return file
+    }
+
+    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            selectedImageUri = it
+            profileImage.setImageURI(it)
+            val file = uriToFile(requireContext(), it)
+            userViewModel.patchProfile(coroutinesErrorHandler = errorHandler, profilePhoto = file)
+        }
+    }
+
+    private fun pickImage() {
+        pickImageLauncher.launch("image/*")
+    }
+
+    private fun takeImage() {
+
     }
 
     override fun onDestroyView() {

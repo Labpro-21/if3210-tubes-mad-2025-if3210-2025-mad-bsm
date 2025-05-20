@@ -1,5 +1,6 @@
 package com.mad.besokminggu.data.model
 
+import java.io.File
 import java.util.Date
 
 data class Profile(
@@ -10,4 +11,8 @@ data class Profile(
     val location: String,
     val createdAt: Date,
     val updatedAt: Date,
+)
+
+data class PatchProfileResponse(
+    val message: String
 )

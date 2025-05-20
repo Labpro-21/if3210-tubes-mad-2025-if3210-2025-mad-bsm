@@ -1,8 +1,10 @@
 package com.mad.besokminggu.ui.profile
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -12,6 +14,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
@@ -32,6 +36,7 @@ import java.io.File
 class ProfileFragment : Fragment() {
 
 
+    private lateinit var imageUri: Uri
     private var selectedImageUri: Uri? = null
     private lateinit var profileImage: ImageView
 
@@ -81,6 +86,7 @@ class ProfileFragment : Fragment() {
         binding.editProfileButton?.setOnClickListener {
             ProfileActionSheet(
                 onPhoto = {
+                    takeImage()
                 },
                 onPicture = {
                     pickImage()
@@ -221,8 +227,52 @@ class ProfileFragment : Fragment() {
         pickImageLauncher.launch("image/*")
     }
 
-    private fun takeImage() {
+    private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success) {
+            profileImage.setImageURI(imageUri)
+            val file = uriToFile(requireContext(), imageUri)
+            userViewModel.patchProfile(coroutinesErrorHandler = errorHandler, profilePhoto = file)
+        } else {
+            Toast.makeText(context, "Image capture failed", Toast.LENGTH_SHORT).show()
+        }
+    }
 
+    private val requestCameraPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            launchCamera()
+        } else {
+            Toast.makeText(requireContext(), "Camera permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun launchCamera() {
+        val imageFile = File(requireContext().cacheDir, "camera_profile_photo.jpg")
+        imageUri = FileProvider.getUriForFile(
+            requireContext(),
+            "${requireContext().packageName}.provider",
+            imageFile
+        )
+        takePictureLauncher.launch(imageUri)
+    }
+
+    private fun checkAndLaunchCamera() {
+        when {
+            ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED -> {
+                launchCamera()
+            }
+            shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) -> {
+                Toast.makeText(requireContext(), "Camera permission is required", Toast.LENGTH_SHORT).show()
+            }
+            else -> {
+                requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        }
+    }
+
+    private fun takeImage() {
+        checkAndLaunchCamera()
     }
 
     override fun onDestroyView() {

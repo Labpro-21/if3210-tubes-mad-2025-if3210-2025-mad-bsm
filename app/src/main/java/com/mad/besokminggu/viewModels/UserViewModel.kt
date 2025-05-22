@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.mad.besokminggu.data.model.PatchProfileResponse
 import com.mad.besokminggu.network.ApiResponse
 import com.mad.besokminggu.data.model.Profile
 import com.mad.besokminggu.data.repositories.ProtectedRepository
@@ -11,6 +12,7 @@ import com.mad.besokminggu.network.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,6 +23,9 @@ class UserViewModel @Inject constructor(
 
     private val _profileResponse = MutableLiveData<ApiResponse<Profile>>()
     val profileResponse: LiveData<ApiResponse<Profile>> = _profileResponse
+
+    private val _profilePhotoResponse = MutableLiveData<ApiResponse<PatchProfileResponse>>()
+    val profilePhotoResponse: LiveData<ApiResponse<PatchProfileResponse>> = _profilePhotoResponse
 
     val _profile = MutableLiveData<Profile>()
     val profile : LiveData<Profile> = _profile
@@ -37,6 +42,16 @@ class UserViewModel @Inject constructor(
             })
             getProfileData()
         }
+    }
+
+    fun patchProfile(coroutinesErrorHandler: CoroutinesErrorHandler, location: String? = null, profilePhoto: File? = null) = baseRequest(
+        _profilePhotoResponse,
+        coroutinesErrorHandler
+    ) {
+        protectedRepository.patchProfile(
+            location = location,
+            profilePhoto = profilePhoto
+        )
     }
 
     fun getProfile(coroutinesErrorHandler: CoroutinesErrorHandler) = baseRequest(

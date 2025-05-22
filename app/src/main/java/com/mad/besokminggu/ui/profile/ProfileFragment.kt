@@ -1,14 +1,23 @@
 package com.mad.besokminggu.ui.profile
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity.RESULT_OK
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Geocoder
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
@@ -20,11 +29,28 @@ import com.mad.besokminggu.viewModels.TokenViewModel
 import com.mad.besokminggu.viewModels.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import com.bumptech.glide.Glide
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.mad.besokminggu.network.ConnectionStateMonitor
 import com.mad.besokminggu.network.OnNetworkAvailableCallbacks
+import com.mad.besokminggu.ui.optionMenu.ProfileActionSheet
+import java.io.File
+import com.google.android.gms.location.*
+import android.location.Location
+import android.widget.TextView
+import androidx.core.app.ActivityCompat
+import com.mad.besokminggu.MainActivity
+import com.mad.besokminggu.MapsActivity
+import java.util.Locale
 
 @AndroidEntryPoint
 class ProfileFragment : Fragment() {
+
+
+    private lateinit var imageUri: Uri
+    private var selectedImageUri: Uri? = null
+    private lateinit var profileImage: ImageView
+    private lateinit var textLocation: TextView
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private val userViewModel: UserViewModel by viewModels()
     private val tokenViewModel: TokenViewModel by viewModels()
@@ -59,9 +85,9 @@ class ProfileFragment : Fragment() {
         val noConnectionLayout = binding.noConnectionProfileLayout
 
         val logoutButton = binding.logoutButton
-        val profileImage = binding.profileImage
+        profileImage = binding.profileImage
         val textUsername = binding.textUsername
-        val textLocation = binding.textLocation
+        textLocation = binding.textLocation
 
         val likedSongsCount = binding.textLikedSongsNumber
         val totalSongsCount = binding.textTotalSongsNumber
@@ -69,21 +95,39 @@ class ProfileFragment : Fragment() {
 
         val baseImageUrl = "http://34.101.226.132:3000/uploads/profile-picture/"
 
+        binding.editProfileButton?.setOnClickListener {
+            ProfileActionSheet(
+                onPhoto = {
+                    takeImage()
+                },
+                onPicture = {
+                    pickImage()
+                }
+            ).show(parentFragmentManager, "ProfileActionSheet")
+        }
+
+        textLocation.setOnClickListener {
+            val intent = Intent(requireContext(), MapsActivity::class.java)
+            startActivityForResult(intent, 1002)
+        }
+
+
         // init connection monitor
-        connectionMonitor = ConnectionStateMonitor(requireContext(), object : OnNetworkAvailableCallbacks {
-            override fun onPositive() {
-                profileLayout?.visibility = View.VISIBLE
-                noConnectionLayout?.visibility = View.GONE
-            }
+        connectionMonitor =
+            ConnectionStateMonitor(requireContext(), object : OnNetworkAvailableCallbacks {
+                override fun onPositive() {
+                    profileLayout?.visibility = View.VISIBLE
+                    noConnectionLayout?.visibility = View.GONE
+                }
 
-            override fun onNegative() {
-                profileLayout?.visibility = View.GONE
-                noConnectionLayout?.visibility = View.VISIBLE
-            }
+                override fun onNegative() {
+                    profileLayout?.visibility = View.GONE
+                    noConnectionLayout?.visibility = View.VISIBLE
+                }
 
-            override fun onError(s: String) {
-            }
-        })
+                override fun onError(s: String) {
+                }
+            })
 
         if (connectionMonitor.hasNetworkConnection()) {
             profileLayout?.visibility = View.VISIBLE
@@ -104,11 +148,13 @@ class ProfileFragment : Fragment() {
                             .load(imagePath)
                             .into(profileImage)
                     }
+
                     is ApiResponse.Failure -> {
 
                         textUsername.text = "No username available"
                         textLocation.text = "No location available"
                     }
+
                     is ApiResponse.Loading -> {
 
                     }
@@ -148,12 +194,157 @@ class ProfileFragment : Fragment() {
                 val intent = Intent(requireContext(), LoginActivity::class.java)
                 startActivity(intent)
             })
+
+
+            // Location
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+
+            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                fusedLocationClient.lastLocation
+                    .addOnSuccessListener { location: Location? ->
+                        location?.let {
+                            val countryCode = getCountryCodeFromLocation(location, requireContext())
+                            Log.d("LOCATION", "country Code: $countryCode")
+                            Log.d("LOCATION", "Latitude: ${location.latitude} Longitude: ${location.longitude}")
+
+
+                            userViewModel.getProfile(errorHandler)
+                            textLocation.text = countryCode
+                            userViewModel.patchProfile(errorHandler, location = countryCode)
+                        } ?: Log.d("LOCATION", "No location available")
+                    }
+            } else {
+                ActivityCompat.requestPermissions(
+                    requireActivity(),
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    1001
+                )
+
+                if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    fusedLocationClient.lastLocation
+                        .addOnSuccessListener { location: Location? ->
+                            location?.let {
+                                val countryCode = getCountryCodeFromLocation(location, requireContext())
+                                Log.d("LOCATION", "country Code: $countryCode")
+                                Log.d("LOCATION", "Latitude: ${location.latitude} Longitude: ${location.longitude}")
+
+
+                                userViewModel.getProfile(errorHandler)
+                                textLocation.text = countryCode
+                                userViewModel.patchProfile(errorHandler, location = countryCode)
+                            } ?: Log.d("LOCATION", "No location available")
+                        }
+                }
+            }
         } else {
             profileLayout?.visibility = View.GONE
             noConnectionLayout?.visibility = View.VISIBLE
         }
 
         return root
+    }
+
+    private fun uriToFile(context: Context, uri: Uri): File {
+        val inputStream = context.contentResolver.openInputStream(uri)
+            ?: throw IllegalArgumentException("Unable to open input stream from URI")
+        val file = File.createTempFile("upload_", ".tmp", context.cacheDir)
+        file.outputStream().use { outputStream ->
+            inputStream.copyTo(outputStream)
+        }
+        return file
+    }
+
+    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            selectedImageUri = it
+            profileImage.setImageURI(it)
+            val file = uriToFile(requireContext(), it)
+            userViewModel.patchProfile(coroutinesErrorHandler = errorHandler, profilePhoto = file)
+        }
+    }
+
+    private fun pickImage() {
+        pickImageLauncher.launch("image/*")
+    }
+
+    private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success) {
+            profileImage.setImageURI(imageUri)
+            val file = uriToFile(requireContext(), imageUri)
+            userViewModel.patchProfile(coroutinesErrorHandler = errorHandler, profilePhoto = file)
+        } else {
+            Toast.makeText(context, "Image capture failed", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private val requestCameraPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            launchCamera()
+        } else {
+            Toast.makeText(requireContext(), "Camera permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun launchCamera() {
+        val imageFile = File(requireContext().cacheDir, "camera_profile_photo.jpg")
+        imageUri = FileProvider.getUriForFile(
+            requireContext(),
+            "${requireContext().packageName}.provider",
+            imageFile
+        )
+        takePictureLauncher.launch(imageUri)
+    }
+
+    private fun checkAndLaunchCamera() {
+        when {
+            ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED -> {
+                launchCamera()
+            }
+            shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) -> {
+                Toast.makeText(requireContext(), "Camera permission is required", Toast.LENGTH_SHORT).show()
+            }
+            else -> {
+                requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        }
+    }
+
+    private fun takeImage() {
+        checkAndLaunchCamera()
+    }
+
+    private fun getCountryCodeFromLocation(location: Location, context: Context): String? {
+        val geocoder = Geocoder(context, Locale.getDefault())
+        val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+        return if (addresses != null && addresses.isNotEmpty()) {
+            addresses[0].countryCode
+        } else {
+            null
+        }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 1002 && resultCode == RESULT_OK) {
+            val lat = data?.getDoubleExtra("lat", 0.0)
+            val lng = data?.getDoubleExtra("lng", 0.0)
+            val location = Location("").apply {
+                latitude = lat ?: 0.0
+                longitude = lng ?: 0.0
+            }
+
+            val countryCode = getCountryCodeFromLocation(location, requireContext())
+            Log.d("LOCATION", "country Code: $countryCode")
+            Log.d("LOCATION", "Latitude: ${location.latitude} Longitude: ${location.longitude}")
+
+
+            userViewModel.getProfile(errorHandler)
+            textLocation.text = countryCode
+            userViewModel.patchProfile(errorHandler, location = countryCode)
+        }
     }
 
     override fun onDestroyView() {

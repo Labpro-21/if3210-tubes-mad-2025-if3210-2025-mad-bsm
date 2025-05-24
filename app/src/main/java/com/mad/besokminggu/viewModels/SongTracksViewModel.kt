@@ -31,7 +31,7 @@ class SongTracksViewModel @Inject constructor(
     private val _playedSong = MutableLiveData<Song?>()
     val playedSong: LiveData<Song?> get() = _playedSong
 
-    private val _isOnlineSong = MutableLiveData<Boolean>(false)
+    val _isOnlineSong = MutableLiveData<Boolean>(false)
     val isOnlineSong: LiveData<Boolean> get() = _isOnlineSong
 
     // Keep tracking of previous queue

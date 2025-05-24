@@ -221,6 +221,17 @@
                     android:src="@drawable/download" />
             </LinearLayout>
 
+            <!-- Section: Streak Card (include ) -->
+            <FrameLayout
+                android:id="@+id/streakCardContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                tools:ignore="MissingConstraints"
+                app:layout_constraintTop_toBottomOf="@id/soundCapsuleHeader"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
             <!-- Capsule Fragment Container -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerCapsules"
@@ -230,11 +241,14 @@
                 android:nestedScrollingEnabled="false"
                 tools:listitem="@layout/fragment_capsule"
                 tools:ignore="MissingConstraints"
-                app:layout_constraintTop_toBottomOf="@id/soundCapsuleHeader"
+                app:layout_constraintTop_toBottomOf="@id/streakCardContainer"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
 
                 />
+
+
+
 
 
 

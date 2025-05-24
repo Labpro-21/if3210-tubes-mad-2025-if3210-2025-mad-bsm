@@ -7,8 +7,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import com.mad.besokminggu.data.dao.SongDao
 import com.mad.besokminggu.data.model.Song
+import com.mad.besokminggu.data.model.StreakInfo
 import com.mad.besokminggu.viewModels.UserViewModel
+import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 class SongRepository @Inject constructor(private val songDao: SongDao) {
@@ -89,6 +92,67 @@ class SongRepository @Inject constructor(private val songDao: SongDao) {
     suspend fun getTopArtistCover(ownerId: Int, artist: String): String? {
         return songDao.getTopArtistCover(ownerId, artist)
     }
+
+    suspend fun getStreakInfoForCurrentMonth(ownerId: Int): StreakInfo? {
+        val monthKey = SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(Date())
+        val rawSongs = songDao.getPlayedSongsByDate(ownerId, monthKey)
+
+
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val sorted = rawSongs.sortedBy { sdf.parse(it.playedDate) }
+
+        var maxStreak = 1
+        var currentStreak = 1
+        var bestStart = sdf.parse(sorted[0].playedDate)!!
+        var bestEnd = bestStart
+        var tempStart = bestStart
+        var prevDate = bestStart
+        var bestSong = sorted[0]
+
+        for (i in 1 until sorted.size) {
+            val currentDate = sdf.parse(sorted[i].playedDate)!!
+            val diff = ((currentDate.time - prevDate.time) / (1000 * 60 * 60 * 24)).toInt()
+
+            if (diff == 1) {
+                currentStreak++
+            } else if (diff > 1) {
+                if (currentStreak > maxStreak) {
+                    maxStreak = currentStreak
+                    bestStart = tempStart
+                    bestEnd = prevDate
+                    bestSong = sorted[i - 1]
+                }
+                currentStreak = 1
+                tempStart = currentDate
+            }
+
+            prevDate = currentDate
+        }
+
+        // Check terakhir
+        if (currentStreak > maxStreak) {
+            maxStreak = currentStreak
+            bestStart = tempStart
+            bestEnd = prevDate
+            bestSong = sorted.last()
+        }
+
+        return if (maxStreak >= 2) {
+
+            val coverFile = songDao.getTopArtistCover(ownerId, bestSong.artist) ?: ""
+            StreakInfo(
+                startDate = bestStart,
+                endDate = bestEnd,
+                streakLength = maxStreak,
+                streakSongTitle = bestSong.title,
+                streakSongArtist = bestSong.artist,
+                coverFileName = coverFile
+            )
+        } else {
+            null
+        }
+    }
+
 
 
 

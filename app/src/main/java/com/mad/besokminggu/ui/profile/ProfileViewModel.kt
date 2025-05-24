@@ -9,6 +9,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mad.besokminggu.R
 import com.mad.besokminggu.data.model.MonthlyTopSongsData
+import com.mad.besokminggu.data.model.PlayedSongDate
+import com.mad.besokminggu.data.model.StreakInfo
 import com.mad.besokminggu.data.model.TopSongCapsule
 import com.mad.besokminggu.data.repositories.SongRepository
 import com.mad.besokminggu.network.SessionManager
@@ -38,6 +40,23 @@ class ProfileViewModel @Inject constructor(
 
     private val _monthlyTopSongs = MutableLiveData<Map<String, MonthlyTopSongsData>>()
     val monthlyTopSongs: LiveData<Map<String, MonthlyTopSongsData>> = _monthlyTopSongs
+
+    private val _hasCurrentMonthStreak = MutableLiveData<Boolean>(false)
+    val hasCurrentMonthStreak: LiveData<Boolean> = _hasCurrentMonthStreak
+
+    private val _streakInfo = MutableLiveData<StreakInfo?>()
+    val streakInfo: LiveData<StreakInfo?> get() = _streakInfo
+
+
+    fun checkStreakDummy() {
+        _hasCurrentMonthStreak.value = true
+    }
+
+    private fun Date.toLocalDate(): java.time.LocalDate {
+        return this.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+    }
+
+
 
     private fun getCurrentMonthKey(): String {
         return SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(Date())
@@ -134,7 +153,30 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
+    fun loadDummyStreakInfo() {
+        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
+        val dummyStreak = StreakInfo(
+            startDate = formatter.parse("2025-05-19")!!,
+            endDate = formatter.parse("2025-05-24")!!,
+            streakLength = 6,
+            streakSongTitle = "Loose",
+            streakSongArtist = "Daniel Caesar",
+            coverFileName = "cover_streak.jpg"
+        )
+
+        _streakInfo.postValue(dummyStreak)
+        _hasCurrentMonthStreak.postValue(true)
+    }
+
+    fun loadStreakInfo() {
+        viewModelScope.launch {
+            val profile = tokenManager.getUserProfile() ?: return@launch
+            val info = repository.getStreakInfoForCurrentMonth(profile.id)
+            _streakInfo.postValue(info)
+            _hasCurrentMonthStreak.postValue(info != null)
+        }
+    }
 
     // For RecyclerView
     private val _monthlySummaries = MutableLiveData<List<MonthlySummaryCapsule>>()
@@ -146,7 +188,7 @@ class ProfileViewModel @Inject constructor(
 
     init {
         loadCapsuleSummary()
-
+        loadStreakInfo()
     }
 
 

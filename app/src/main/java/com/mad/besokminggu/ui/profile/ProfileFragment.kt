@@ -35,12 +35,14 @@ import com.mad.besokminggu.ui.optionMenu.ProfileActionSheet
 import java.io.File
 import com.google.android.gms.location.*
 import android.location.Location
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.FragmentContainerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mad.besokminggu.MapsActivity
+import com.mad.besokminggu.manager.CoverFileHelper
 import com.mad.besokminggu.ui.adapter.CapsuleAdapter
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -251,17 +253,49 @@ class ProfileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         val recycler = binding.recyclerCapsules
-        if (recycler != null) {
-            recycler.layoutManager = LinearLayoutManager(requireContext())
+        recycler?.layoutManager = LinearLayoutManager(requireContext())
+
+        profileViewModel.monthlySummaries.observe(viewLifecycleOwner) { capsules ->
+            recycler?.adapter = CapsuleAdapter(capsules)
         }
 
-        // observe summaries and attach adapter
-        profileViewModel.monthlySummaries.observe(viewLifecycleOwner) { items ->
-            recycler?.adapter = CapsuleAdapter(items)
-        }
+        profileViewModel.streakInfo.observe(viewLifecycleOwner) { streak ->
+            val container = binding.root.findViewById<FrameLayout>(com.mad.besokminggu.R.id.streakCardContainer)
+            container.removeAllViews()
 
+            if (streak != null) {
+                val streakView = layoutInflater.inflate(com.mad.besokminggu.R.layout.fragement_streak, container, false)
+
+                val title = streakView.findViewById<TextView>(com.mad.besokminggu.R.id.text_streak_title)
+                val subtitle = streakView.findViewById<TextView>(com.mad.besokminggu.R.id.text_streak_subtitle)
+                val date = streakView.findViewById<TextView>(com.mad.besokminggu.R.id.text_streak_date)
+                val cover = streakView.findViewById<ImageView>(com.mad.besokminggu.R.id.cover_streak)
+
+                title.text = "You had a ${streak.streakLength}-day streak"
+                subtitle.text = "You played ${streak.streakSongTitle} by ${streak.streakSongArtist}"
+
+                val sdf = SimpleDateFormat("MMM d", Locale.getDefault())
+                val year = SimpleDateFormat("yyyy", Locale.getDefault())
+                date.text = "${sdf.format(streak.startDate)}–${sdf.format(streak.endDate)}, ${year.format(streak.endDate)}"
+
+                val file = CoverFileHelper.getFile(streak.coverFileName)
+                if (file != null && file.exists()) {
+                    cover.setImageURI(Uri.fromFile(file))
+                } else {
+                    cover.setImageResource(com.mad.besokminggu.R.drawable.cover_streak)
+                }
+
+                container.addView(streakView)
+                container.visibility = View.VISIBLE
+            } else {
+                container.visibility = View.GONE
+            }
+        }
     }
+
+
 
 
     private fun uriToFile(context: Context, uri: Uri): File {

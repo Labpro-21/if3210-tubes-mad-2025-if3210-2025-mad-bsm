@@ -2,7 +2,9 @@ package com.mad.besokminggu.data.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import com.mad.besokminggu.data.model.PlayedSongDate
 import com.mad.besokminggu.data.model.Song
+import com.mad.besokminggu.data.model.StreakInfo
 import java.util.Date
 
 @Dao
@@ -114,7 +116,14 @@ interface SongDao {
     """)
     suspend fun getTopArtistCover(ownerId: Int, artist: String): String?
 
-
+    @Query("""
+        SELECT title, artist, DATE(lastPlayedAt / 1000, 'unixepoch') as playedDate
+        FROM songs
+        WHERE ownerId = :ownerId
+          AND strftime('%Y-%m', lastPlayedAt / 1000, 'unixepoch') = :monthKey
+        ORDER BY playedDate ASC
+    """)
+    suspend fun getPlayedSongsByDate(ownerId: Int, monthKey: String): List<PlayedSongDate>
 
 
 

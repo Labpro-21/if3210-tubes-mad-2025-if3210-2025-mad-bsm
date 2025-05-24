@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mad.besokminggu.data.model.OnlineSong
@@ -29,6 +30,8 @@ import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 import com.mad.besokminggu.R
+import com.mad.besokminggu.manager.DeepLinkHelper
+import com.mad.besokminggu.ui.optionMenu.ShareActionSheet
 
 @AndroidEntryPoint
 class TopSongsFragment: Fragment() {
@@ -57,7 +60,16 @@ class TopSongsFragment: Fragment() {
     private fun onOpenSheet(song : OnlineSong){
         OnlineSongActionSheet(
             song = song,
-            onDownload = { downloadSong(song) }
+            onDownload = { downloadSong(song) },
+            onShare = {
+                ShareActionSheet(
+                    onOther = {
+                        DeepLinkHelper.shareSongLink(requireContext(), song.id, song.artist, song.title)
+                    },
+                    onQR = {
+                    }
+                ).show(parentFragmentManager, "ShareActionSheet")
+            }
         ).show(parentFragmentManager, "SongActionSheet")
     }
 

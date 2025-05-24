@@ -24,16 +24,6 @@
         android:orientation="horizontal"
         android:paddingHorizontal="16dp">
 
-        <ImageView
-            android:id="@+id/songCover"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginEnd="16dp"
-            android:contentDescription="@string/background_login"
-            android:scaleType="centerCrop"
-            android:src="@drawable/cover_starboy" />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -42,26 +32,16 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/songTitle"
+                android:id="@+id/title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:text="Song Title"
+                android:text="Share Song"
                 android:textColor="@android:color/white"
                 android:textSize="20sp"
                 tools:ignore="HardcodedText" />
 
-            <TextView
-                android:id="@+id/songArtist"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="Artist Name"
-                android:textColor="#aaaaaa"
-                android:textSize="14sp"
-                tools:ignore="HardcodedText" />
         </LinearLayout>
     </LinearLayout>
 
@@ -79,9 +59,9 @@
         android:paddingHorizontal="16dp">
 
         <LinearLayout
-            android:id="@+id/download_button"
+            android:id="@+id/share_qr_button"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_gravity="top|center_vertical"
             android:orientation="horizontal"
             tools:ignore="UselessParent">
@@ -90,10 +70,10 @@
                 android:layout_width="30dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0"
-                android:contentDescription="@string/download_icon"
+                android:contentDescription="@string/share_qr_code"
                 android:padding="5dp"
                 android:scaleType="centerInside"
-                app:srcCompat="@drawable/download"
+                app:srcCompat="@drawable/qr"
                 tools:ignore="InefficientWeight" />
 
             <TextView
@@ -102,13 +82,13 @@
                 android:background="?attr/selectableItemBackground"
                 android:gravity="center_vertical"
                 android:padding="12dp"
-                android:text="@string/download_song"
+                android:text="@string/share_qr_code"
                 android:textColor="@color/gray_400"
                 android:textSize="16sp" />
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/share_button"
+            android:id="@+id/share_other_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="top|center_vertical"
@@ -119,7 +99,7 @@
                 android:layout_width="30dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0"
-                android:contentDescription="@string/share_icon"
+                android:contentDescription="@string/share_song"
                 android:padding="5dp"
                 android:scaleType="centerInside"
                 app:srcCompat="@drawable/share_icon"
@@ -131,7 +111,7 @@
                 android:background="?attr/selectableItemBackground"
                 android:gravity="center_vertical"
                 android:padding="12dp"
-                android:text="@string/share_song"
+                android:text="@string/other"
                 android:textColor="@color/gray_400"
                 android:textSize="16sp" />
         </LinearLayout>

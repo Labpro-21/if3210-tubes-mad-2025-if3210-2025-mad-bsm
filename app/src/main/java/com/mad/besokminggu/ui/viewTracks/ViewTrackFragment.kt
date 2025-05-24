@@ -15,12 +15,16 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.mad.besokminggu.data.model.Song
 import com.mad.besokminggu.manager.AudioPlayerManager
 import com.mad.besokminggu.databinding.FragmentTrackViewBinding
 import com.mad.besokminggu.manager.AudioFileHelper
 import com.mad.besokminggu.manager.CoverFileHelper
+import com.mad.besokminggu.manager.DeepLinkHelper
+import com.mad.besokminggu.ui.optionMenu.ShareActionSheet
 import com.mad.besokminggu.viewModels.RepeatMode
 import com.mad.besokminggu.viewModels.SongTracksViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -164,6 +168,7 @@ class ViewTrackFragment : Fragment(){
         val playButton : ImageButton = binding.playButton
         val shuffleButton : ImageButton = binding.shuffleButton
         val repeatButton : ImageButton = binding.repeatButton
+        val shareButton : ImageButton = binding.shareButton
 
 
         // Next Button Event
@@ -254,6 +259,20 @@ class ViewTrackFragment : Fragment(){
                 RepeatMode.REPEAT_ALL -> repeatButton.setImageResource(R.drawable.repeat_all_icon)
 
             }
+        }
+
+        // Share
+        shareButton.setOnClickListener {
+            ShareActionSheet(
+                onOther = {
+                    val song = viewModel.playedSong.value
+                    if (song != null) {
+                        DeepLinkHelper.shareSongLink(requireContext(), song.id, song.artist, song.title)
+                    }
+                },
+                onQR = {
+                }
+            ).show(parentFragmentManager, "ShareActionSheet")
         }
     }
 

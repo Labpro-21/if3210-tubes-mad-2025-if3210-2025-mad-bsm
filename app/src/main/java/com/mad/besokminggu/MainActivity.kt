@@ -1,24 +1,25 @@
 package com.mad.besokminggu
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import android.view.View
-import android.widget.ImageButton
-import android.widget.Toast
-import androidx.activity.viewModels
 import android.util.Log
 import android.view.Gravity
+import android.view.View
 import android.widget.FrameLayout
+import android.widget.ImageButton
 import android.widget.TextView
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
-
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
+import com.mad.besokminggu.data.model.toSong
 import com.mad.besokminggu.databinding.ActivityMainBinding
 import com.mad.besokminggu.manager.AudioFileHelper
 import com.mad.besokminggu.manager.AudioPlayerManager
@@ -27,14 +28,18 @@ import com.mad.besokminggu.manager.FileHelper
 import com.mad.besokminggu.network.ApiResponse
 import com.mad.besokminggu.network.ConnectionStateMonitor
 import com.mad.besokminggu.network.OnNetworkAvailableCallbacks
-import com.mad.besokminggu.ui.viewTracks.MiniPlayerView
+import com.mad.besokminggu.ui.adapter.OnlineSongAdapter
 import com.mad.besokminggu.ui.login.LoginActivity
+import com.mad.besokminggu.ui.topSongs.TopSongsViewModel
+import com.mad.besokminggu.ui.viewTracks.MiniPlayerView
+import com.mad.besokminggu.viewModels.CoroutinesErrorHandler
+import com.mad.besokminggu.viewModels.OnlineSongsViewModel
 import com.mad.besokminggu.viewModels.SongTracksViewModel
 import com.mad.besokminggu.viewModels.TokenViewModel
-import com.mad.besokminggu.ui.topSongs.TopSongsViewModel
 import com.mad.besokminggu.viewModels.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -45,6 +50,7 @@ class MainActivity : AppCompatActivity() {
     private val userViewModel : UserViewModel by viewModels()
     private val tokenViewModel: TokenViewModel by viewModels()
     private val topSongsViewModel: TopSongsViewModel by viewModels()
+    private val onlineSongsViewModel: OnlineSongsViewModel by viewModels()
 
     private lateinit var connectionMonitor: ConnectionStateMonitor
 
@@ -181,6 +187,8 @@ class MainActivity : AppCompatActivity() {
             songViewModel.showFullPlayer()
         }
 
+        miniPlayer.setFragmentManager(fragmentManager = supportFragmentManager)
+
         miniPlayer.observeViewModel()
 
         songViewModel.isFullPlayerVisible.observe(this) { isVisible ->
@@ -254,6 +262,18 @@ class MainActivity : AppCompatActivity() {
 //                }
 //            },
 //        )
+
+        // Deep Link handler
+        val intent = intent
+        val data: Uri? = intent.data
+
+        if (data != null && data.scheme == "purrytify" && data.host == "song") {
+            val songId: String? = data.lastPathSegment
+
+            songId?.let {
+                loadSong(it.toInt())
+            }
+        }
     }
 
     override fun onPause() {
@@ -308,6 +328,68 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
 
             Log.e("LOGIN_ACTIVITY", "Error showing Snackbar: ${e.message}")
+        }
+    }
+
+    private fun loadSong(songId: Int) {
+        onlineSongsViewModel.getSongById(songId, object : CoroutinesErrorHandler {
+            override fun onError(message: String) {
+                Log.e("DeepLink", "Error loading song: $message")
+            }
+        })
+
+        topSongsViewModel.topSongs.observe(this) { songList ->
+            when (songList) {
+                is ApiResponse.Loading -> {
+//                    binding.progressBar?.visibility = View.VISIBLE
+                }
+
+                is ApiResponse.Success -> {
+//                    songAdapter.submitList(songList.data)
+                    topSongsViewModel.updateSongsRepo(songList.data)
+                }
+
+                is ApiResponse.Failure -> {
+//                    binding.progressBar?.visibility = View.GONE
+                    // Handle error state
+                }
+
+                else -> {
+                    Log.d("TopGlobalFragment", "State: ${songList.javaClass}")
+                }
+            }
+        }
+
+        topSongsViewModel.getTopSongsGlobal(
+            coroutinesErrorHandler = object : CoroutinesErrorHandler {
+                override fun onError(message: String) {
+                    Log.e("TopGlobalFragment", "Error: ${message}")
+                }
+            },
+        )
+
+        songViewModel._isOnlineSong.postValue(true)
+
+        onlineSongsViewModel.song.observe(this) { response ->
+            when (response) {
+                is ApiResponse.Success -> {
+                    val song = response.data
+                    Log.d("DeepLink", "Loaded song: ${song.title}")
+                    lifecycleScope.launch {
+                        songViewModel.playSong(
+                            song = song.toSong(),
+                            isOnline = true
+                        )
+                        songViewModel.showFullPlayer()
+                    }
+                }
+                is ApiResponse.Failure -> {
+                    Log.e("DeepLink", "Failed to load song")
+                }
+                is ApiResponse.Loading -> {
+                    Log.d("DeepLink", "Loading song...")
+                }
+            }
         }
     }
 }

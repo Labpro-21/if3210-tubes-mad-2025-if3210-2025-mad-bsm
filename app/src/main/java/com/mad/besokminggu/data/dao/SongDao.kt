@@ -6,6 +6,7 @@ import com.mad.besokminggu.data.model.PlayedSongDate
 import com.mad.besokminggu.data.model.Song
 import com.mad.besokminggu.data.model.StreakInfo
 import com.mad.besokminggu.data.model.TopArtistCapsule
+import com.mad.besokminggu.data.model.TopSongCapsule
 import java.util.Date
 
 @Dao
@@ -136,6 +137,33 @@ interface SongDao {
         LIMIT 5
     """)
     suspend fun getTopArtistsRaw(ownerId: Int, month: String): List<TopArtistCapsule>
+
+    @Query("""
+        SELECT 
+            title, 
+            artist, 
+            MAX(coverFileName) AS coverFileName, 
+            COUNT(*) as playCount 
+        FROM songs
+        WHERE ownerId = :ownerId
+          AND strftime('%Y-%m', lastPlayedAt / 1000, 'unixepoch') = :monthYear
+        GROUP BY title, artist, coverFileName
+        ORDER BY playCount DESC
+        LIMIT 5
+    """)
+    suspend fun getTopSongsByMonth(ownerId: Int, monthYear: String): List<TopSongCapsule>
+
+    @Query("""
+    SELECT COUNT(id)
+    FROM songs
+    WHERE ownerId = :ownerId
+      AND strftime('%Y-%m', CAST(lastPlayedAt / 1000 AS INTEGER), 'unixepoch') = :monthYear
+""")
+    suspend fun getTotalPlayedSongCount(ownerId: Int, monthYear: String): Int
+
+
+
+
 
 
 

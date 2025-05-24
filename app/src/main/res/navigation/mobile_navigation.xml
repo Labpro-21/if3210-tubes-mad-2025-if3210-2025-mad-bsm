@@ -21,7 +21,17 @@
         android:id="@+id/navigation_profile"
         android:name="com.mad.besokminggu.ui.profile.ProfileFragment"
         android:label="@string/title_profile"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/fragment_profile">
+
+        <action
+            android:id="@+id/action_navigation_profile_to_topArtistCapsuleFragment"
+            app:destination="@id/topArtistCapsuleFragment" />
+
+        <action
+            android:id="@+id/action_navigation_profile_to_topSongCapsuleFragment"
+            app:destination="@id/topSongCapsuleFragment" />
+    </fragment>
+
 
     <fragment
         android:id="@+id/navigation_top_songs"
@@ -35,19 +45,15 @@
     </fragment>
 
     <fragment
-        android:id="@+id/profileFragment"
-        android:name="com.mad.besokminggu.ui.profile.ProfileFragment"
-        android:label="Profile">
-
-        <action
-            android:id="@+id/action_profileFragment_to_topArtistCapsuleFragment"
-            app:destination="@id/topArtistCapsuleFragment" />
-    </fragment>
-
-    <fragment
         android:id="@+id/topArtistCapsuleFragment"
         android:name="com.mad.besokminggu.ui.capsule.TopArtistCapsuleFragment"
         android:label="Top Artist" />
+
+    <fragment
+        android:id="@+id/topSongCapsuleFragment"
+        android:name="com.mad.besokminggu.ui.capsule.TopSongCapsuleFragment"
+        android:label="Top Songs" />
+
 
 
 

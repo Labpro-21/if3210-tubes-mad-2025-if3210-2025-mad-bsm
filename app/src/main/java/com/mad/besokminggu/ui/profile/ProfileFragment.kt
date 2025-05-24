@@ -38,6 +38,7 @@ import android.location.Location
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mad.besokminggu.MapsActivity
@@ -258,13 +259,26 @@ class ProfileFragment : Fragment() {
 
         val recycler = binding.recyclerCapsules
         recycler?.layoutManager = LinearLayoutManager(requireContext())
+        val navController = NavHostFragment.findNavController(this@ProfileFragment)
         profileViewModel.monthlySummaries.observe(viewLifecycleOwner) { summaries ->
-            recycler?.adapter = CapsuleAdapter(summaries) {
-                findNavController().navigate(R.id.topArtistCapsuleFragment)
+            recycler?.adapter = CapsuleAdapter(summaries,
+                onArtistDetailClick = {
+                    findNavController().navigate(R.id.topArtistCapsuleFragment)
+                },
+                onSongDetailClick = {
+                    val currentMonthLabel = java.text.SimpleDateFormat("MMMM yyyy", java.util.Locale.getDefault())
+                        .format(java.util.Date()) // "May 2025"
 
-            }
+                    val bundle = Bundle().apply {
+                        putString("ARG_MONTH_LABEL", currentMonthLabel)
+                    }
+
+                    findNavController().navigate(R.id.topSongCapsuleFragment, bundle)
+
+                }
+            )
+
         }
-
 
         profileViewModel.streakInfo.observe(viewLifecycleOwner) { streak ->
             val container = binding.root.findViewById<FrameLayout>(com.mad.besokminggu.R.id.streakCardContainer)

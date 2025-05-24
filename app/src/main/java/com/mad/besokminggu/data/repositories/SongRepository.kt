@@ -5,10 +5,12 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
+import com.mad.besokminggu.R
 import com.mad.besokminggu.data.dao.SongDao
 import com.mad.besokminggu.data.model.Song
 import com.mad.besokminggu.data.model.StreakInfo
 import com.mad.besokminggu.data.model.TopArtistCapsule
+import com.mad.besokminggu.data.model.TopSongCapsule
 import com.mad.besokminggu.viewModels.UserViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -159,6 +161,25 @@ class SongRepository @Inject constructor(private val songDao: SongDao) {
             TopArtistCapsule(name = it.name, coverFileName = it.coverFileName ?: "")
         }
     }
+
+    suspend fun getTopSongsForMonth(ownerId: Int, month: String): List<TopSongCapsule> {
+        val raw = songDao.getTopSongsByMonth(ownerId, month)
+
+        return raw.map { song ->
+            TopSongCapsule(
+                title = song.title,
+                artist = song.artist,
+                coverFileName = song.coverFileName,
+                playCount = song.playCount
+            )
+        }
+    }
+
+    suspend fun getTotalPlayedSongCount(ownerId: Int, monthYear: String): Int {
+        return songDao.getTotalPlayedSongCount(ownerId, monthYear)
+    }
+
+
 
 
 

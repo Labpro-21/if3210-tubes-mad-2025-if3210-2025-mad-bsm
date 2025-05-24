@@ -52,14 +52,7 @@ class ProfileViewModel @Inject constructor(
     private val _topArtists = MutableLiveData<List<TopArtistCapsule>>()
     val topArtists: LiveData<List<TopArtistCapsule>> = _topArtists
 
-    fun loadTopArtistsForCurrentMonth() {
-        viewModelScope.launch {
-            val profile = tokenManager.getUserProfile() ?: return@launch
-            val month = SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(Date())
-            val artists = repository.getTopArtists(ownerId = profile.id, month = month)
-            _topArtists.postValue(artists)
-        }
-    }
+
 
 
     private fun Date.toLocalDate(): java.time.LocalDate {
@@ -153,6 +146,37 @@ class ProfileViewModel @Inject constructor(
             _hasCurrentMonthStreak.postValue(info != null)
         }
     }
+
+    fun loadTopArtistsForCurrentMonth() {
+        viewModelScope.launch {
+            val profile = tokenManager.getUserProfile() ?: return@launch
+            val month = SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(Date())
+            val artists = repository.getTopArtists(ownerId = profile.id, month = month)
+            _topArtists.postValue(artists)
+        }
+    }
+
+    fun loadTopSongsForCurrentMonth() {
+        viewModelScope.launch {
+            val profile = tokenManager.getUserProfile() ?: return@launch
+            val ownerId = profile.id
+            val monthLabel = SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(Date())
+
+            val songs = repository.getTopSongsForMonth(ownerId, monthLabel)
+            val total = repository.getTotalPlayedSongCount(ownerId, monthLabel)
+
+            val data = MonthlyTopSongsData(
+                totalPlayed = total,
+                topSongs = songs
+            )
+
+            val currentMap = _monthlyTopSongs.value?.toMutableMap() ?: mutableMapOf()
+            currentMap[monthLabel] = data
+            _monthlyTopSongs.postValue(currentMap)
+        }
+
+    }
+
 
     // For RecyclerView
     private val _monthlySummaries = MutableLiveData<List<MonthlySummaryCapsule>>()

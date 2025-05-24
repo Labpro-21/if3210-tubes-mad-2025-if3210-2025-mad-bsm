@@ -4,6 +4,7 @@ import MonthlySummaryCapsule
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -11,10 +12,14 @@ import com.mad.besokminggu.R
 import com.mad.besokminggu.manager.CoverFileHelper
 
 
-class CapsuleAdapter(private val items: List<MonthlySummaryCapsule>) :
+class CapsuleAdapter(
+    private val items: List<MonthlySummaryCapsule>,
+    private val onArtistDetailClick: () -> Unit
+) :
     RecyclerView.Adapter<CapsuleAdapter.CapsuleViewHolder>() {
 
     inner class CapsuleViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val buttonArtistDetail = view.findViewById<ImageButton>(R.id.button_artist_detail)
         val textMonth: TextView = view.findViewById(R.id.text_month_year)
         val textMinutes: TextView = view.findViewById(R.id.text_minutes)
         val textArtist: TextView = view.findViewById(R.id.text_top_artist)
@@ -45,7 +50,9 @@ class CapsuleAdapter(private val items: List<MonthlySummaryCapsule>) :
             holder.textMinutes.text = "${item.totalMinutes} minutes"
             holder.textArtist.text = "Top Artist: ${item.topArtist}"
             holder.textSong.text = "Top Song: ${item.topSong}"
-
+            holder.buttonArtistDetail.setOnClickListener {
+                onArtistDetailClick()
+            }
             if (!item.topArtistCover.isNullOrBlank()) {
                 val file = CoverFileHelper.getFile(item.topArtistCover)
                 if (file != null) {

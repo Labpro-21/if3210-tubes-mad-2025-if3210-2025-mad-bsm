@@ -5,6 +5,7 @@ import androidx.room.*
 import com.mad.besokminggu.data.model.PlayedSongDate
 import com.mad.besokminggu.data.model.Song
 import com.mad.besokminggu.data.model.StreakInfo
+import com.mad.besokminggu.data.model.TopArtistCapsule
 import java.util.Date
 
 @Dao
@@ -124,6 +125,17 @@ interface SongDao {
         ORDER BY playedDate ASC
     """)
     suspend fun getPlayedSongsByDate(ownerId: Int, monthKey: String): List<PlayedSongDate>
+
+    @Query("""
+        SELECT artist AS name, MAX(coverFileName) AS coverFileName
+        FROM songs
+        WHERE ownerId = :ownerId
+          AND strftime('%Y-%m', lastPlayedAt / 1000, 'unixepoch') = :month
+        GROUP BY artist
+        ORDER BY COUNT(*) DESC
+        LIMIT 5
+    """)
+    suspend fun getTopArtistsRaw(ownerId: Int, month: String): List<TopArtistCapsule>
 
 
 

@@ -36,16 +36,15 @@ import java.io.File
 import com.google.android.gms.location.*
 import android.location.Location
 import android.widget.FrameLayout
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
-import androidx.fragment.app.FragmentContainerView
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mad.besokminggu.MapsActivity
+import com.mad.besokminggu.R
 import com.mad.besokminggu.manager.CoverFileHelper
 import com.mad.besokminggu.ui.adapter.CapsuleAdapter
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 
 @AndroidEntryPoint
@@ -112,6 +111,9 @@ class ProfileFragment : Fragment() {
                 }
             ).show(parentFragmentManager, "ProfileActionSheet")
         }
+
+
+
 
         textLocation.setOnClickListener {
             val intent = Intent(requireContext(), MapsActivity::class.java)
@@ -256,10 +258,13 @@ class ProfileFragment : Fragment() {
 
         val recycler = binding.recyclerCapsules
         recycler?.layoutManager = LinearLayoutManager(requireContext())
+        profileViewModel.monthlySummaries.observe(viewLifecycleOwner) { summaries ->
+            recycler?.adapter = CapsuleAdapter(summaries) {
+                findNavController().navigate(R.id.topArtistCapsuleFragment)
 
-        profileViewModel.monthlySummaries.observe(viewLifecycleOwner) { capsules ->
-            recycler?.adapter = CapsuleAdapter(capsules)
+            }
         }
+
 
         profileViewModel.streakInfo.observe(viewLifecycleOwner) { streak ->
             val container = binding.root.findViewById<FrameLayout>(com.mad.besokminggu.R.id.streakCardContainer)

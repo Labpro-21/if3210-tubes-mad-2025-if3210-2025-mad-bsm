@@ -33,4 +33,22 @@
             app:argType="boolean"
             android:defaultValue="true" />
     </fragment>
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.mad.besokminggu.ui.profile.ProfileFragment"
+        android:label="Profile">
+
+        <action
+            android:id="@+id/action_profileFragment_to_topArtistCapsuleFragment"
+            app:destination="@id/topArtistCapsuleFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/topArtistCapsuleFragment"
+        android:name="com.mad.besokminggu.ui.capsule.TopArtistCapsuleFragment"
+        android:label="Top Artist" />
+
+
+
 </navigation>

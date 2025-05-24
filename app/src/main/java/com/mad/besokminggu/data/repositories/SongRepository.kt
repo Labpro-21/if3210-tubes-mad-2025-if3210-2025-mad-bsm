@@ -8,6 +8,7 @@ import androidx.lifecycle.map
 import com.mad.besokminggu.data.dao.SongDao
 import com.mad.besokminggu.data.model.Song
 import com.mad.besokminggu.data.model.StreakInfo
+import com.mad.besokminggu.data.model.TopArtistCapsule
 import com.mad.besokminggu.viewModels.UserViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -153,6 +154,11 @@ class SongRepository @Inject constructor(private val songDao: SongDao) {
         }
     }
 
+    suspend fun getTopArtists(ownerId: Int, month: String): List<TopArtistCapsule> {
+        return songDao.getTopArtistsRaw(ownerId, month).map {
+            TopArtistCapsule(name = it.name, coverFileName = it.coverFileName ?: "")
+        }
+    }
 
 
 

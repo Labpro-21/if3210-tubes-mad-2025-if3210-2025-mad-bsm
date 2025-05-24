@@ -11,6 +11,7 @@ import com.mad.besokminggu.R
 import com.mad.besokminggu.data.model.MonthlyTopSongsData
 import com.mad.besokminggu.data.model.PlayedSongDate
 import com.mad.besokminggu.data.model.StreakInfo
+import com.mad.besokminggu.data.model.TopArtistCapsule
 import com.mad.besokminggu.data.model.TopSongCapsule
 import com.mad.besokminggu.data.repositories.SongRepository
 import com.mad.besokminggu.network.SessionManager
@@ -42,15 +43,24 @@ class ProfileViewModel @Inject constructor(
     val monthlyTopSongs: LiveData<Map<String, MonthlyTopSongsData>> = _monthlyTopSongs
 
     private val _hasCurrentMonthStreak = MutableLiveData<Boolean>(false)
-    val hasCurrentMonthStreak: LiveData<Boolean> = _hasCurrentMonthStreak
+
 
     private val _streakInfo = MutableLiveData<StreakInfo?>()
     val streakInfo: LiveData<StreakInfo?> get() = _streakInfo
 
 
-    fun checkStreakDummy() {
-        _hasCurrentMonthStreak.value = true
+    private val _topArtists = MutableLiveData<List<TopArtistCapsule>>()
+    val topArtists: LiveData<List<TopArtistCapsule>> = _topArtists
+
+    fun loadTopArtistsForCurrentMonth() {
+        viewModelScope.launch {
+            val profile = tokenManager.getUserProfile() ?: return@launch
+            val month = SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(Date())
+            val artists = repository.getTopArtists(ownerId = profile.id, month = month)
+            _topArtists.postValue(artists)
+        }
     }
+
 
     private fun Date.toLocalDate(): java.time.LocalDate {
         return this.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate()
@@ -79,24 +89,6 @@ class ProfileViewModel @Inject constructor(
                 _listenedSongsCount.postValue(count)
             }
         }
-    }
-
-    fun setMonthlyTopSongs(data: Map<String, MonthlyTopSongsData>) {
-        _monthlyTopSongs.value = data
-    }
-
-    private fun loadDummyMonthlyTopSongs() {
-        val dummy = mapOf(
-            "April 2025" to MonthlyTopSongsData(
-                totalPlayed = 203,
-                topSongs = listOf(
-                    TopSongCapsule("01", "Starboy", "The Weeknd, Daft Punk", R.drawable.cover_starboy, 15),
-                    TopSongCapsule("02", "Blinding Lights", "The Weeknd", R.drawable.cover_starboy, 12),
-                    TopSongCapsule("03", "Save Your Tears", "The Weeknd", R.drawable.cover_starboy, 8)
-                )
-            )
-        )
-        _monthlyTopSongs.value = dummy
     }
 
     fun formatMonthFromKey(key: String): String {
@@ -151,22 +143,6 @@ class ProfileViewModel @Inject constructor(
                 _monthlySummaryMap.value = summaries.associateBy { it.month }
             }
         }
-    }
-
-    fun loadDummyStreakInfo() {
-        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-
-        val dummyStreak = StreakInfo(
-            startDate = formatter.parse("2025-05-19")!!,
-            endDate = formatter.parse("2025-05-24")!!,
-            streakLength = 6,
-            streakSongTitle = "Loose",
-            streakSongArtist = "Daniel Caesar",
-            coverFileName = "cover_streak.jpg"
-        )
-
-        _streakInfo.postValue(dummyStreak)
-        _hasCurrentMonthStreak.postValue(true)
     }
 
     fun loadStreakInfo() {

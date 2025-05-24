@@ -24,4 +24,8 @@ class UnprotectedRepository @Inject constructor(
     fun topSongsCountry(country: String) = apiRequestFlow {
         unprotectedApiService.topSongsCountry(country)
     }
+
+    fun getSongById(id: Int) = apiRequestFlow {
+        unprotectedApiService.getSongById(id)
+    }
 }

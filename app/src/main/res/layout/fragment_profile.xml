@@ -15,7 +15,8 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <!-- Background -->
             <ImageView
@@ -97,7 +98,8 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.0"
                 app:layout_editor_absoluteX="260dp"
-                app:layout_editor_absoluteY="235dp" />
+                app:layout_editor_absoluteY="235dp"
+                tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 
 
             <!-- Statistik lagu -->
@@ -220,27 +222,21 @@
             </LinearLayout>
 
             <!-- Capsule Fragment Container -->
-            <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/fragmentCapsuleContainer"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerCapsules"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:clipToPadding="false"
+                android:nestedScrollingEnabled="false"
+                tools:listitem="@layout/fragment_capsule"
+                tools:ignore="MissingConstraints"
                 app:layout_constraintTop_toBottomOf="@id/soundCapsuleHeader"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:name="com.mad.besokminggu.ui.topSongCapsule.TopSongCapsuleFragment"
-                tools:layout="@layout/fragment_capsule" />
 
-            <!-- Streak Fragment Container -->
-            <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/fragmentStreakContainer"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="0dp"
-                app:layout_constraintTop_toBottomOf="@id/fragmentCapsuleContainer"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                tools:layout="@layout/fragement_streak" />
+                />
+
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
@@ -262,5 +258,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 </FrameLayout>

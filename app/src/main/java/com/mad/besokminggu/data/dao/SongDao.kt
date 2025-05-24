@@ -3,6 +3,7 @@ package com.mad.besokminggu.data.dao
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.mad.besokminggu.data.model.Song
+import java.util.Date
 
 @Dao
 interface SongDao {
@@ -51,6 +52,61 @@ interface SongDao {
 
     @Query("SELECT * FROM songs WHERE id != :excludeId AND ownerId = :ownerId ORDER BY RANDOM() LIMIT 1")
     suspend fun getRandomSongExcluding(excludeId: Int, ownerId: Int): Song?
+
+    @Query("""
+        SELECT SUM(totalPlayedSeconds)
+        FROM songs
+        WHERE ownerId = :ownerId
+          AND strftime('%Y-%m', lastPlayedAt / 1000, 'unixepoch') = :monthYear
+    """)
+    suspend fun getTotalPlayedDurationByMonth(ownerId: Int, monthYear: String): Int?
+
+
+    @Query("""
+        SELECT title
+        FROM songs
+        WHERE ownerId = :ownerId
+          AND strftime('%Y-%m', lastPlayedAt / 1000, 'unixepoch') = :monthYear
+        GROUP BY title
+        ORDER BY COUNT(*) DESC
+        LIMIT 1
+    """)
+    suspend fun getTopSongByMonth(ownerId: Int, monthYear: String): String?
+
+    @Query("""
+        SELECT artist
+        FROM songs
+        WHERE ownerId = :ownerId
+          AND strftime('%Y-%m', lastPlayedAt / 1000, 'unixepoch') = :monthYear
+        GROUP BY artist
+        ORDER BY COUNT(*) DESC
+        LIMIT 1
+    """)
+    suspend fun getTopArtistByMonth(ownerId: Int, monthYear: String): String?
+
+
+    @Query("SELECT * FROM songs WHERE lastPlayedAt IS NOT NULL AND ownerId = :ownerId")
+    suspend fun getAllPlayedSongs(ownerId: Int): List<Song>
+
+    @Query("""
+        SELECT DISTINCT strftime('%Y-%m', lastPlayedAt / 1000, 'unixepoch') AS monthYear
+        FROM songs
+        WHERE lastPlayedAt IS NOT NULL AND ownerId = :ownerId
+        ORDER BY monthYear DESC
+        LIMIT 3
+    """)
+    suspend fun getRecentMonthsWithPlayback(ownerId: Int): List<String>
+
+    @Query("""
+        UPDATE songs
+        SET totalPlayedSeconds = totalPlayedSeconds + :seconds,
+            lastPlayedAt = :lastPlayedAt
+        WHERE id = :songId
+    """)
+    suspend fun incrementPlayedTime(songId: Int, seconds: Int, lastPlayedAt: Date)
+
+
+
 
 
 }

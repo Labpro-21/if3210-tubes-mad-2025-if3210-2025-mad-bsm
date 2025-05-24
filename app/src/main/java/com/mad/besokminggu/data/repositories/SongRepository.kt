@@ -8,6 +8,7 @@ import androidx.lifecycle.map
 import com.mad.besokminggu.data.dao.SongDao
 import com.mad.besokminggu.data.model.Song
 import com.mad.besokminggu.viewModels.UserViewModel
+import java.util.Date
 import javax.inject.Inject
 
 class SongRepository @Inject constructor(private val songDao: SongDao) {
@@ -59,5 +60,34 @@ class SongRepository @Inject constructor(private val songDao: SongDao) {
     suspend fun getNextRandomSong(currentSong: Song, ownerId: Int): Song {
         return songDao.getRandomSongExcluding(currentSong.id, ownerId) ?: songDao.getFirstSong(ownerId)
     }
+
+    suspend fun getAllPlayedSongs(ownerId: Int): List<Song> {
+        return songDao.getAllPlayedSongs(ownerId)
+    }
+
+    suspend fun getRecentMonthsWithPlayback(ownerId: Int): List<String> {
+        return songDao.getRecentMonthsWithPlayback(ownerId)
+    }
+
+    suspend fun getTotalPlayedDurationByMonth(ownerId: Int, monthKey: String): Int? {
+        return songDao.getTotalPlayedDurationByMonth(ownerId, monthKey)
+    }
+
+    suspend fun getTopSongByMonth(ownerId: Int, monthKey: String): String? {
+        return songDao.getTopSongByMonth(ownerId, monthKey)
+    }
+
+    suspend fun getTopArtistByMonth(ownerId: Int, monthKey: String): String? {
+        return songDao.getTopArtistByMonth(ownerId, monthKey)
+    }
+
+
+    suspend fun incrementPlayedTime(songId: Int, seconds: Int, lastPlayedAt: Date) {
+        songDao.incrementPlayedTime(songId, seconds, lastPlayedAt)
+    }
+
+
+
+
 
 }

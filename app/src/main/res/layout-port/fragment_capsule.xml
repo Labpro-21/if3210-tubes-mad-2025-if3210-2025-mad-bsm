@@ -1,54 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragment_capsule"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="#121212"
+    android:orientation="vertical"
     android:padding="24dp"
-    tools:context=".ui.CapsuleFragment"
+    tools:context="com.mad.besokminggu.ui.capsule.MonthlyCapsuleFragment"
     tools:ignore="MissingDefaultResource">
 
-    <TextView
-        android:id="@+id/text_month_year"
-        android:layout_width="wrap_content"
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="April 2025"
-        android:textSize="18sp"
-        android:textColor="#FFFFFF"
-        android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
-    <!-- Tombol Share -->
-    <ImageButton
-        android:id="@+id/button_share"
-        android:layout_width="38dp"
-        android:layout_height="38dp"
-        android:background="@android:color/transparent"
-        android:contentDescription="share"
-        android:padding="8dp"
-        android:src="@drawable/share"
-        android:tint="#FFFFFF"
-        android:scaleType="fitCenter"
-        app:layout_constraintBottom_toBottomOf="@id/text_month_year"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/text_month_year"
-        tools:ignore="TouchTargetSizeCheck,UseAppTint" />
+        <TextView
+            android:id="@+id/text_month_year"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="April 2025"
+            android:textSize="18sp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold" />
 
+        <ImageButton
+            android:id="@+id/button_share"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="share"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/share"
+            android:tint="#FFFFFF"
+            tools:ignore="TouchTargetSizeCheck,UseAppTint" />
+    </LinearLayout>
 
+    <!-- Card: Time Listened -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_time_listened"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         app:cardCornerRadius="16dp"
         app:cardElevation="4dp"
-        app:cardBackgroundColor="#1E1E1E"
-        app:layout_constraintTop_toBottomOf="@id/text_month_year"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp">
+        app:cardBackgroundColor="#1E1E1E">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -82,7 +83,7 @@
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/detail_button"
                     android:src="@drawable/detail_capsule"
-                    tools:ignore="TouchTargetSizeCheck,RedundantDescriptionCheck" />
+                    tools:ignore="TouchTargetSizeCheck" />
             </LinearLayout>
 
             <TextView
@@ -90,153 +91,151 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="862 minutes"
+                android:text="300 minutes"
                 android:textColor="#00E676"
                 android:textSize="28sp"
                 android:textStyle="bold" />
-
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_top_artist"
-        android:layout_width="0dp"
+    <!-- Card: Top Artist & Song in Horizontal Layout -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="4dp"
-        app:cardBackgroundColor="#1E1E1E"
-        app:layout_constraintTop_toBottomOf="@id/card_time_listened"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/card_top_song"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp">
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:gravity="left"
-            android:padding="20dp">
+        <!-- Card: Top Artist -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_top_artist"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="#1E1E1E">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/top_artist"
+                        android:textColor="#CCCCCC"
+                        android:textSize="14sp" />
+
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <ImageButton
+                        android:id="@+id/button_artist_detail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/detail_button"
+                        android:src="@drawable/detail_capsule"
+                        tools:ignore="TouchTargetSizeCheck" />
+                </LinearLayout>
 
                 <TextView
+                    android:id="@+id/text_top_artist"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/top_artist"
-                    android:textColor="#CCCCCC"
-                    android:textSize="14sp" />
+                    android:text="The Beatles"
+                    android:textColor="#82B1FF"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="4dp" />
 
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
-
-                <ImageButton
-                    android:id="@+id/button_artist_detail"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/detail_button"
-                    android:src="@drawable/detail_capsule"
-                    tools:ignore="TouchTargetSizeCheck,RedundantDescriptionCheck" />
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/image_artist"
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:layout_marginTop="12dp"
+                    android:src="@drawable/cover_blonde"
+                    android:scaleType="centerCrop"
+                    app:shapeAppearanceOverlay="@style/CircleImageView" />
             </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-            <TextView
-                android:id="@+id/text_top_artist"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="The Beatles"
-                android:textColor="#82B1FF"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_marginTop="4dp" />
-
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/image_artist"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:layout_marginTop="12dp"
-                android:src="@drawable/cover_blonde"
-                android:scaleType="centerCrop"
-                app:shapeAppearanceOverlay="@style/CircleImageView" />
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_top_song"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="4dp"
-        app:cardBackgroundColor="#1E1E1E"
-        app:layout_constraintTop_toBottomOf="@id/card_time_listened"
-        app:layout_constraintStart_toEndOf="@id/card_top_artist"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="8dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:gravity="left"
-            android:padding="20dp">
+        <!-- Card: Top Song -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_top_song"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="#1E1E1E">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/top_song"
+                        android:textColor="#CCCCCC"
+                        android:textSize="14sp" />
+
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <ImageButton
+                        android:id="@+id/button_song_detail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/detail_button"
+                        android:src="@drawable/detail_capsule"
+                        tools:ignore="TouchTargetSizeCheck" />
+                </LinearLayout>
 
                 <TextView
+                    android:id="@+id/text_top_song"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/top_song"
-                    android:textColor="#CCCCCC"
-                    android:textSize="14sp" />
+                    android:text="Starboy"
+                    android:textColor="#FFEB3B"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="4dp" />
 
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
-
-                <ImageButton
-                    android:id="@+id/button_song_detail"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/detail_button"
-                    android:src="@drawable/detail_capsule"
-                    tools:ignore="TouchTargetSizeCheck,RedundantDescriptionCheck" />
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/image_song"
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:layout_marginTop="12dp"
+                    android:src="@drawable/cover_blonde"
+                    android:scaleType="centerCrop"
+                    app:shapeAppearanceOverlay="@style/CircleImageView" />
             </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
 
-            <TextView
-                android:id="@+id/text_top_song"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Starboy"
-                android:textColor="#FFEB3B"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_marginTop="4dp" />
-
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/image_song"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:layout_marginTop="12dp"
-                android:src="@drawable/cover_blonde"
-                android:scaleType="centerCrop"
-                app:shapeAppearanceOverlay="@style/CircleImageView" />
-
-        </LinearLayout>
-
-
-    </com.google.android.material.card.MaterialCardView>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

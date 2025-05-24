@@ -4,11 +4,13 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.mad.besokminggu.data.model.Song
 import com.mad.besokminggu.data.repositories.OnlineSongRepository
 import com.mad.besokminggu.data.repositories.SongRepository
 import com.mad.besokminggu.network.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
 
@@ -175,12 +177,15 @@ class SongTracksViewModel @Inject constructor(
         addToPrevQueue(currentSong)
         _playedSong.value = nextSong
         _nextSongsQueue.value = nextQueue
+
+
         if (isOnlineSong.value == false) {
             songRepository.update(currentSong)
         }
     }
 
     fun skipToPrevious() {
+
         val prevQueue = _previousSongsQueue.value?.toMutableList() ?: return
         val currentSong = _playedSong.value ?: return
         if (prevQueue.isNotEmpty()) {
@@ -270,6 +275,13 @@ class SongTracksViewModel @Inject constructor(
     fun toggleShuffle() {
         _isShuffle.value = !(_isShuffle.value ?: false)
     }
+
+    fun incrementSongPlayedTime(songId: Int, seconds: Int, lastPlayedAt: Date) {
+        viewModelScope.launch {
+            songRepository.incrementPlayedTime(songId,seconds,lastPlayedAt)
+        }
+    }
+
 
 
 }

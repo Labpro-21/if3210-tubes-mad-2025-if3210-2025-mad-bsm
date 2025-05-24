@@ -224,6 +224,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
 //
 //        // Top Songs
 //        topSongsViewModel.topSongs.observe(this) { response ->
@@ -257,12 +258,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onPause() {
+
         // Unregister
         connectionMonitor.disable()
         super.onPause()
     }
 
     override fun onDestroy() {
+
         super.onDestroy()
         connectionMonitor.disable()
     }

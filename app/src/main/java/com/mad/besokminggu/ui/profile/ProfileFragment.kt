@@ -20,7 +20,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import com.mad.besokminggu.databinding.FragmentProfileBinding
 import com.mad.besokminggu.network.ApiResponse
 import com.mad.besokminggu.ui.login.LoginActivity
@@ -36,10 +35,15 @@ import com.mad.besokminggu.ui.optionMenu.ProfileActionSheet
 import java.io.File
 import com.google.android.gms.location.*
 import android.location.Location
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
-import com.mad.besokminggu.MainActivity
+import androidx.fragment.app.FragmentContainerView
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.mad.besokminggu.MapsActivity
+import com.mad.besokminggu.ui.adapter.CapsuleAdapter
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 @AndroidEntryPoint
@@ -69,6 +73,7 @@ class ProfileFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+    private val profileViewModel: ProfileViewModel by viewModels()
 
     @SuppressLint("SetTextI18n")
     override fun onCreateView(
@@ -76,7 +81,7 @@ class ProfileFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val profileViewModel = ViewModelProvider(this)[ProfileViewModel::class.java]
+
 
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -243,6 +248,21 @@ class ProfileFragment : Fragment() {
 
         return root
     }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val recycler = binding.recyclerCapsules
+        if (recycler != null) {
+            recycler.layoutManager = LinearLayoutManager(requireContext())
+        }
+
+        // observe summaries and attach adapter
+        profileViewModel.monthlySummaries.observe(viewLifecycleOwner) { items ->
+            recycler?.adapter = CapsuleAdapter(items)
+        }
+
+    }
+
 
     private fun uriToFile(context: Context, uri: Uri): File {
         val inputStream = context.contentResolver.openInputStream(uri)

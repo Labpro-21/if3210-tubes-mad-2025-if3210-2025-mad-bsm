@@ -27,6 +27,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.util.Date
+import com.mad.besokminggu.ui.profile.ProfileViewModel
+
 
 @AndroidEntryPoint
 class ViewTrackFragment : Fragment(){
@@ -34,6 +37,8 @@ class ViewTrackFragment : Fragment(){
     private val binding get() = _binding!!
 
     private val viewModel : SongTracksViewModel by activityViewModels()
+
+    private val profileViewModel: ProfileViewModel by activityViewModels()
 
 
     override fun onCreateView(
@@ -68,6 +73,8 @@ class ViewTrackFragment : Fragment(){
         val songSinger : TextView= binding.songSinger
         val songImage : ImageView= binding.songImage
 
+
+
         playedSong.observe(viewLifecycleOwner) { song ->
 
             if(song == null){
@@ -81,12 +88,26 @@ class ViewTrackFragment : Fragment(){
 
             AudioPlayerManager.play(song,
                 isOnline = isOnline,
-                onComplete = { skipSong() },
+                onComplete = {
+                    skipSong()
+                }
+                ,
                 onPrepared = {
                     val duration = AudioPlayerManager.getDuration()
+                    val songId = song.id
+                    val durationInSeconds = duration / 1000
+
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        val now = Date()
+                        viewModel.incrementSongPlayedTime(songId, durationInSeconds, now)
+                    }
+
                     viewModel.updateSongDuration(duration)
                     maxTimeText.text = formatTime(duration)
                     progressBar.max = duration
+
+
+
                 }
             )
 
@@ -255,6 +276,8 @@ class ViewTrackFragment : Fragment(){
 
             }
         }
+
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -272,10 +295,19 @@ class ViewTrackFragment : Fragment(){
 
     private fun startSeekBarUpdater() {
         viewLifecycleOwner.lifecycleScope.launch {
+            var lastSavedSecond = 0
             while (isActive) {
                 if (AudioPlayerManager.isPlaying()) {
                     val current = AudioPlayerManager.getCurrentPosition()
                     viewModel.updateSeekPosition(current)
+
+                    val playedSong = viewModel.playedSong.value
+                    if (playedSong != null && current > lastSavedSecond) {
+                        lastSavedSecond = current
+                    }
+
+
+
                 }
                 delay(1000L)
             }

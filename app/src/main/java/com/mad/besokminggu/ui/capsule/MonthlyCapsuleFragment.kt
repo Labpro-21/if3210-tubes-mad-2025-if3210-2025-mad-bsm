@@ -6,7 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.mad.besokminggu.R
 import com.mad.besokminggu.databinding.FragmentCapsuleBinding
+import com.mad.besokminggu.manager.CoverFileHelper
 import com.mad.besokminggu.ui.profile.ProfileViewModel
 
 class MonthlyCapsuleFragment : Fragment() {
@@ -42,7 +44,6 @@ class MonthlyCapsuleFragment : Fragment() {
             val summary = map[monthLabel]
 
             if (summary == null) {
-
                 binding.textMonthYear.text = monthLabel
                 binding.textMinutes.text = "No data available"
                 binding.textTopArtist.visibility = View.GONE
@@ -54,8 +55,31 @@ class MonthlyCapsuleFragment : Fragment() {
                 binding.textMinutes.text = "${summary.totalMinutes} minutes"
                 binding.textTopArtist.text = summary.topArtist
                 binding.textTopSong.text = summary.topSong
-                summary.topArtistImageRes?.let { binding.imageArtist.setImageResource(it) }
-                summary.topSongImageRes?.let { binding.imageSong.setImageResource(it) }
+                summary.topArtistCover?.let {
+                    val file = CoverFileHelper.getFile(it)
+                    if (file != null) {
+                        if (file.exists()) {
+                            binding.imageArtist.setImageURI(android.net.Uri.fromFile(file))
+                        } else {
+                            binding.imageArtist.setImageResource(R.drawable.cover_streak)
+                        }
+                    }
+                } ?: run {
+                    binding.imageArtist.setImageResource(R.drawable.cover_streak)
+                }
+
+                summary.topSongCover?.let {
+                    val file = CoverFileHelper.getFile(it)
+                    if (file != null) {
+                        if (file.exists()) {
+                            binding.imageSong.setImageURI(android.net.Uri.fromFile(file))
+                        } else {
+                            binding.imageSong.setImageResource(R.drawable.cover_starboy)
+                        }
+                    }
+                } ?: run {
+                    binding.imageSong.setImageResource(R.drawable.cover_blonde)
+                }
 
 
                 binding.textTopArtist.visibility = View.VISIBLE

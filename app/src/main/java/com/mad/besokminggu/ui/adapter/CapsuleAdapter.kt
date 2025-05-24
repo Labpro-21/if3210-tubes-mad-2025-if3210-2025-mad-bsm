@@ -8,6 +8,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.mad.besokminggu.R
+import com.mad.besokminggu.manager.CoverFileHelper
+
 
 class CapsuleAdapter(private val items: List<MonthlySummaryCapsule>) :
     RecyclerView.Adapter<CapsuleAdapter.CapsuleViewHolder>() {
@@ -43,16 +45,42 @@ class CapsuleAdapter(private val items: List<MonthlySummaryCapsule>) :
             holder.textMinutes.text = "${item.totalMinutes} minutes"
             holder.textArtist.text = "Top Artist: ${item.topArtist}"
             holder.textSong.text = "Top Song: ${item.topSong}"
-            item.topArtistImageRes?.let { holder.imageArtist.setImageResource(it) }
-            item.topSongImageRes?.let { holder.imageSong.setImageResource(it) }
 
-            // make sure to show views if they were hidden earlier
+            if (!item.topArtistCover.isNullOrBlank()) {
+                val file = CoverFileHelper.getFile(item.topArtistCover)
+                if (file != null) {
+                    if (file.exists()) {
+                        holder.imageArtist.setImageURI(android.net.Uri.fromFile(file))
+                    } else {
+                        holder.imageArtist.setImageResource(R.drawable.cover_blonde)
+                    }
+                }
+            } else {
+                holder.imageArtist.setImageResource(R.drawable.cover_streak)
+            }
+
+
+            if (!item.topSongCover.isNullOrBlank()) {
+                val file = CoverFileHelper.getFile(item.topSongCover)
+                if (file != null) {
+                    if (file.exists()) {
+                        holder.imageSong.setImageURI(android.net.Uri.fromFile(file)) // ✅ FIXED
+                    } else {
+                        holder.imageSong.setImageResource(R.drawable.cover_starboy)
+                    }
+                }
+            } else {
+                holder.imageSong.setImageResource(R.drawable.cover_starboy)
+            }
+
+            // Make sure views are visible
             holder.textArtist.visibility = View.VISIBLE
             holder.textSong.visibility = View.VISIBLE
             holder.imageArtist.visibility = View.VISIBLE
             holder.imageSong.visibility = View.VISIBLE
         }
     }
+
 
 
     override fun getItemCount(): Int = items.size

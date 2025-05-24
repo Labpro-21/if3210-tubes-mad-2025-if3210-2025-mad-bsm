@@ -63,15 +63,14 @@ interface SongDao {
 
 
     @Query("""
-        SELECT title
-        FROM songs
+        SELECT * FROM songs
         WHERE ownerId = :ownerId
           AND strftime('%Y-%m', lastPlayedAt / 1000, 'unixepoch') = :monthYear
         GROUP BY title
         ORDER BY COUNT(*) DESC
         LIMIT 1
     """)
-    suspend fun getTopSongByMonth(ownerId: Int, monthYear: String): String?
+    suspend fun getTopSongByMonth(ownerId: Int, monthYear: String): Song?
 
     @Query("""
         SELECT artist
@@ -104,6 +103,16 @@ interface SongDao {
         WHERE id = :songId
     """)
     suspend fun incrementPlayedTime(songId: Int, seconds: Int, lastPlayedAt: Date)
+
+    @Query("""
+        SELECT coverFileName
+        FROM songs
+        WHERE ownerId = :ownerId
+          AND artist = :artist
+        ORDER BY totalPlayedSeconds DESC
+        LIMIT 1
+    """)
+    suspend fun getTopArtistCover(ownerId: Int, artist: String): String?
 
 
 

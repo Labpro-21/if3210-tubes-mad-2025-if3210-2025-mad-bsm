@@ -73,10 +73,6 @@ class SongRepository @Inject constructor(private val songDao: SongDao) {
         return songDao.getTotalPlayedDurationByMonth(ownerId, monthKey)
     }
 
-    suspend fun getTopSongByMonth(ownerId: Int, monthKey: String): String? {
-        return songDao.getTopSongByMonth(ownerId, monthKey)
-    }
-
     suspend fun getTopArtistByMonth(ownerId: Int, monthKey: String): String? {
         return songDao.getTopArtistByMonth(ownerId, monthKey)
     }
@@ -86,7 +82,13 @@ class SongRepository @Inject constructor(private val songDao: SongDao) {
         songDao.incrementPlayedTime(songId, seconds, lastPlayedAt)
     }
 
+    suspend fun getTopSongByMonth(ownerId: Int, month: String): Song? {
+        return songDao.getTopSongByMonth(ownerId, month)
+    }
 
+    suspend fun getTopArtistCover(ownerId: Int, artist: String): String? {
+        return songDao.getTopArtistCover(ownerId, artist)
+    }
 
 
 

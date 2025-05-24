@@ -39,55 +39,9 @@ class ProfileViewModel @Inject constructor(
     private val _monthlyTopSongs = MutableLiveData<Map<String, MonthlyTopSongsData>>()
     val monthlyTopSongs: LiveData<Map<String, MonthlyTopSongsData>> = _monthlyTopSongs
 
-    private val _currentListeningSeconds = MutableLiveData<Int>(0)
-    val currentListeningSeconds: LiveData<Int> get() = _currentListeningSeconds
-
-    private val _listenedSecondsThisMonth = MutableLiveData(0)
-    val listenedSecondsThisMonth: LiveData<Int> get() = _listenedSecondsThisMonth
-
-    private var previousMonthKey: String = getCurrentMonthKey()
-
-    fun refreshCurrentMonthSummary() {
-        val list = _monthlySummaries.value?.toMutableList() ?: return
-        val currentMonth = SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(Date())
-        val index = list.indexOfFirst { it.month == currentMonth }
-
-        if (index != -1) {
-            val old = list[index]
-            val newMinutes = (_listenedSecondsThisMonth.value ?: 0) / 60
-
-            if (old.totalMinutes != newMinutes) {
-                val updated = old.copy(totalMinutes = newMinutes)
-                list[index] = updated
-                _monthlySummaries.value = list
-            }
-        }
-    }
-
-
     private fun getCurrentMonthKey(): String {
         return SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(Date())
     }
-
-    fun ensureMonthKeyFresh() {
-        val currentKey = getCurrentMonthKey()
-        if (currentKey != previousMonthKey) {
-            _listenedSecondsThisMonth.value = 0
-            previousMonthKey = currentKey
-        }
-    }
-
-    fun incrementListeningTime() {
-        _currentListeningSeconds.value = (_currentListeningSeconds.value ?: 0) + 1
-        _listenedSecondsThisMonth.value = (_listenedSecondsThisMonth.value ?: 0) + 1
-        refreshCurrentMonthSummary()
-    }
-
-
-    fun updateMonthlySummaries(newList: List<MonthlySummaryCapsule>) {
-        _monthlySummaries.value = newList
-    }
-
 
     fun loadCounts() {
         viewModelScope.launch {
@@ -153,17 +107,24 @@ class ProfileViewModel @Inject constructor(
             val summaries = months.map { monthKey ->
                 val totalMinutes = repository.getTotalPlayedDurationByMonth(ownerId, monthKey)?.div(60) ?: 0
 
-                val topSong = repository.getTopSongByMonth(ownerId, monthKey)
+                val topSongObj = repository.getTopSongByMonth(ownerId, monthKey)
+                val topSongTitle = topSongObj?.title ?: ""
+                val topSongCover = topSongObj?.coverFileName ?: ""
                 val topArtist = repository.getTopArtistByMonth(ownerId, monthKey)
+                val topArtistCover = topArtist?.let {
+                    repository.getTopArtistCover(ownerId, it)
+                }
+
 
                 MonthlySummaryCapsule(
                     month = formatMonthFromKey(monthKey),
                     totalMinutes = totalMinutes,
-                    topSong = topSong,
+                    topSong = topSongTitle,
                     topArtist = topArtist,
-                    topSongImageRes = R.drawable.cover_starboy,
-                    topArtistImageRes = R.drawable.cover_blonde
+                    topSongCover = topSongCover,
+                    topArtistCover = topArtistCover
                 )
+
             }
 
             withContext(Dispatchers.Main) {

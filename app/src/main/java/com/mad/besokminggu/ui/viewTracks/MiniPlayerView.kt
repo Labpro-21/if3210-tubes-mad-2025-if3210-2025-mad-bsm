@@ -8,6 +8,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.core.os.bundleOf
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
@@ -39,7 +40,7 @@ class MiniPlayerView @JvmOverloads constructor(
     private val progressBar : ProgressBar
 
     private var fragmentManager: FragmentManager? = null
-    
+
     init {
         LayoutInflater.from(context).inflate(R.layout.fragment_miniplayer, this, true)
         ivCover = findViewById(R.id.songCover)
@@ -141,6 +142,16 @@ class MiniPlayerView @JvmOverloads constructor(
                         }
                     },
                     onQR = {
+                        val song = viewModel.playedSong.value
+                        if (song != null) {
+                            val generatedUrl = DeepLinkHelper.createSongShareLink(song.id);
+                            val bundle = bundleOf(
+                                "title" to song.title,
+                                "artist" to song.artist,
+                                "link" to generatedUrl
+                            )
+                            findNavController().navigate(R.id.navigation_qr, bundle)
+                        }
                     }
                 ).show(fm, "ShareActionSheet")
             } ?: run {

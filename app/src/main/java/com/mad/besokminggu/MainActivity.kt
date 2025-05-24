@@ -264,8 +264,8 @@ class MainActivity : AppCompatActivity() {
 //        )
 
         // Deep Link handler
-        val intent = intent
-        val data: Uri? = intent.data
+        val intents = intent
+        val data: Uri? = intents.data
 
         if (data != null && data.scheme == "purrytify" && data.host == "song") {
             val songId: String? = data.lastPathSegment

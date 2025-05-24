@@ -125,7 +125,7 @@
                     <ImageButton
                         android:id="@+id/love_button"
                         android:layout_width="48dp"
-                        android:layout_height="48dp"
+                        android:layout_height="match_parent"
                         android:backgroundTint="#00FFFFFF"
                         android:contentDescription="Love"
                         android:src="@drawable/love"

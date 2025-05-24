@@ -49,6 +49,7 @@ android {
 }
 
 dependencies {
+    implementation("com.github.androidmads:QRGenerator:1.0.5")
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
     implementation(libs.glide)

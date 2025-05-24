@@ -11,6 +11,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.LiveData
@@ -162,6 +163,7 @@ class ViewTrackFragment : Fragment(){
         val repeatMode : LiveData<RepeatMode> = viewModel.repeatMode
 
 
+
         val nextButton : ImageButton = binding.nextButton
         val loveButton: ImageButton = binding.loveButton
         val previousButton : ImageButton = binding.previousButton
@@ -271,6 +273,16 @@ class ViewTrackFragment : Fragment(){
                     }
                 },
                 onQR = {
+                    val song = viewModel.playedSong.value
+                    if (song != null) {
+                        val generatedUrl = DeepLinkHelper.createSongShareLink(song.id);
+                        val bundle = bundleOf(
+                            "title" to song.title,
+                            "artist" to song.artist,
+                            "link" to generatedUrl
+                        )
+                        findNavController().navigate(R.id.navigation_qr, bundle)
+                    }
                 }
             ).show(parentFragmentManager, "ShareActionSheet")
         }

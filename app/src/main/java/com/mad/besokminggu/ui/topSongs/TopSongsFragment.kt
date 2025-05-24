@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -67,6 +68,9 @@ class TopSongsFragment: Fragment() {
                         DeepLinkHelper.shareSongLink(requireContext(), song.id, song.artist, song.title)
                     },
                     onQR = {
+                        val generatedUrl = DeepLinkHelper.createSongShareLink(song.id);
+                        val bundle = bundleOf("title" to song.title, "artist" to song.artist, "link" to generatedUrl)
+                        findNavController().navigate(R.id.navigation_qr, bundle)
                     }
                 ).show(parentFragmentManager, "ShareActionSheet")
             }

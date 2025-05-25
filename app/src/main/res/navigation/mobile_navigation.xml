@@ -94,7 +94,11 @@
         android:name="com.mad.besokminggu.ui.capsule.TimeListenedFragment"
         android:label="Time Listened" />
 
-
+    <fragment
+        android:id="@+id/navigation_daily_playlist"
+        android:name="com.mad.besokminggu.ui.dailyPlaylist.DailyPlaylistFragment"
+        android:label="Daily Playlist"
+        tools:layout="@layout/fragment_daily_playlist" />
 
 
 

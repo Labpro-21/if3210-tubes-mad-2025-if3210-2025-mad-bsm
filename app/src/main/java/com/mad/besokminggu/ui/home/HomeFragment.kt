@@ -136,6 +136,13 @@ class HomeFragment : Fragment() {
             },
         )
 
+        val dailyPlaylistBox = view.findViewById<View>(R.id.dailyPlaylistImage)
+        dailyPlaylistBox.setOnClickListener {
+            findNavController().navigate(R.id.navigation_daily_playlist)
+        }
+
+
+
         rvNewSongs.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         rvNewSongs.adapter = newSongsAdapter
 

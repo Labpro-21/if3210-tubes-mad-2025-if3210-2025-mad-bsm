@@ -4,4 +4,7 @@
     <files-path
         name="audio"
         path="audio/" />
+    <files-path
+        name="cover"
+        path="cover"/>
 </paths>

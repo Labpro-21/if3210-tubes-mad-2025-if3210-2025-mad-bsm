@@ -23,60 +23,62 @@ import com.mad.besokminggu.ui.addsongs.AddSongsFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import androidx.core.os.bundleOf
+import com.mad.besokminggu.data.repositories.OnlineSongRepository
+import com.mad.besokminggu.databinding.FragmentHomeBinding
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
-
-    private lateinit var rvNewSongs: RecyclerView
-    private lateinit var rvRecentlyPlayed: RecyclerView
 
     private val homeViewModel: HomeViewModel by activityViewModels()
     private val userViewModel: UserViewModel by activityViewModels()
     private val songViewModel : SongTracksViewModel by activityViewModels()
 
+    private var _binding: FragmentHomeBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_home, container, false)
+    ): View {
+        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    private fun onSongClick(song: Song){
-        Log.d("MiniPlayer", "Song playing: ${song.title}")
-        if(song.id != songViewModel.playedSong.value?.id){
-            lifecycleScope.launch {
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 
-            songViewModel.playSong(song)
+    private fun onSongClick(song: Song) {
+        if (song.id != songViewModel.playedSong.value?.id) {
+            lifecycleScope.launch {
+                songViewModel.playSong(song)
             }
         }
         songViewModel.showFullPlayer()
-
     }
 
-    fun onOpenSheet(song : Song){
+    private fun onOpenSheet(song: Song) {
         SongActionSheet(
             song = song,
             onQueue = {
                 lifecycleScope.launch {
-                songViewModel.addToNextQueue(song)
+                    songViewModel.addToNextQueue(song)
                 }
             },
             onEdit = {
                 val existingFragment = parentFragmentManager.findFragmentByTag("AddSongsBottomSheet")
                 if (existingFragment == null) {
-                    val editFragment = AddSongsFragment()
-
-                    val args = Bundle().apply {
-                        putBoolean("isEditMode", true)
-                        putInt("songID", song.id)
-                        putString("songTitle", song.title)
-                        putString("artistName", song.artist)
-                        putString("songFilePath", song.audioFileName)
-                        putString("songImagePath", song.coverFileName)
+                    val editFragment = AddSongsFragment().apply {
+                        arguments = Bundle().apply {
+                            putBoolean("isEditMode", true)
+                            putInt("songID", song.id)
+                            putString("songTitle", song.title)
+                            putString("artistName", song.artist)
+                            putString("songFilePath", song.audioFileName)
+                            putString("songImagePath", song.coverFileName)
+                        }
                     }
-
-                    editFragment.arguments = args
                     editFragment.show(parentFragmentManager, "AddSongsBottomSheet")
                 }
             },
@@ -91,78 +93,62 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        rvNewSongs = view.findViewById(R.id.rvNewSongs)
-        rvRecentlyPlayed = view.findViewById(R.id.rvRecentlyPlayed)
+        val newSongsAdapter = NewSongAdapter { onSongClick(it) }
+        val recentlyPlayedAdapter = SongWithMenuAdapter(
+            onItemClick = { onSongClick(it) },
+            onMenuClick = { onOpenSheet(it) }
+        )
+        val dailyAdapter = SongWithMenuAdapter(
+            onItemClick = { onSongClick(it) },
+            onMenuClick = { onOpenSheet(it) }
+        )
 
-        // Set up on button click listeners
-        val topGlobalButton = view.findViewById<ImageButton>(R.id.topGlobal)
-        val topLocalButton = view.findViewById<ImageButton>(R.id.topLocal)
+        binding.rvNewSongs.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.rvNewSongs.adapter = newSongsAdapter
 
-        // Redirect to fragment
-        topGlobalButton.setOnClickListener {
+        binding.rvRecentlyPlayed.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvRecentlyPlayed.adapter = recentlyPlayedAdapter
+
+        binding.rvDailyPlaylist?.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.rvDailyPlaylist?.adapter = dailyAdapter
+
+        binding.topGlobal?.setOnClickListener {
             val bundle = bundleOf("isGlobal" to true)
             findNavController().navigate(R.id.navigation_top_songs, bundle)
         }
 
-        topLocalButton.setOnClickListener {
+        binding.topLocal?.setOnClickListener {
             val bundle = bundleOf("isGlobal" to false)
             findNavController().navigate(R.id.navigation_top_songs, bundle)
         }
 
-        val newSongsAdapter = NewSongAdapter { song ->
-            onSongClick(song)
-        }
-
-        val recentlyPlayedAdapter = SongWithMenuAdapter(
-            onItemClick = { song ->
-                onSongClick(song)
-            },
-            onMenuClick = {song ->
-                onOpenSheet(song)
-            },
-        )
-
-        rvNewSongs.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        rvNewSongs.adapter = newSongsAdapter
-
-        rvRecentlyPlayed.layoutManager = LinearLayoutManager(requireContext())
-        rvRecentlyPlayed.adapter = recentlyPlayedAdapter
-
-
-        userViewModel.profile.observe(viewLifecycleOwner) {
-            homeViewModel.refreshSong(it.id)
+        userViewModel.profile.observe(viewLifecycleOwner) { profile ->
+            homeViewModel.refreshSong(profile.id)
 
             homeViewModel.allSongs.observe(viewLifecycleOwner) { songs ->
-                val newSongs = songs.filter { newSong ->
-                    newSong.lastPlayedAt == null
+                homeViewModel._newSongs.postValue(songs.filter { it.lastPlayedAt == null })
+                homeViewModel._recentlyPlayed.postValue(songs.filter { it.lastPlayedAt != null }.sortedByDescending { it.lastPlayedAt })
+
+                homeViewModel.topSongs.observe(viewLifecycleOwner) { onlineSongs ->
+                    homeViewModel.generateDailyPlaylist(songs, onlineSongs)
                 }
-                homeViewModel._newSongs.postValue(newSongs)
-
-                val recentlyPlayedSongs = songs
-                    .filter { it.lastPlayedAt != null }
-                    .sortedByDescending { it.lastPlayedAt }
-                homeViewModel._recentlyPlayed.postValue(recentlyPlayedSongs)
             }
         }
 
-        homeViewModel.allSongs.observe(viewLifecycleOwner){ songs ->
-            val newSongs = songs.filter { newSong ->
-                newSong.lastPlayedAt == null
-            }
-            homeViewModel._newSongs.postValue(newSongs)
-
-            val recentlyPlayedSongs = songs
-                .filter { it.lastPlayedAt != null }
-                .sortedByDescending { it.lastPlayedAt }
-            homeViewModel._recentlyPlayed.postValue(recentlyPlayedSongs)
+        homeViewModel.newSongs.observe(viewLifecycleOwner) {
+            newSongsAdapter.updateSongs(it)
         }
 
-        homeViewModel.newSongs.observe(viewLifecycleOwner) { songs ->
-            newSongsAdapter.updateSongs(songs)
+        homeViewModel.recentlyPlayed.observe(viewLifecycleOwner) {
+            recentlyPlayedAdapter.submitList(it)
         }
 
-        homeViewModel.recentlyPlayed.observe(viewLifecycleOwner) { songs ->
-            recentlyPlayedAdapter.submitList(songs)
+        homeViewModel.dailyPlaylist.observe(viewLifecycleOwner) {
+            dailyAdapter.submitList(it.take(5)) // preview 5 lagu
+        }
+
+        homeViewModel.dailyPlaylistDuration.observe(viewLifecycleOwner) { duration ->
+            binding.tvDuration!!.text  = duration
         }
     }
 }

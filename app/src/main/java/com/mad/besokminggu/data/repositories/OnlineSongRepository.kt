@@ -15,9 +15,9 @@ class OnlineSongRepository @Inject constructor() {
         Log.d("OnlineSongRepository", "updateAllSongs: $_allSongs")
     }
 
-//    fun getAllSongs() : List<Song> {
-//        return _allSongs
-//    }
+    fun getAllOnlineSongs() : List<Song> {
+        return _allSongs
+    }
 
     fun getNextIteratedSong(currentSong: Song): Song {
         val currentIndex = _allSongs.indexOfFirst { it.id == currentSong.id }

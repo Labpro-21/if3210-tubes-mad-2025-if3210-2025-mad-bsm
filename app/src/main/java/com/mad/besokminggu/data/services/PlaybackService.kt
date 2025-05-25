@@ -92,7 +92,6 @@ class PlaybackService : MediaSessionService() {
                         queueManager.updateSeekDuration(durationMs);
 
                     }
-                } else {
                 }
             }
 
@@ -102,8 +101,8 @@ class PlaybackService : MediaSessionService() {
 
                 when (playbackState) {
                     Player.STATE_ENDED -> {
-                        // THIS IS WHERE YOU HANDLE THE END OF A SONG
-                        serviceScope.launch { // Use the serviceScope for coroutine
+                        // Skip the song once the timer ended
+                        serviceScope.launch {
                             val nextSong = queueManager.skipNext()
                             if (nextSong != null) {
                                 Log.d("PlaybackService", "Playing next song: ${nextSong.title}")

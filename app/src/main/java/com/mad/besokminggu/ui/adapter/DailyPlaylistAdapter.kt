@@ -8,15 +8,15 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.mad.besokminggu.R
-import com.mad.besokminggu.data.model.Song
+import com.mad.besokminggu.data.model.PlaylistSong
 
 class DailyPlaylistAdapter(
-    private val onItemClick: (Song) -> Unit
+    private val onItemClick: (PlaylistSong) -> Unit
 ) : RecyclerView.Adapter<DailyPlaylistAdapter.DailyPlaylistViewHolder>() {
 
-    private val songs = mutableListOf<Song>()
+    private val songs = mutableListOf<PlaylistSong>()
 
-    fun submitList(newSongs: List<Song>) {
+    fun submitList(newSongs: List<PlaylistSong>) {
         songs.clear()
         songs.addAll(newSongs)
         notifyDataSetChanged()
@@ -39,16 +39,17 @@ class DailyPlaylistAdapter(
         private val artistText: TextView = itemView.findViewById(R.id.songArtist)
         private val coverImage: ImageView = itemView.findViewById(R.id.songCover)
 
-        fun bind(song: Song) {
-            titleText.text = song.title
-            artistText.text = song.artist
+        fun bind(playlist: PlaylistSong) {
+            titleText.text = playlist.song.title
+            artistText.text = playlist.song.artist
+
             Glide.with(itemView.context)
-                .load(song.coverFileName)
+                .load(playlist.song.coverFileName)
                 .placeholder(R.drawable.cover_daylist)
                 .into(coverImage)
 
             itemView.setOnClickListener {
-                onItemClick(song)
+                onItemClick(playlist)
             }
         }
     }

@@ -50,7 +50,6 @@ class TopSongsFragment: Fragment() {
         Log.d("MiniPlayer", "Song playing: ${song.title}")
         if(song.id != songViewModel.playedSong.value?.id){
             lifecycleScope.launch {
-
                 songViewModel.playSong(song.toSong(), isOnline = true)
             }
         }

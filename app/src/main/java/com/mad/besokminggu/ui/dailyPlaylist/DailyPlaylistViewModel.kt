@@ -6,7 +6,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mad.besokminggu.data.model.OnlineSong
+import com.mad.besokminggu.data.model.PlaylistSong
 import com.mad.besokminggu.data.model.Song
+import com.mad.besokminggu.data.model.toPlaylistSong
 import com.mad.besokminggu.data.model.toSong
 import com.mad.besokminggu.data.repositories.SongRepository
 import com.mad.besokminggu.network.ApiResponse
@@ -22,8 +24,8 @@ class DailyPlaylistViewModel @Inject constructor(
     private val songRepository: SongRepository
 ) : ViewModel() {
 
-    private val _dailyPlaylist = MutableLiveData<List<Song>>()
-    val dailyPlaylist: LiveData<List<Song>> = _dailyPlaylist
+    private val _dailyPlaylist = MutableLiveData<List<PlaylistSong>>()
+    val dailyPlaylist: LiveData<List<PlaylistSong>> = _dailyPlaylist
 
     private val _playlistDuration = MutableLiveData<String>()
     val playlistDuration: LiveData<String> = _playlistDuration
@@ -36,41 +38,44 @@ class DailyPlaylistViewModel @Inject constructor(
 
         if (today == cachedDate && cachedPlaylist != null) {
             _dailyPlaylist.postValue(cachedPlaylist!!)
-            _playlistDuration.postValue(computeDurationString(cachedPlaylist!!.sumOf { it.durationInSeconds }))
+            _playlistDuration.postValue(computeDurationString(cachedPlaylist!!.sumOf { it.song.durationInSeconds }))
             Log.d("DailyPlaylist", "Using cached playlist for $today")
             return
         }
 
-        val likedArtists = localSongs.filter { it.isLiked }.map { it.artist }.toSet()
-        val listenedArtists = localSongs.map { it.artist }.toSet()
 
-        val byLikedArtist = onlineSongs.filter { it.artist in likedArtists }
-        val byListenedArtist = onlineSongs.filter { it.artist in listenedArtists && it.artist !in likedArtists }
+        val localPlaylists = localSongs.map { it -> it.toPlaylistSong(false) }
+        val onlinePlaylists = onlineSongs.map { it -> it.toSong().toPlaylistSong(true) }
+
+
+        val likedArtists = localPlaylists.filter { it.song.isLiked }.map { it.song.artist }.toSet()
+        val listenedArtists = localPlaylists.map { it.song.artist }.toSet()
+
+        val byLikedArtist = onlinePlaylists.filter { it.song.artist in likedArtists }
+        val byListenedArtist = onlinePlaylists.filter { it.song.artist in listenedArtists && it.song.artist !in likedArtists }
 
         val combined = (byLikedArtist + byListenedArtist)
-            .distinctBy { it.id }
+            .distinctBy { it.song.id }
             .shuffled()
 
         val finalList = if (combined.size >= 30) {
             combined.take(30)
         } else {
-            val additional = onlineSongs
-                .filter { online -> combined.none { it.id == online.id } }
+            val additional = onlinePlaylists
+                .filter { online -> combined.none { it.song.id == online.song.id } }
                 .shuffled()
                 .take(30 - combined.size)
 
             (combined + additional).take(30)
         }
 
-        val songs = finalList.map { it.toSong() }
 
         cachedDate = today
-        cachedPlaylist = songs
+        cachedPlaylist = finalList
 
-        _dailyPlaylist.postValue(songs)
-        _playlistDuration.postValue(computeDurationString(songs.sumOf { it.durationInSeconds }))
+        _dailyPlaylist.postValue(finalList)
+        _playlistDuration.postValue(computeDurationString(finalList.sumOf { it.song.durationInSeconds }))
     }
-
 
     fun getTodayLabel(): String {
         val sdf = SimpleDateFormat("MMM yyyy", Locale.getDefault())
@@ -89,19 +94,20 @@ class DailyPlaylistViewModel @Inject constructor(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             val localSongs = songRepository.getAllSongsSync(ownerId)
+            val localPlaylits = localSongs.map { it -> it.toPlaylistSong(false) }
 
             if (topSongsResponse is ApiResponse.Success) {
                 val onlineSongs = topSongsResponse.data
+                val onlinePlayList = onlineSongs.map {it -> it.toSong().toPlaylistSong(true)}
 
-                if (localSongs.isEmpty()) {
-                    val playlist = onlineSongs
-                        .distinctBy { it.id }
+                if (localPlaylits.isEmpty()) {
+                    val playlist = onlinePlayList
+                        .distinctBy { it.song.id }
                         .shuffled()
                         .take(30)
-                        .map { it.toSong() }
 
                     _dailyPlaylist.postValue(playlist)
-                    _playlistDuration.postValue(computeDurationString(playlist.sumOf { it.durationInSeconds }))
+                    _playlistDuration.postValue(computeDurationString(playlist.sumOf { it.song.durationInSeconds }))
                 } else {
                     // normal combine
                     generateDailyPlaylist(localSongs, onlineSongs)

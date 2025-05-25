@@ -42,17 +42,18 @@
                     app:layout_collapseMode="pin">
 
                     <ImageButton
-                        android:contentDescription="@string/back"
                         android:id="@+id/backButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:layout_marginTop="16dp"
                         android:background="@color/transparent"
+                        android:contentDescription="@string/back"
                         android:src="@drawable/caret"
+                        app:layout_collapseMode="pin"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:layout_collapseMode="pin"/>
+                        tools:ignore="TouchTargetSizeCheck" />
 
                     <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/coverImage"
@@ -160,7 +161,7 @@
                             android:contentDescription="Download"
                             android:scaleType="fitCenter"
                             android:src="@drawable/download"
-                            tools:ignore="HardcodedText" />
+                            tools:ignore="HardcodedText,TouchTargetSizeCheck" />
 
                         <View
                             android:layout_width="0dp"

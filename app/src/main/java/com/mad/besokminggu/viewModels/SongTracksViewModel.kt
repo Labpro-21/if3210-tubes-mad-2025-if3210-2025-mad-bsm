@@ -4,6 +4,7 @@ package com.mad.besokminggu.viewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.asLiveData
 import com.mad.besokminggu.data.model.Song
 import com.mad.besokminggu.data.repositories.OnlineSongRepository
@@ -11,6 +12,8 @@ import com.mad.besokminggu.data.repositories.SongRepository
 import com.mad.besokminggu.manager.AudioPlayerManager
 import com.mad.besokminggu.manager.PlaybackQueueManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
 
 enum class RepeatMode {
@@ -30,7 +33,7 @@ class SongTracksViewModel @Inject constructor(
         queueManager.currentSong
             .asLiveData()
 
-    private val _isOnlineSong = MutableLiveData<Boolean>(false)
+    val _isOnlineSong = MutableLiveData<Boolean>(false)
     val isOnlineSong: LiveData<Boolean> get() = _isOnlineSong
 
     // Keep tracking of previous queue
@@ -56,7 +59,7 @@ class SongTracksViewModel @Inject constructor(
     val currentSongDuration: LiveData<Long> = queueManager.currentDuration.asLiveData();
 
     private val _isLiked = MutableLiveData<Boolean>(false)
-    val isLiked : LiveData<Boolean> get() = _isLiked;
+    val isLiked : LiveData<Boolean> get() = _isLiked
 
 
     val repeatMode: LiveData<RepeatMode> = queueManager.repeatMode.asLiveData()
@@ -89,30 +92,12 @@ class SongTracksViewModel @Inject constructor(
     }
 
     fun togglePlayPause() {
-//        var newVal = false;
-//        if(_isPlaying.value != null)
-//            newVal = !_isPlaying.value!!
-//
-//        _isPlaying.value = newVal
         AudioPlayerManager.togglePlayPause()
         syncWithQueueManager()
     }
 
-//    fun updatePlayPause(newVal : Boolean){
-//        _isPlaying.value = newVal
-//    }
-
-
     suspend fun playSong(song: Song, isOnline: Boolean = false){
-//        val newSong = song.copy(lastPlayedAt =  Date())
-//        _isOnlineSong.value = isOnline
-//        Log.d("MiniPlayer", "Online?: ${_isOnlineSong.value}")
-//        _playedSong.value = newSong
-//        Log.d("MiniPlayer", "Song playing: ${_playedSong.value}")
-//        if (isOnline) {
-//            songRepository.update(newSong);
-//            resetPrevQueue();
-//        }
+
         AudioPlayerManager.play(song,isOnline);
         showFullPlayer();
         syncWithQueueManager();
@@ -120,84 +105,15 @@ class SongTracksViewModel @Inject constructor(
 
 
     suspend fun skipToNext() {
-//        val currentSong : Song = _playedSong.value?.copy(lastPlayedAt =  Date()) ?: return
-//        val isOnline = isOnlineSong.value ?: false
-//        if (!isOnline) {
-//            songRepository.update(currentSong);
-//        }
-//        when(_repeatMode.value){
-//            RepeatMode.REPEAT_ONE -> {
-//                _playedSong.value = currentSong.copy(lastPlayedAt = Date())
-//                return
-//            }
-//            RepeatMode.REPEAT_ALL -> {
-//                val nextQueue = _nextSongsQueue.value?.toMutableList() ?: return
-//                if(nextQueue.isNotEmpty()){
-//                    // exist a queue
-//                    handleNextSongFromQueue(currentSong);
-//                    addToNextQueue(currentSong);
-//                }else{
-//                    // Only single song played, do the same as repeat_one
-//                    _playedSong.value = currentSong.copy(lastPlayedAt = Date())
-//                }
-//                return;
-//            }
-//            else -> {
-//                handleNextSongFromQueue(currentSong)
-//            }
-//        }
         AudioPlayerManager.skipToNext()
         syncWithQueueManager()
     }
 
 
 
-//    suspend fun handleNextSongFromQueue(currentSong : Song){
-//        val nextQueue = _nextSongsQueue.value?.toMutableList() ?: return
-//
-//        val nextSong = if (_isOnlineSong.value ?: false) {
-//            if (_isShuffle.value == true) {
-//                onlineSongRepository.getNextRandomSong(currentSong)
-//            } else {
-//                onlineSongRepository.getNextIteratedSong(currentSong)
-//            }
-//        } else {
-//            if (nextQueue.isNotEmpty()) {
-//                // Handle shuffle
-//                if (_isShuffle.value == true) {
-//                    nextQueue.removeAt((nextQueue.indices).random())
-//                } else {
-//                    nextQueue.removeAt(0)
-//                }
-//            } else {
-//                if (_isShuffle.value == true) {
-//                    songRepository.getNextRandomSong(currentSong, ownerId)
-//                } else {
-//                    songRepository.getNextIteratedSong(currentSong, ownerId)
-//                }
-//            }
-//        }
-//
-//        addToPrevQueue(currentSong)
-//        _playedSong.value = nextSong
-//        _nextSongsQueue.value = nextQueue
-//        if (isOnlineSong.value == false) {
-//            songRepository.update(currentSong)
-//        }
-//}
 
     fun skipToPrevious() {
-//        val prevQueue = _previousSongsQueue.value?.toMutableList() ?: return
-//        val currentSong = _playedSong.value ?: return
-//        if (prevQueue.isNotEmpty()) {
-//            val lastIndex = prevQueue.lastIndex
-//            val prevSong = prevQueue.removeAt(lastIndex)
-//            val nextQueue = _nextSongsQueue.value?.toMutableList() ?: mutableListOf()
-//            nextQueue.add(0, currentSong)
-//            _playedSong.value = prevSong
-//            _previousSongsQueue.value = prevQueue
-//            _nextSongsQueue.value = nextQueue
-//        }
+
         AudioPlayerManager.skipToPrevious()
         syncWithQueueManager()
     }
@@ -211,37 +127,16 @@ class SongTracksViewModel @Inject constructor(
         }
         if (isOnlineSong.value == false)
             songRepository.deleteSong(song)
-        _anySongDeleted.value = song;
+        _anySongDeleted.value = song
     }
 
 
 
     suspend fun addToNextQueue(song: Song) {
-//        val updatedQueue = _nextSongsQueue.value?.toMutableList() ?: mutableListOf()
-//        updatedQueue.add(song)
-//
-//        Log.d("NextQueue", "Size of Queue: ${updatedQueue.size}")
-//
-//        if (updatedQueue.size == 1 && _playedSong.value == null) {
-//            playSong(song, isOnlineSong.value ?: false)
-//        }
-//
-        //_nextSongsQueue.value = updatedQueue
         AudioPlayerManager.addToQueue(song)
         syncWithQueueManager()
     }
 
-
-//    private fun addToPrevQueue(song : Song){
-//        val prevQueue = _previousSongsQueue.value?.toMutableList() ?: mutableListOf()
-//        prevQueue.add(song)
-//        _previousSongsQueue.value = prevQueue
-//    }
-
-
-//    fun resetPrevQueue(){
-//        _previousSongsQueue.value = emptyList()
-//    }
 
     fun isAnySongPlayed() : Boolean{
         return playedSong.value != null;
@@ -263,17 +158,10 @@ class SongTracksViewModel @Inject constructor(
     }
 
     fun toggleRepeat() {
-//        _repeatMode.value = when (_repeatMode.value) {
-//            RepeatMode.NONE -> RepeatMode.REPEAT_ONE
-//            RepeatMode.REPEAT_ONE -> RepeatMode.REPEAT_ALL
-//            RepeatMode.REPEAT_ALL -> RepeatMode.NONE
-//            else -> RepeatMode.NONE
-//        }
         AudioPlayerManager.toggleRepeat()
     }
 
     fun toggleShuffle() {
-//        _isShuffle.value = !(_isShuffle.value ?: false)
         AudioPlayerManager.toggleShuffle()
     }
 
@@ -282,5 +170,9 @@ class SongTracksViewModel @Inject constructor(
         _previousSongsQueue.value = queueManager.prevQueue
     }
 
-
+    fun incrementSongPlayedTime(songId: Int, seconds: Int, lastPlayedAt: Date) {
+        viewModelScope.launch {
+            songRepository.incrementPlayedTime(songId,seconds,lastPlayedAt)
+        }
+    }
 }

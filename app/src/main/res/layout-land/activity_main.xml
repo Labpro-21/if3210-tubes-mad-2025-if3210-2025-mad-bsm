@@ -31,12 +31,6 @@
             app:itemIconTint="@color/checked_selector"
             app:itemTextColor="@color/checked_selector" />
 
-        <!-- MiniPlayer -->
-        <com.mad.besokminggu.ui.viewTracks.MiniPlayerView
-            android:id="@+id/miniPlayer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"/>
     </LinearLayout>
 
     <!-- Garis pemisah -->
@@ -77,5 +71,17 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:layout="@layout/fragment_track_view"
         tools:visibility="gone" />
+
+    <!-- MiniPlayer -->
+    <com.mad.besokminggu.ui.viewTracks.MiniPlayerView
+        android:id="@+id/miniPlayer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

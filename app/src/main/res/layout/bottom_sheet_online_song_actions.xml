@@ -74,7 +74,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="200dp"
         android:orientation="vertical"
         android:paddingHorizontal="16dp">
 
@@ -103,6 +103,35 @@
                 android:gravity="center_vertical"
                 android:padding="12dp"
                 android:text="@string/download_song"
+                android:textColor="@color/gray_400"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/share_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center_vertical"
+            android:orientation="horizontal"
+            tools:ignore="UselessParent">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0"
+                android:contentDescription="@string/share_icon"
+                android:padding="5dp"
+                android:scaleType="centerInside"
+                app:srcCompat="@drawable/share_icon"
+                tools:ignore="InefficientWeight" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:padding="12dp"
+                android:text="@string/share_song"
                 android:textColor="@color/gray_400"
                 android:textSize="16sp" />
         </LinearLayout>

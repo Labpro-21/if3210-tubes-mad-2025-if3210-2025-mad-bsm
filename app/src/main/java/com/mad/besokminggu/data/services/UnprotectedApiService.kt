@@ -27,4 +27,9 @@ interface UnprotectedApiService {
     suspend fun topSongsCountry(
         @Path("country") country: String
     ): Response<List<OnlineSong>>
+
+    @GET("/api/songs/{id}")
+    suspend fun getSongById(
+        @Path("id") id: Int
+    ): Response<OnlineSong>
 }

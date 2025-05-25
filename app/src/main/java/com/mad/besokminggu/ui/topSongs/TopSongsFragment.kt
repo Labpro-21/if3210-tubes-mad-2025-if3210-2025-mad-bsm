@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -29,6 +30,8 @@ import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 import com.mad.besokminggu.R
+import com.mad.besokminggu.manager.DeepLinkHelper
+import com.mad.besokminggu.ui.optionMenu.ShareActionSheet
 
 @AndroidEntryPoint
 class TopSongsFragment: Fragment() {
@@ -57,7 +60,19 @@ class TopSongsFragment: Fragment() {
     private fun onOpenSheet(song : OnlineSong){
         OnlineSongActionSheet(
             song = song,
-            onDownload = { downloadSong(song) }
+            onDownload = { downloadSong(song) },
+            onShare = {
+                ShareActionSheet(
+                    onOther = {
+                        DeepLinkHelper.shareSongLink(requireContext(), song.id, song.artist, song.title)
+                    },
+                    onQR = {
+                        val generatedUrl = DeepLinkHelper.createSongShareLink(song.id)
+                        val bundle = bundleOf("title" to song.title, "artist" to song.artist, "link" to generatedUrl)
+                        findNavController().navigate(R.id.navigation_qr, bundle)
+                    }
+                ).show(parentFragmentManager, "ShareActionSheet")
+            }
         ).show(parentFragmentManager, "SongActionSheet")
     }
 

@@ -51,7 +51,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
     implementation(libs.glide)
@@ -73,6 +72,12 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.androidx.hilt.common)
     implementation(libs.androidx.hilt.work)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+    implementation(libs.barcode.scanning)
+    implementation(libs.androidx.activity)
     kapt(libs.androidx.hilt.compiler)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.hilt.android)
@@ -85,8 +90,8 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-    //noinspection KaptUsageInsteadOfKsp
     kapt(libs.androidx.room.compiler)
+    implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
     //noinspection UseTomlInstead,GradleDependency
     implementation("androidx.media3:media3-exoplayer:1.4.0")
     //noinspection  UseTomlInstead, GradleDependency

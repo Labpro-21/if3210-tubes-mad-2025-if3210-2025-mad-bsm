@@ -8,11 +8,13 @@ plugins {
 
 android {
     namespace = "com.mad.besokminggu"
+    //noinspection GradleDependency
     compileSdk = 34
 
     defaultConfig {
         applicationId = "com.mad.besokminggu"
         minSdk = 29
+        //noinspection OldTargetApi
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -91,7 +93,12 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     kapt(libs.androidx.room.compiler)
     implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    //noinspection UseTomlInstead,GradleDependency
+    implementation("androidx.media3:media3-exoplayer:1.4.0")
+    //noinspection  UseTomlInstead, GradleDependency
+    implementation("androidx.media3:media3-session:1.4.0")
+    //noinspection  UseTomlInstead, GradleDependency
+    implementation("androidx.media3:media3-ui:1.4.0")
+
     testImplementation(libs.androidx.room.testing)
 }
-
-

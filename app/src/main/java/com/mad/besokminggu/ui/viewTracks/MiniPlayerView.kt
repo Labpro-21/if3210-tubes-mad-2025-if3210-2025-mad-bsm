@@ -50,6 +50,9 @@ class MiniPlayerView @JvmOverloads constructor(
         shareButton = findViewById(R.id.shareButton)
         progressBar = findViewById(R.id.progress_bar)
     }
+    private fun getProgressTime(millis:  Long): Int {
+        return (millis/1000).toInt()
+    }
 
     fun setFragmentManager(fragmentManager: FragmentManager) {
         this.fragmentManager = fragmentManager
@@ -80,12 +83,12 @@ class MiniPlayerView @JvmOverloads constructor(
     private fun handleProgressBar(viewModel : SongTracksViewModel, lifecycleOwner : LifecycleOwner){
         viewModel.currentSongDuration.observe(lifecycleOwner) {
                 duration ->
-            progressBar.max = duration
+            progressBar.max = duration.toInt()
         }
 
         viewModel.currentSeekPosition.observe(lifecycleOwner) {
                 position ->
-            progressBar.progress = position
+            progressBar.progress = position.toInt()
         }
     }
 
@@ -99,14 +102,8 @@ class MiniPlayerView @JvmOverloads constructor(
             }
         }
         playButton.setOnClickListener {
-            if (AudioPlayerManager.isPlaying()) {
-                AudioPlayerManager.pause()
-            } else {
-                AudioPlayerManager.resume()
-            }
             viewModel.togglePlayPause()
         }
-
 
         // Like Button
         likeButton.setOnClickListener {

@@ -58,6 +58,12 @@ interface SongDao {
     @Query("SELECT * FROM songs WHERE id != :excludeId AND ownerId = :ownerId ORDER BY RANDOM() LIMIT 1")
     suspend fun getRandomSongExcluding(excludeId: Int, ownerId: Int): Song?
 
+    @Query("SELECT * FROM songs WHERE id > :id AND ownerId = :ownerId ORDER BY id LIMIT :limit")
+    suspend fun songsAfter(id: Int, ownerId: Int, limit: Int): List<Song>
+
+    @Query("SELECT * FROM songs WHERE ownerId = :ownerId ORDER BY RANDOM() LIMIT :limit")
+    suspend fun randomSongs(ownerId: Int, limit: Int): List<Song>
+
     @Query("""
         SELECT SUM(totalPlayedSeconds)
         FROM songs

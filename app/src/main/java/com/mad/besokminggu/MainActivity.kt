@@ -1,17 +1,23 @@
 package com.mad.besokminggu
 
+import android.content.ComponentName
 import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.support.v4.media.MediaBrowserCompat.MediaItem
+import androidx.activity.viewModels
 import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
+
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.annotation.OptIn
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -19,11 +25,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.observe
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.session.MediaController
+import androidx.media3.session.SessionToken
 import androidx.navigation.findNavController
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
 import com.mad.besokminggu.data.model.toSong
+import com.google.common.util.concurrent.MoreExecutors
+import com.mad.besokminggu.data.model.Song
 import com.mad.besokminggu.databinding.ActivityMainBinding
 import com.mad.besokminggu.manager.AudioFileHelper
 import com.mad.besokminggu.manager.AudioPlayerManager
@@ -34,17 +45,24 @@ import com.mad.besokminggu.manager.PermissionHelper
 import com.mad.besokminggu.network.ApiResponse
 import com.mad.besokminggu.network.ConnectionStateMonitor
 import com.mad.besokminggu.network.OnNetworkAvailableCallbacks
+import com.mad.besokminggu.data.services.PlaybackService
+import com.mad.besokminggu.manager.PlaybackQueueManager
+import com.mad.besokminggu.ui.viewTracks.MiniPlayerView
 import com.mad.besokminggu.ui.login.LoginActivity
 import com.mad.besokminggu.ui.topSongs.TopSongsViewModel
-import com.mad.besokminggu.ui.viewTracks.MiniPlayerView
 import com.mad.besokminggu.viewModels.CoroutinesErrorHandler
 import com.mad.besokminggu.viewModels.OnlineSongsViewModel
 import com.mad.besokminggu.viewModels.SongTracksViewModel
 import com.mad.besokminggu.viewModels.TokenViewModel
 import com.mad.besokminggu.viewModels.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.Dispatcher
+import java.util.Date
 import javax.inject.Inject
+
 
 
 @AndroidEntryPoint
@@ -55,8 +73,13 @@ class MainActivity : AppCompatActivity(), IGetPermissionListener {
     private val songViewModel : SongTracksViewModel by viewModels()
     private val userViewModel : UserViewModel by viewModels()
     private val tokenViewModel: TokenViewModel by viewModels()
+    private lateinit var controller : MediaController;
     private val topSongsViewModel: TopSongsViewModel by viewModels()
     private val onlineSongsViewModel: OnlineSongsViewModel by viewModels()
+
+    @Inject
+    lateinit var queueManager: PlaybackQueueManager
+
 
     private lateinit var connectionMonitor: ConnectionStateMonitor
     @Inject
@@ -94,6 +117,7 @@ class MainActivity : AppCompatActivity(), IGetPermissionListener {
 
     fun onOpenTrackSong(){
         val fullPlayer = binding.fullPlayer
+        if(false)return
 
         fullPlayer.translationY = fullPlayer.height.toFloat()
         fullPlayer.alpha = 0f
@@ -126,6 +150,8 @@ class MainActivity : AppCompatActivity(), IGetPermissionListener {
             .start()
     }
 
+
+    @OptIn(UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -136,6 +162,25 @@ class MainActivity : AppCompatActivity(), IGetPermissionListener {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        ContextCompat.startForegroundService(this, Intent(this, PlaybackService::class.java));
+
+
+        val serviceComponent = ComponentName(this, PlaybackService::class.java)
+        val token = SessionToken(this, serviceComponent)
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            val future = MediaController.Builder(this@MainActivity, token)
+                .buildAsync()
+
+            val ctrl = future.get()
+
+            withContext(Dispatchers.Main) {
+                controller = ctrl
+            AudioPlayerManager.init(controller,queueManager);
+            }
+
+        }
 
         val navView: BottomNavigationView? = binding.navView
         val fullPlayer : FragmentContainerView = binding.fullPlayer
@@ -241,6 +286,22 @@ class MainActivity : AppCompatActivity(), IGetPermissionListener {
 
         }
 
+        songViewModel.currentSongDuration.observe(this){ duration ->
+            lifecycleScope.launch {
+                val song = songViewModel.playedSong.value
+                if(song== null){
+                    return@launch;
+                }
+                val songId = song.id
+                if(duration < 0 ){
+                    return@launch
+                }
+                val now = Date()
+                val durationInSeconds = duration / 1000
+                songViewModel.incrementSongPlayedTime(songId, durationInSeconds.toInt(),now)
+            }
+        }
+
         fullPlayer.post {
             val closeButton : ImageButton = fullPlayer.findViewById(R.id.collapse_button)
             closeButton.setOnClickListener {
@@ -251,9 +312,12 @@ class MainActivity : AppCompatActivity(), IGetPermissionListener {
         songViewModel.anySongDeleted.observe (this){song ->
             AudioFileHelper.deleteFile(song.audioFileName)
             CoverFileHelper.deleteFile(song.coverFileName)
-            AudioPlayerManager.stop()
 
             Toast.makeText(this, "Song ${song.title} has been deleted", Toast.LENGTH_SHORT).show()
+        }
+
+        songViewModel.warningText.observe(this) {text ->
+            Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
         }
 
 
@@ -271,37 +335,6 @@ class MainActivity : AppCompatActivity(), IGetPermissionListener {
                 }
             }
         }
-
-//
-//        // Top Songs
-//        topSongsViewModel.topSongs.observe(this) { response ->
-//            when (response) {
-//                is ApiResponse.Success -> {
-//                    Log.d("TOP_SONGS", "Top Songs: ${response.data}")
-//                }
-//                is ApiResponse.Failure -> {
-//                    Log.e("TOP_SONGS", "Top Songs: Failed to load")
-//                }
-//                is ApiResponse.Loading -> {
-//                    Log.d("TOP_SONGS", "Top Songs: Loading...")
-//                }
-//            }
-//        }
-//        topSongsViewModel.getTopSongsGlobal(
-//            coroutinesErrorHandler = object : CoroutinesErrorHandler {
-//                override fun onError(message: String) {
-//                    Log.e("TOP_SONGS", "Error: ${message}")
-//                }
-//            },
-//        )
-//        topSongsViewModel.getTopSongsCountry(
-//            country = "ID",
-//            coroutinesErrorHandler = object : CoroutinesErrorHandler {
-//                override fun onError(message: String) {
-//                    Log.e("TOP_SONGS", "Error: ${message}")
-//                }
-//            },
-//        )
 
         // Deep Link handler
         val intents = intent

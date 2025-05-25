@@ -1,5 +1,6 @@
 package com.mad.besokminggu.ui.qr
 
+import android.Manifest
 import android.animation.Animator
 import android.animation.AnimatorInflater
 import android.content.Context
@@ -13,6 +14,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.annotation.RequiresPermission
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.mad.besokminggu.R
@@ -34,18 +36,15 @@ class ScannerFragment : Fragment() {
     /**
      *  Vibration mobile on Scan successful.
      */
+    @RequiresPermission(Manifest.permission.VIBRATE)
     private fun vibrateOnScan() {
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator.vibrate(
-                    VibrationEffect.createOneShot(
-                        VIBRATE_DURATION,
-                        VibrationEffect.DEFAULT_AMPLITUDE
-                    )
+            vibrator.vibrate(
+                VibrationEffect.createOneShot(
+                    VIBRATE_DURATION,
+                    VibrationEffect.DEFAULT_AMPLITUDE
                 )
-            } else {
-                vibrator.vibrate(VIBRATE_DURATION)
-            }
+            )
         } catch (e: Exception) {
             e.printStackTrace()
         }

@@ -118,6 +118,11 @@ class ProfileViewModel @Inject constructor(
                 val topArtistCover = topArtist?.let {
                     repository.getTopArtistCover(ownerId, it)
                 }
+                val topSongsCapsule = repository.getTopSongsForMonth(ownerId, monthKey)
+                val topSongsList = topSongsCapsule?.map { it.title } ?: emptyList()
+
+                val topArtistsRaw = repository.getTopArtists(ownerId, monthKey)
+                val topArtistList = topArtistsRaw.map { it.name }
 
 
                 MonthlySummaryCapsule(
@@ -125,8 +130,11 @@ class ProfileViewModel @Inject constructor(
                     totalMinutes = totalMinutes,
                     topSong = topSongTitle,
                     topArtist = topArtist,
+                    topSongsList = topSongsList,
+                    topArtistsList = topArtistList,
                     topSongCover = topSongCover,
                     topArtistCover = topArtistCover
+
                 )
 
             }

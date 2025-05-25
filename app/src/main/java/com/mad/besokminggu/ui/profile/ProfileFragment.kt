@@ -1,11 +1,16 @@
 package com.mad.besokminggu.ui.profile
 
+import MonthlySummaryCapsule
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.location.Geocoder
 import android.net.Uri
 import android.os.Bundle
@@ -38,19 +43,30 @@ import android.location.Location
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mad.besokminggu.MapsActivity
 import com.mad.besokminggu.R
+import com.mad.besokminggu.data.repositories.SongRepository
 import com.mad.besokminggu.manager.CoverFileHelper
+import com.mad.besokminggu.network.SessionManager
 import com.mad.besokminggu.ui.adapter.CapsuleAdapter
+import com.mad.besokminggu.ui.capsule.PdfGenerator
+import com.mad.besokminggu.ui.capsule.TimeListenedViewModel
+import getMonthKeyFormat
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class ProfileFragment : Fragment() {
+    @Inject lateinit var repository: SongRepository
+    @Inject
+    lateinit var sessionManager: SessionManager
 
     private lateinit var imageUri: Uri
     private var selectedImageUri: Uri? = null
@@ -101,6 +117,7 @@ class ProfileFragment : Fragment() {
         val listenedSongsCount = binding.textListenedSongsNumber
 
         val baseImageUrl = "http://34.101.226.132:3000/uploads/profile-picture/"
+
 
         binding.editProfileButton?.setOnClickListener {
             ProfileActionSheet(
@@ -265,6 +282,87 @@ class ProfileFragment : Fragment() {
         return root
     }
 
+    fun getStreakStringForMonth(month: String): String {
+        // Kalau kamu simpan streak info per bulan, pakai repository.getStreakForMonth(ownerId, month)
+        return if (month == "March 2025") "5-day streak\nMar 21–25\npray - pray" else "No streak"
+    }
+
+    suspend fun generateChartsForEachMonth(
+        summaries: List<MonthlySummaryCapsule>,
+        repository: SongRepository,
+        sessionManager: SessionManager
+    ): Map<String, Bitmap?> {
+        val result = mutableMapOf<String, Bitmap?>()
+        val ownerId = sessionManager.getUserProfile()?.id ?: return emptyMap()
+
+        for (summary in summaries) {
+            val monthKey = summary.getMonthKeyFormat()
+            val rawData = repository.getPlayedMinutesPerDay(ownerId, monthKey) // suspend
+            val weeklyBuckets = MutableList(5) { 0 }
+
+            rawData?.forEach { day ->
+                val weekIndex = (day.day.toInt() - 1) / 7
+                if (weekIndex in 0..4) {
+                    weeklyBuckets[weekIndex] += day.minutes
+                }
+            }
+
+            result[summary.month] = generateChartBitmap(weeklyBuckets)
+        }
+
+        return result
+    }
+
+
+
+
+    fun generateChartBitmap(weeklyMinutes: List<Int>): Bitmap {
+        val width = 500
+        val height = 250
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+
+        val background = Paint().apply { color = Color.WHITE }
+        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), background)
+
+        val linePaint = Paint().apply {
+            color = Color.GREEN
+            strokeWidth = 4f
+            isAntiAlias = true
+        }
+
+        val textPaint = Paint().apply {
+            color = Color.BLACK
+            textSize = 24f
+            isAntiAlias = true
+        }
+
+        // Judul chart
+        canvas.drawText("Time Listened", 160f, 30f, textPaint)
+
+        // Sumbu dan garis
+        val stepX = 80
+        val baseY = 200
+        var lastX = 0
+        var lastY = baseY - (weeklyMinutes.getOrNull(0) ?: 0) * 5
+
+        weeklyMinutes.forEachIndexed { i, value ->
+            val x = i * stepX + 40
+            val y = baseY - value * 5
+            canvas.drawCircle(x.toFloat(), y.toFloat(), 6f, linePaint)
+            if (i > 0) canvas.drawLine(lastX.toFloat(), lastY.toFloat(), x.toFloat(), y.toFloat(), linePaint)
+            canvas.drawText("W${i + 1}", x.toFloat() - 15, baseY + 25f, textPaint)
+            lastX = x
+            lastY = y
+        }
+
+        return bitmap
+    }
+
+
+
+
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -324,6 +422,31 @@ class ProfileFragment : Fragment() {
             } else {
                 container.visibility = View.GONE
             }
+
+            binding.soundCapsuleIcon?.setOnClickListener {
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val summaries = profileViewModel.monthlySummaries.value ?: emptyList()
+
+                    if (summaries.isEmpty()) {
+                        Toast.makeText(requireContext(), "Summary belum tersedia", Toast.LENGTH_SHORT).show()
+                        return@launch
+                    }
+
+                    val chartMap = generateChartsForEachMonth(summaries, repository, sessionManager)
+                    val streakMap = summaries.associate { it.month to getStreakStringForMonth(it.month) }
+
+                    val file = PdfGenerator.generateMultiMonthPDF(requireContext(), summaries, streakMap, chartMap)
+
+                    val uri = FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.provider", file)
+                    val intent = Intent(Intent.ACTION_VIEW).apply {
+                        setDataAndType(uri, "application/pdf")
+                        flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    }
+
+                    startActivity(intent)
+                }
+            }
+
         }
     }
 

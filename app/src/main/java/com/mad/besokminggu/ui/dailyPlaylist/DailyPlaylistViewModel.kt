@@ -28,23 +28,28 @@ class DailyPlaylistViewModel @Inject constructor(
     private val _playlistDuration = MutableLiveData<String>()
     val playlistDuration: LiveData<String> = _playlistDuration
 
+    private var cachedDate: String? = null
+    private var cachedPlaylist: List<Song>? = null
+
     fun generateDailyPlaylist(localSongs: List<Song>, onlineSongs: List<OnlineSong>) {
+        val today = getTodayLabel()
+
+        if (today == cachedDate && cachedPlaylist != null) {
+            _dailyPlaylist.postValue(cachedPlaylist!!)
+            _playlistDuration.postValue(computeDurationString(cachedPlaylist!!.sumOf { it.durationInSeconds }))
+            Log.d("DailyPlaylist", "Using cached playlist for $today")
+            return
+        }
+
         val likedArtists = localSongs.filter { it.isLiked }.map { it.artist }.toSet()
         val listenedArtists = localSongs.map { it.artist }.toSet()
 
         val byLikedArtist = onlineSongs.filter { it.artist in likedArtists }
         val byListenedArtist = onlineSongs.filter { it.artist in listenedArtists && it.artist !in likedArtists }
 
-
         val combined = (byLikedArtist + byListenedArtist)
             .distinctBy { it.id }
             .shuffled()
-            .take(30)
-
-        Log.d("DailyPlaylist", "Liked artists: $likedArtists")
-        Log.d("DailyPlaylist", "Listened artists: $listenedArtists")
-        Log.d("DailyPlaylist", "byLikedArtist: ${byLikedArtist.size}, byListened: ${byListenedArtist.size}")
-
 
         val finalList = if (combined.size >= 30) {
             combined.take(30)
@@ -58,9 +63,14 @@ class DailyPlaylistViewModel @Inject constructor(
         }
 
         val songs = finalList.map { it.toSong() }
+
+        cachedDate = today
+        cachedPlaylist = songs
+
         _dailyPlaylist.postValue(songs)
         _playlistDuration.postValue(computeDurationString(songs.sumOf { it.durationInSeconds }))
     }
+
 
     fun getTodayLabel(): String {
         val sdf = SimpleDateFormat("MMM yyyy", Locale.getDefault())

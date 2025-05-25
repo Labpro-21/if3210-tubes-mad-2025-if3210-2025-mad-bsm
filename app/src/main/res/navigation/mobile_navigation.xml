@@ -54,6 +54,12 @@
         android:name="com.mad.besokminggu.ui.capsule.TopSongCapsuleFragment"
         android:label="Top Songs" />
 
+    <fragment
+        android:id="@+id/fragment_time_listened_root"
+        android:name="com.mad.besokminggu.ui.capsule.TimeListenedFragment"
+        android:label="Time Listened" />
+
+
 
 
 

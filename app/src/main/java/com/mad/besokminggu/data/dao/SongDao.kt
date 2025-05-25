@@ -2,6 +2,7 @@ package com.mad.besokminggu.data.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import com.mad.besokminggu.data.model.DailyPlay
 import com.mad.besokminggu.data.model.PlayedSongDate
 import com.mad.besokminggu.data.model.Song
 import com.mad.besokminggu.data.model.StreakInfo
@@ -154,14 +155,24 @@ interface SongDao {
     suspend fun getTopSongsByMonth(ownerId: Int, monthYear: String): List<TopSongCapsule>
 
     @Query("""
-    SELECT COUNT(id)
-    FROM songs
-    WHERE ownerId = :ownerId
-      AND strftime('%Y-%m', CAST(lastPlayedAt / 1000 AS INTEGER), 'unixepoch') = :monthYear
-""")
+        SELECT COUNT(id)
+        FROM songs
+        WHERE ownerId = :ownerId
+          AND strftime('%Y-%m', CAST(lastPlayedAt / 1000 AS INTEGER), 'unixepoch') = :monthYear
+    """)
     suspend fun getTotalPlayedSongCount(ownerId: Int, monthYear: String): Int
 
 
+    @Query("""
+        SELECT strftime('%d', datetime(lastPlayedAt / 1000, 'unixepoch')) AS day,
+               SUM(totalPlayedSeconds) / 60 AS minutes
+        FROM songs
+        WHERE ownerId = :ownerId
+          AND strftime('%Y-%m', datetime(lastPlayedAt / 1000, 'unixepoch')) = :monthYear
+        GROUP BY day
+        ORDER BY day
+    """)
+    suspend fun getPlayedMinutesPerDay(ownerId: Int, monthYear: String): List<DailyPlay>
 
 
 

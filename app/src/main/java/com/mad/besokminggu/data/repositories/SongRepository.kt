@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import com.mad.besokminggu.R
 import com.mad.besokminggu.data.dao.SongDao
+import com.mad.besokminggu.data.model.DailyPlay
 import com.mad.besokminggu.data.model.Song
 import com.mad.besokminggu.data.model.StreakInfo
 import com.mad.besokminggu.data.model.TopArtistCapsule
@@ -179,8 +180,9 @@ class SongRepository @Inject constructor(private val songDao: SongDao) {
         return songDao.getTotalPlayedSongCount(ownerId, monthYear)
     }
 
-
-
+    suspend fun getPlayedMinutesPerDay(ownerId: Int, monthLabel: String): List<DailyPlay>? {
+        return songDao.getPlayedMinutesPerDay(ownerId,monthLabel)
+    }
 
 
 }

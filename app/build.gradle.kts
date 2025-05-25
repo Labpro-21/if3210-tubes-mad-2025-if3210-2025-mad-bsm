@@ -83,5 +83,8 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     kapt(libs.androidx.room.compiler)
+    implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
     testImplementation(libs.androidx.room.testing)
 }
+
+

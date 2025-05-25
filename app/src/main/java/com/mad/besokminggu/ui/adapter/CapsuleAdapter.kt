@@ -15,13 +15,15 @@ import com.mad.besokminggu.manager.CoverFileHelper
 class CapsuleAdapter(
     private val items: List<MonthlySummaryCapsule>,
     private val onArtistDetailClick: () -> Unit,
-    private val onSongDetailClick: () -> Unit
+    private val onSongDetailClick: () -> Unit,
+    private val onTimeDetailClick: () -> Unit
 ) :
     RecyclerView.Adapter<CapsuleAdapter.CapsuleViewHolder>() {
 
     inner class CapsuleViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val buttonArtistDetail = view.findViewById<ImageButton>(R.id.button_artist_detail)
         val buttonSongDetail = view.findViewById<ImageButton>(R.id.button_song_detail)
+        val buttonTimeDetail = view.findViewById<ImageButton>(R.id.button_time_detail)
         val textMonth: TextView = view.findViewById(R.id.text_month_year)
         val textMinutes: TextView = view.findViewById(R.id.text_minutes)
         val textArtist: TextView = view.findViewById(R.id.text_top_artist)
@@ -57,6 +59,9 @@ class CapsuleAdapter(
             }
             holder.buttonSongDetail.setOnClickListener {
                 onSongDetailClick()
+            }
+            holder.buttonTimeDetail.setOnClickListener{
+                onTimeDetailClick()
             }
 
             if (!item.topArtistCover.isNullOrBlank()) {

@@ -46,6 +46,7 @@ import com.mad.besokminggu.R
 import com.mad.besokminggu.manager.CoverFileHelper
 import com.mad.besokminggu.ui.adapter.CapsuleAdapter
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 @AndroidEntryPoint
@@ -261,24 +262,26 @@ class ProfileFragment : Fragment() {
         recycler?.layoutManager = LinearLayoutManager(requireContext())
         val navController = NavHostFragment.findNavController(this@ProfileFragment)
         profileViewModel.monthlySummaries.observe(viewLifecycleOwner) { summaries ->
-            recycler?.adapter = CapsuleAdapter(summaries,
+            recycler?.adapter = CapsuleAdapter(
+                summaries,
                 onArtistDetailClick = {
                     findNavController().navigate(R.id.topArtistCapsuleFragment)
                 },
                 onSongDetailClick = {
-                    val currentMonthLabel = java.text.SimpleDateFormat("MMMM yyyy", java.util.Locale.getDefault())
-                        .format(java.util.Date()) // "May 2025"
-
+                    val currentMonthLabel = SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(
+                        Date()
+                    )
                     val bundle = Bundle().apply {
                         putString("ARG_MONTH_LABEL", currentMonthLabel)
                     }
-
                     findNavController().navigate(R.id.topSongCapsuleFragment, bundle)
-
+                },
+                onTimeDetailClick = {
+                    findNavController().navigate(R.id.fragment_time_listened_root)
                 }
             )
-
         }
+
 
         profileViewModel.streakInfo.observe(viewLifecycleOwner) { streak ->
             val container = binding.root.findViewById<FrameLayout>(com.mad.besokminggu.R.id.streakCardContainer)

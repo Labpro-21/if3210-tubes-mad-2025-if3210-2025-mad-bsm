@@ -1,4 +1,4 @@
-package com.mad.besokminggu.ui.profile
+package com.mad.besokminggu.ui.capsule
 
 import android.os.Bundle
 import android.view.LayoutInflater

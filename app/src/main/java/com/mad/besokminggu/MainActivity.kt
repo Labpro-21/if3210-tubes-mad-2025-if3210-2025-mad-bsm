@@ -49,6 +49,7 @@ import com.mad.besokminggu.data.services.PlaybackService
 import com.mad.besokminggu.manager.PlaybackQueueManager
 import com.mad.besokminggu.ui.viewTracks.MiniPlayerView
 import com.mad.besokminggu.ui.login.LoginActivity
+import com.mad.besokminggu.ui.topSongs.TopSongsViewModel
 import com.mad.besokminggu.viewModels.CoroutinesErrorHandler
 import com.mad.besokminggu.viewModels.OnlineSongsViewModel
 import com.mad.besokminggu.viewModels.SongTracksViewModel
@@ -59,6 +60,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.Dispatcher
+import java.util.Date
 import javax.inject.Inject
 
 
@@ -284,6 +286,22 @@ class MainActivity : AppCompatActivity(), IGetPermissionListener {
 
         }
 
+        songViewModel.currentSongDuration.observe(this){ duration ->
+            lifecycleScope.launch {
+                val song = songViewModel.playedSong.value
+                if(song== null){
+                    return@launch;
+                }
+                val songId = song.id
+                if(duration < 0 ){
+                    return@launch
+                }
+                val now = Date()
+                val durationInSeconds = duration / 1000
+                songViewModel.incrementSongPlayedTime(songId, durationInSeconds.toInt(),now)
+            }
+        }
+
         fullPlayer.post {
             val closeButton : ImageButton = fullPlayer.findViewById(R.id.collapse_button)
             closeButton.setOnClickListener {
@@ -317,38 +335,6 @@ class MainActivity : AppCompatActivity(), IGetPermissionListener {
                 }
             }
         }
-
-
-//
-//        // Top Songs
-//        topSongsViewModel.topSongs.observe(this) { response ->
-//            when (response) {
-//                is ApiResponse.Success -> {
-//                    Log.d("TOP_SONGS", "Top Songs: ${response.data}")
-//                }
-//                is ApiResponse.Failure -> {
-//                    Log.e("TOP_SONGS", "Top Songs: Failed to load")
-//                }
-//                is ApiResponse.Loading -> {
-//                    Log.d("TOP_SONGS", "Top Songs: Loading...")
-//                }
-//            }
-//        }
-//        topSongsViewModel.getTopSongsGlobal(
-//            coroutinesErrorHandler = object : CoroutinesErrorHandler {
-//                override fun onError(message: String) {
-//                    Log.e("TOP_SONGS", "Error: ${message}")
-//                }
-//            },
-//        )
-//        topSongsViewModel.getTopSongsCountry(
-//            country = "ID",
-//            coroutinesErrorHandler = object : CoroutinesErrorHandler {
-//                override fun onError(message: String) {
-//                    Log.e("TOP_SONGS", "Error: ${message}")
-//                }
-//            },
-//        )
 
         // Deep Link handler
         val intents = intent

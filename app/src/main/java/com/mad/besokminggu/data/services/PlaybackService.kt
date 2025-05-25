@@ -21,6 +21,7 @@ import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
+import androidx.media3.common.Timeline
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.CommandButton
 import androidx.media3.session.MediaSession.ConnectionResult.AcceptedResultBuilder
@@ -79,6 +80,38 @@ class PlaybackService : MediaSessionService() {
         player.addListener(object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 queueManager.updatePlayPause(isPlaying)
+            }
+
+            override fun onTimelineChanged(timeline: Timeline, reason: Int) {
+                super.onTimelineChanged(timeline, reason)
+                if (!timeline.isEmpty) {
+                    val currentWindow = timeline.getWindow(player.currentMediaItemIndex, Timeline.Window())
+                    val durationMs = currentWindow.durationMs // Duration in milliseconds
+
+                    if (durationMs != C.TIME_UNSET ) {
+                        queueManager.updateSeekDuration(durationMs);
+
+                    }
+                } else {
+                }
+            }
+
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                super.onPlaybackStateChanged(playbackState)
+                Log.d("PlaybackService", "Playback state changed: $playbackState")
+
+                when (playbackState) {
+                    Player.STATE_ENDED -> {
+                        // THIS IS WHERE YOU HANDLE THE END OF A SONG
+                        serviceScope.launch { // Use the serviceScope for coroutine
+                            val nextSong = queueManager.skipNext()
+                            if (nextSong != null) {
+                                Log.d("PlaybackService", "Playing next song: ${nextSong.title}")
+                                playThroughPlayer(nextSong, queueManager.isOnline)
+                            }
+                        }
+                    }
+                }
             }
         })
 

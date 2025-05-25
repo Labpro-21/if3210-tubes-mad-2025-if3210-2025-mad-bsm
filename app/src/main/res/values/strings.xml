@@ -43,7 +43,7 @@
     <string name="download_icon">download_icon</string>
     <string name="download_song">Download Song</string>
     <string name="back">back</string>
-    <string name="sound_capsule">Your Sound Capsule</string>
+    <string name="your_sound_capsule">Your Sound Capsule</string>
     <string name="detail_button">Detail Button</string>
     <string name="share_button">Share Button</string>
     <string name="time_listened">Time listened</string>
@@ -55,6 +55,7 @@
     <string name="playback_channel_name">Playback Controls</string>
     <string name="playback_channel_description">Media playback controls</string>
     <string name="playback_channel_desc">CHANNEL_DESC</string>
+
     <string name="share_icon">Share Icon</string>
     <string name="share_song">Share Song</string>
     <string name="share_qr_code">Share QR Code</string>

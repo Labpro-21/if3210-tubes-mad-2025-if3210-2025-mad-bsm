@@ -78,29 +78,6 @@ class ViewTrackFragment : Fragment(){
 
             Log.d("ViewTrackFragment", "Song playing: ${song.title}")
 
-            //TODO: PINDAHIN KE VIEW MODEL SELURUHNYA
-//            AudioPlayerManager.play(song,
-//                isOnline = isOnline,
-//                onComplete = {
-//                    skipSong()
-//                }
-//                ,
-//                onPrepared = {
-//                    val duration = AudioPlayerManager.getDuration()
-//                    val songId = song.id
-//                    val durationInSeconds = duration / 1000
-//
-//                    viewLifecycleOwner.lifecycleScope.launch {
-//                        val now = Date()
-//                        viewModel.incrementSongPlayedTime(songId, durationInSeconds, now)
-//                    }
-//
-//                    viewModel.updateSongDuration(duration)
-//                    maxTimeText.text = formatTime(duration)
-//                    progressBar.max = duration
-//                }
-//            )
-
             // General
             songTitle.text = song.title
             songSinger.text = song.artist
@@ -113,7 +90,6 @@ class ViewTrackFragment : Fragment(){
 
             // Love Button
             viewModel.updateIsLike(song.isLiked)
-
         }
     }
 
@@ -289,7 +265,6 @@ class ViewTrackFragment : Fragment(){
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         handlePlayedSongEvent()
         handleProgressBar()
         handleMediaController()
@@ -313,9 +288,6 @@ class ViewTrackFragment : Fragment(){
                         lastSavedSecond = current.toInt()
                     }
 
-
-
-                    viewModel.updateSeekDuration(AudioPlayerManager.getDuration())
                 }
                 delay(1000L)
             }

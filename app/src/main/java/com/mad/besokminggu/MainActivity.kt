@@ -1,7 +1,9 @@
 package com.mad.besokminggu
 
+import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.View
 import android.widget.ImageButton
 import android.widget.Toast
@@ -9,16 +11,24 @@ import androidx.activity.viewModels
 import android.util.Log
 import android.view.Gravity
 import android.widget.FrameLayout
+
 import android.widget.TextView
+import androidx.annotation.OptIn
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.observe
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.session.MediaController
+import androidx.media3.session.SessionToken
 import androidx.navigation.findNavController
 
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
+import com.google.common.util.concurrent.MoreExecutors
+import com.mad.besokminggu.data.model.Song
 import com.mad.besokminggu.databinding.ActivityMainBinding
 import com.mad.besokminggu.manager.AudioFileHelper
 import com.mad.besokminggu.manager.AudioPlayerManager
@@ -27,6 +37,8 @@ import com.mad.besokminggu.manager.FileHelper
 import com.mad.besokminggu.network.ApiResponse
 import com.mad.besokminggu.network.ConnectionStateMonitor
 import com.mad.besokminggu.network.OnNetworkAvailableCallbacks
+import com.mad.besokminggu.data.services.PlaybackService
+import com.mad.besokminggu.manager.PlaybackQueueManager
 import com.mad.besokminggu.ui.viewTracks.MiniPlayerView
 import com.mad.besokminggu.ui.login.LoginActivity
 import com.mad.besokminggu.viewModels.SongTracksViewModel
@@ -34,7 +46,11 @@ import com.mad.besokminggu.viewModels.TokenViewModel
 import com.mad.besokminggu.ui.topSongs.TopSongsViewModel
 import com.mad.besokminggu.viewModels.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.Dispatcher
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -44,13 +60,18 @@ class MainActivity : AppCompatActivity() {
     private val songViewModel : SongTracksViewModel by viewModels()
     private val userViewModel : UserViewModel by viewModels()
     private val tokenViewModel: TokenViewModel by viewModels()
+    private lateinit var controller : MediaController;
     private val topSongsViewModel: TopSongsViewModel by viewModels()
+
+    @Inject
+    lateinit var queueManager: PlaybackQueueManager
+
 
     private lateinit var connectionMonitor: ConnectionStateMonitor
 
     fun onOpenTrackSong(){
         val fullPlayer = binding.fullPlayer
-        if(fullPlayer == null)return
+        if(false)return
 
         fullPlayer.translationY = fullPlayer.height.toFloat()
         fullPlayer.alpha = 0f
@@ -86,6 +107,8 @@ class MainActivity : AppCompatActivity() {
             .start()
     }
 
+
+    @OptIn(UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -93,6 +116,25 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        ContextCompat.startForegroundService(this, Intent(this, PlaybackService::class.java));
+
+
+        val serviceComponent = ComponentName(this, PlaybackService::class.java)
+        val token = SessionToken(this, serviceComponent)
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            val future = MediaController.Builder(this@MainActivity, token)
+                .buildAsync()
+
+            val ctrl = future.get()
+
+            withContext(Dispatchers.Main) {
+                controller = ctrl
+            AudioPlayerManager.init(controller,queueManager);
+            }
+
+        }
 
         val navView: BottomNavigationView? = binding.navView
         val fullPlayer : FragmentContainerView? = binding.fullPlayer
@@ -204,9 +246,12 @@ class MainActivity : AppCompatActivity() {
         songViewModel.anySongDeleted.observe (this){song ->
             AudioFileHelper.deleteFile(song.audioFileName)
             CoverFileHelper.deleteFile(song.coverFileName)
-            AudioPlayerManager.stop()
 
             Toast.makeText(this, "Song ${song.title} has been deleted", Toast.LENGTH_SHORT).show()
+        }
+
+        songViewModel.warningText.observe(this) {text ->
+            Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
         }
 
 
@@ -224,6 +269,8 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+
 //
 //        // Top Songs
 //        topSongsViewModel.topSongs.observe(this) { response ->

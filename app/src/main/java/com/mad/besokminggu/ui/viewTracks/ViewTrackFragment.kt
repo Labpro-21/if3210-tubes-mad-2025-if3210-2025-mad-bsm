@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -19,7 +18,6 @@ import com.bumptech.glide.Glide
 import com.mad.besokminggu.data.model.Song
 import com.mad.besokminggu.manager.AudioPlayerManager
 import com.mad.besokminggu.databinding.FragmentTrackViewBinding
-import com.mad.besokminggu.manager.AudioFileHelper
 import com.mad.besokminggu.manager.CoverFileHelper
 import com.mad.besokminggu.viewModels.RepeatMode
 import com.mad.besokminggu.viewModels.SongTracksViewModel
@@ -27,14 +25,14 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @AndroidEntryPoint
 class ViewTrackFragment : Fragment(){
     private var _binding : FragmentTrackViewBinding? = null
     private val binding get() = _binding!!
-
     private val viewModel : SongTracksViewModel by activityViewModels()
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,17 +51,10 @@ class ViewTrackFragment : Fragment(){
         return String.format("%01d:%02d", minutes, seconds)
     }
 
-    private fun skipSong(){
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.skipToNext()
-        }
-    }
-
     private fun handlePlayedSongEvent(){
 
         val playedSong : LiveData<Song?> = viewModel.playedSong
-        val maxTimeText : TextView = binding.maxTime
-        val progressBar : SeekBar = binding.progressBar
+
         val songTitle : TextView= binding.songTitle
         val songSinger : TextView= binding.songSinger
         val songImage : ImageView= binding.songImage
@@ -78,21 +69,7 @@ class ViewTrackFragment : Fragment(){
             val isOnline = viewModel.isOnlineSong.value ?: false
 
             Log.d("ViewTrackFragment", "Song playing: ${song.title}")
-
-            AudioPlayerManager.play(song,
-                isOnline = isOnline,
-                onComplete = { skipSong() },
-                onPrepared = {
-                    val duration = AudioPlayerManager.getDuration()
-                    viewModel.updateSongDuration(duration)
-                    maxTimeText.text = formatTime(duration)
-                    progressBar.max = duration
-                }
-            )
-
-
             // General
-
             songTitle.text = song.title
             songSinger.text = song.artist
 
@@ -104,29 +81,28 @@ class ViewTrackFragment : Fragment(){
 
             // Love Button
             viewModel.updateIsLike(song.isLiked)
-            viewModel.updatePlayPause(true)
+
         }
     }
 
     private fun handleProgressBar(){
         var isUserSeeking = false
-        val seekPosition : LiveData<Int> = viewModel.currentSeekPosition
+        val seekPosition : LiveData<Long> = viewModel.currentSeekPosition
         val currentTime : TextView = binding.currentTime
         val progressBar : SeekBar = binding.progressBar
         val maxTime : TextView = binding.maxTime
 
-
         seekPosition.observe(viewLifecycleOwner){
                 time ->
             if (!isUserSeeking) {
-                currentTime.text = formatTime(time)
-                progressBar.progress = time
+                currentTime.text = formatTime(time.toInt())
+                progressBar.progress = time.toInt();
             }
         }
         viewModel.currentSongDuration.observe(viewLifecycleOwner) {
                 duration ->
-            maxTime.text = formatTime(duration)
-            progressBar.max = duration
+            maxTime.text = formatTime(duration.toInt())
+            progressBar.max = duration.toInt()
         }
         startSeekBarUpdater()
         progressBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -134,6 +110,7 @@ class ViewTrackFragment : Fragment(){
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
                     currentTime.text = formatTime(progress)
+//                    progressBar.progress = progress;
                 }
             }
 
@@ -143,9 +120,8 @@ class ViewTrackFragment : Fragment(){
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 isUserSeeking = false
-                val seekTo = seekBar?.progress ?: 0
-                AudioPlayerManager.seekTo(seekTo)
-                viewModel.updateSeekPosition(seekTo)
+                val seekToMs = seekBar?.progress?.toLong()
+                AudioPlayerManager.seekTo(seekToMs ?: 0)
             }
         })
     }
@@ -171,6 +147,7 @@ class ViewTrackFragment : Fragment(){
         nextButton.setOnClickListener {
             lifecycleScope.launch {
                 viewModel.skipToNext()
+
             }
         }
 
@@ -206,7 +183,6 @@ class ViewTrackFragment : Fragment(){
             viewModel.skipToPrevious()
         }
 
-
         // Play Button
         isPlaying.observe(viewLifecycleOwner) {
                 isPlaying ->
@@ -218,11 +194,6 @@ class ViewTrackFragment : Fragment(){
 
         }
         playButton.setOnClickListener {
-            if (AudioPlayerManager.isPlaying()) {
-                AudioPlayerManager.pause()
-            } else {
-                AudioPlayerManager.resume()
-            }
             viewModel.togglePlayPause()
         }
 
@@ -272,13 +243,17 @@ class ViewTrackFragment : Fragment(){
 
     private fun startSeekBarUpdater() {
         viewLifecycleOwner.lifecycleScope.launch {
+
             while (isActive) {
                 if (AudioPlayerManager.isPlaying()) {
                     val current = AudioPlayerManager.getCurrentPosition()
                     viewModel.updateSeekPosition(current)
+                    viewModel.updateSeekDuration(AudioPlayerManager.getDuration())
                 }
                 delay(1000L)
             }
+
+
         }
 
     }

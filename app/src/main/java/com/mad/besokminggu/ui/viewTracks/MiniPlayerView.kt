@@ -43,6 +43,9 @@ class MiniPlayerView @JvmOverloads constructor(
         likeButton= findViewById(R.id.like_button)
         progressBar = findViewById(R.id.progress_bar)
     }
+    private fun getProgressTime(millis:  Long): Int {
+        return (millis/1000).toInt()
+    }
 
     private fun handlePlayedSong(viewModel: SongTracksViewModel, lifecycleOwner: LifecycleOwner) {
         viewModel.playedSong.observe(lifecycleOwner) { song ->
@@ -64,12 +67,12 @@ class MiniPlayerView @JvmOverloads constructor(
     private fun handleProgressBar(viewModel : SongTracksViewModel, lifecycleOwner : LifecycleOwner){
         viewModel.currentSongDuration.observe(lifecycleOwner) {
                 duration ->
-            progressBar.max = duration
+            progressBar.max = duration.toInt()
         }
 
         viewModel.currentSeekPosition.observe(lifecycleOwner) {
                 position ->
-            progressBar.progress = position
+            progressBar.progress = position.toInt()
         }
     }
 
@@ -83,14 +86,8 @@ class MiniPlayerView @JvmOverloads constructor(
             }
         }
         playButton.setOnClickListener {
-            if (AudioPlayerManager.isPlaying()) {
-                AudioPlayerManager.pause()
-            } else {
-                AudioPlayerManager.resume()
-            }
             viewModel.togglePlayPause()
         }
-
 
         // Like Button
         likeButton.setOnClickListener {

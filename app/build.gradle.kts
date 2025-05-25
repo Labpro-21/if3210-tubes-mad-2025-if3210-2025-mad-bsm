@@ -8,11 +8,13 @@ plugins {
 
 android {
     namespace = "com.mad.besokminggu"
+    //noinspection GradleDependency
     compileSdk = 34
 
     defaultConfig {
         applicationId = "com.mad.besokminggu"
         minSdk = 29
+        //noinspection OldTargetApi
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -49,6 +51,7 @@ android {
 }
 
 dependencies {
+
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
     implementation(libs.glide)
@@ -82,6 +85,14 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    //noinspection KaptUsageInsteadOfKsp
     kapt(libs.androidx.room.compiler)
+    //noinspection UseTomlInstead,GradleDependency
+    implementation("androidx.media3:media3-exoplayer:1.4.0")
+    //noinspection  UseTomlInstead, GradleDependency
+    implementation("androidx.media3:media3-session:1.4.0")
+    //noinspection  UseTomlInstead, GradleDependency
+    implementation("androidx.media3:media3-ui:1.4.0")
+
     testImplementation(libs.androidx.room.testing)
 }

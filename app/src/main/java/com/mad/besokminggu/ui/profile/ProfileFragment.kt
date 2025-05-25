@@ -52,7 +52,6 @@ import java.util.Locale
 @AndroidEntryPoint
 class ProfileFragment : Fragment() {
 
-
     private lateinit var imageUri: Uri
     private var selectedImageUri: Uri? = null
     private lateinit var profileImage: ImageView
@@ -193,7 +192,18 @@ class ProfileFragment : Fragment() {
             }
             profileViewModel.listenedSongsCount.observe(viewLifecycleOwner) { count ->
                 listenedSongsCount?.text = count.toString()
+
+                if (count == 0) {
+                    binding.soundCapsuleHeader?.visibility = View.GONE
+                    binding.recyclerCapsules?.visibility = View.GONE
+                    binding.noDataText?.visibility = View.VISIBLE
+                } else {
+                    binding.soundCapsuleHeader?.visibility = View.VISIBLE
+                    binding.recyclerCapsules?.visibility = View.VISIBLE
+                    binding.noDataText?.visibility = View.GONE
+                }
             }
+
             profileViewModel.loadCounts()
 
             logoutButton.setOnClickListener({

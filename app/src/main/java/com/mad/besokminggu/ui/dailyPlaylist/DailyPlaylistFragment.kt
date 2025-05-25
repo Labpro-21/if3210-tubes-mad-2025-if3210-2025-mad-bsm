@@ -41,9 +41,9 @@ class DailyPlaylistFragment : Fragment() {
         val backButton = view.findViewById<ImageButton>(R.id.backButton)
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        val adapter = DailyPlaylistAdapter { song ->
+        val adapter = DailyPlaylistAdapter { playlist ->
             lifecycleScope.launch {
-                songTracksViewModel.playSong(song)
+            songTracksViewModel.playSong(playlist.song, playlist.isOnline)
                 songTracksViewModel.showFullPlayer()
             }
         }
@@ -52,9 +52,6 @@ class DailyPlaylistFragment : Fragment() {
         dailyPlaylistViewModel.dailyPlaylist.observe(viewLifecycleOwner) {
             adapter.submitList(it)
         }
-
-
-
 
         backButton.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
@@ -77,12 +74,7 @@ class DailyPlaylistFragment : Fragment() {
                     )
                 }
             }
-
-
-
-
         }
-
 
         dailyPlaylistViewModel.dailyPlaylist.observe(viewLifecycleOwner) {
             adapter.submitList(it)

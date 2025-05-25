@@ -18,4 +18,6 @@ data class Song(
     val isLiked: Boolean = false,
     val lastPlayedAt: Date? = null,
     val createdAt: Date,
+    val durationInSeconds: Int = 0,
+    val totalPlayedSeconds: Int = 0
 )

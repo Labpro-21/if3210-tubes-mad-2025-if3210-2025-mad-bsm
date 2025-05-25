@@ -3,15 +3,18 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
+    alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
 }
 
 android {
     namespace = "com.mad.besokminggu"
+    //noinspection GradleDependency
     compileSdk = 34
 
     defaultConfig {
         applicationId = "com.mad.besokminggu"
         minSdk = 29
+        //noinspection OldTargetApi
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -48,6 +51,9 @@ android {
 }
 
 dependencies {
+    implementation("com.github.androidmads:QRGenerator:1.0.5")
+    implementation(libs.play.services.maps)
+    implementation(libs.play.services.location)
     implementation(libs.glide)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -67,6 +73,12 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.androidx.hilt.common)
     implementation(libs.androidx.hilt.work)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+    implementation(libs.barcode.scanning)
+    implementation(libs.androidx.activity)
     kapt(libs.androidx.hilt.compiler)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.hilt.android)
@@ -80,5 +92,13 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     kapt(libs.androidx.room.compiler)
+    implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    //noinspection UseTomlInstead,GradleDependency
+    implementation("androidx.media3:media3-exoplayer:1.4.0")
+    //noinspection  UseTomlInstead, GradleDependency
+    implementation("androidx.media3:media3-session:1.4.0")
+    //noinspection  UseTomlInstead, GradleDependency
+    implementation("androidx.media3:media3-ui:1.4.0")
+
     testImplementation(libs.androidx.room.testing)
 }

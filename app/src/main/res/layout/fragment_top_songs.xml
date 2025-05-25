@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Collapsible Area -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
+        android:fitsSystemWindows="true"
+        app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsingToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="true"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/background"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/background_gradient"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed"
+                app:layout_collapseMode="pin"
+                android:fitsSystemWindows="true">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/topGlobalLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_collapseMode="pin">
+
+                    <ImageButton
+                        android:id="@+id/backButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="16dp"
+                        android:background="@color/transparent"
+                        android:contentDescription="@string/back"
+                        android:src="@drawable/caret"
+                        app:layout_collapseMode="pin"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:ignore="TouchTargetSizeCheck" />
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/coverImage"
+                        android:layout_width="250dp"
+                        android:layout_height="250dp"
+                        android:layout_marginTop="100dp"
+                        android:background="@android:color/white"
+                        android:elevation="8dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/cover_top_global"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:shapeAppearanceOverlay="@style/CustomShapeAppearance"
+                        app:layout_collapseMode="parallax"/>
+
+                    <TextView
+                        android:id="@+id/textDescription"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="24dp"
+                        android:layout_marginTop="32dp"
+                        android:layout_marginEnd="24dp"
+                        android:text="@string/desc_top_global"
+                        android:textColor="@color/gray"
+                        android:textSize="14sp"
+                        android:justificationMode="inter_word"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/coverImage"
+                        app:layout_collapseMode="parallax"/>
+
+                    <ImageView
+                        android:id="@+id/puritify"
+                        android:layout_width="84dp"
+                        android:layout_height="30dp"
+                        android:layout_marginStart="24dp"
+                        android:background="@color/transparent"
+                        android:contentDescription="@string/logo"
+                        android:elevation="8dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/logo_with_text"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/textDescription"
+                        app:layout_collapseMode="parallax"/>
+
+                    <LinearLayout
+                        android:id="@+id/detailAlbum"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="24dp"
+                        android:orientation="horizontal"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/puritify"
+                        app:layout_collapseMode="parallax">
+
+                        <TextView
+                            android:id="@+id/Date"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="0dp"
+                            android:text="Apr 2025"
+                            android:textColor="@color/gray"
+                            android:textSize="14sp"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="0dp"
+                            android:text=" • "
+                            android:textColor="@color/gray"
+                            android:textSize="14sp"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:id="@+id/TotalMin"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="0dp"
+                            android:text="2h 55min"
+                            android:textColor="@color/gray"
+                            android:textSize="14sp"
+                            tools:ignore="HardcodedText" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/buttonContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="24dp"
+                        android:layout_marginEnd="24dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/detailAlbum"
+                        app:layout_collapseMode="parallax">
+
+                        <ImageButton
+                            android:id="@+id/download_button"
+                            android:layout_width="27dp"
+                            android:layout_height="27dp"
+                            android:background="@color/transparent"
+                            android:contentDescription="Download"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/download"
+                            tools:ignore="HardcodedText,TouchTargetSizeCheck" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
+
+                        <ImageButton
+                            android:id="@+id/playButton"
+                            android:layout_width="54dp"
+                            android:layout_height="54dp"
+                            android:background="@color/transparent"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="play all"
+                            android:src="@drawable/play"
+                            tools:ignore="HardcodedText" />
+
+                    </LinearLayout>
+
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Scroll-triggered content -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/songListRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
+        android:clipToPadding="false"
+        android:contentDescription="Songs list"
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/buttonContainer"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:ignore="HardcodedText" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

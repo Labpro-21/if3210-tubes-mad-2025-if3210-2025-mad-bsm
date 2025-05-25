@@ -10,7 +10,7 @@ import java.io.IOException
 
 object FileHelper {
 
-    private lateinit var appContext : Context;
+    private lateinit var appContext : Context
 
     private val allowedSubDirs = setOf("audio", "cover")
 
@@ -18,7 +18,7 @@ object FileHelper {
         appContext = context
     }
 
-    private fun validateDir(subDir : String): File{
+    fun validateDir(subDir : String): File{
         require(::appContext.isInitialized) { "FileHelper must be initialized with context" }
         require(allowedSubDirs.contains(subDir)) { "Subdirectory '$subDir' is not allowed." }
 
@@ -65,7 +65,7 @@ object FileHelper {
         if(!file.exists()){
             Log.e("FILE","file with directory of ${file.absolutePath} aren't found")
         }
-        return file;
+        return file
     }
 
     fun getFileExtension(context: Context, uri: Uri): String {

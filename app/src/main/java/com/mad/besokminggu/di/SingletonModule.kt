@@ -2,8 +2,10 @@ package com.mad.besokminggu.di
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.mad.besokminggu.data.repositories.OnlineSongRepository
 import com.mad.besokminggu.data.services.UnprotectedApiService
 import com.mad.besokminggu.data.services.ProtectedApiService
+import com.mad.besokminggu.manager.PermissionHelper
 import com.mad.besokminggu.network.AuthInterceptor
 import com.mad.besokminggu.network.RefreshTokenInterceptor
 import com.mad.besokminggu.network.SessionManager
@@ -21,6 +23,18 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class SingletonModule {
+
+    @Singleton
+    @Provides
+    fun providePermissionHelper(): PermissionHelper {
+        return PermissionHelper()
+    }
+
+    @Provides
+    @Singleton
+    fun provideOnlineSongRepository(): OnlineSongRepository {
+        return OnlineSongRepository()
+    }
 
     @Singleton
     @Provides

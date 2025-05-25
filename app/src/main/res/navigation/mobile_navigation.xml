@@ -9,7 +9,17 @@
         android:id="@+id/navigation_home"
         android:name="com.mad.besokminggu.ui.home.HomeFragment"
         android:label="New songs"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home">
+
+        <argument
+            android:name="songId"
+            app:argType="integer"
+            android:defaultValue="-1"/>
+
+        <deepLink
+            android:id="@+id/deepLink_song"
+            app:uri="purrytify://song/{songId}" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_library"
@@ -21,5 +31,75 @@
         android:id="@+id/navigation_profile"
         android:name="com.mad.besokminggu.ui.profile.ProfileFragment"
         android:label="@string/title_profile"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/fragment_profile">
+
+        <action
+            android:id="@+id/action_navigation_profile_to_topArtistCapsuleFragment"
+            app:destination="@id/topArtistCapsuleFragment" />
+
+        <action
+            android:id="@+id/action_navigation_profile_to_topSongCapsuleFragment"
+            app:destination="@id/topSongCapsuleFragment" />
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/navigation_qr_scanner"
+        android:name="com.mad.besokminggu.ui.qr.ScannerFragment"
+        android:label="QR Scanner"
+        tools:layout="@layout/fragment_scanner" />
+
+    <fragment
+        android:id="@+id/navigation_qr"
+        android:name="com.mad.besokminggu.ui.qr.QrFragment"
+        android:label="Show QR"
+        tools:layout="@layout/fragment_qr">
+        <argument
+            android:name="title"
+            app:argType="string"
+            android:defaultValue="Song Title" />
+        <argument
+            android:name="artist"
+            app:argType="string"
+            android:defaultValue="Song Artist" />
+        <argument
+            android:name="link"
+            app:argType="string"
+            android:defaultValue="purritify://song/-1" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_top_songs"
+        android:name="com.mad.besokminggu.ui.topSongs.TopSongsFragment"
+        android:label="Top Songs"
+        tools:layout="@layout/fragment_top_songs" >
+        <argument
+            android:name="isGlobal"
+            app:argType="boolean"
+            android:defaultValue="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/topArtistCapsuleFragment"
+        android:name="com.mad.besokminggu.ui.capsule.TopArtistCapsuleFragment"
+        android:label="Top Artist" />
+
+    <fragment
+        android:id="@+id/topSongCapsuleFragment"
+        android:name="com.mad.besokminggu.ui.capsule.TopSongCapsuleFragment"
+        android:label="Top Songs" />
+
+    <fragment
+        android:id="@+id/fragment_time_listened_root"
+        android:name="com.mad.besokminggu.ui.capsule.TimeListenedFragment"
+        android:label="Time Listened" />
+
+    <fragment
+        android:id="@+id/navigation_daily_playlist"
+        android:name="com.mad.besokminggu.ui.dailyPlaylist.DailyPlaylistFragment"
+        android:label="Daily Playlist"
+        tools:layout="@layout/fragment_daily_playlist" />
+
+
+
 </navigation>

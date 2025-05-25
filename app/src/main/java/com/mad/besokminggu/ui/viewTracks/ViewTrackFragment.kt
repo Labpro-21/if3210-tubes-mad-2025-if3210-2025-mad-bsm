@@ -2,38 +2,44 @@ package com.mad.besokminggu.ui.viewTracks
 import android.annotation.SuppressLint
 import com.mad.besokminggu.R
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.mad.besokminggu.data.model.Song
 import com.mad.besokminggu.manager.AudioPlayerManager
 import com.mad.besokminggu.databinding.FragmentTrackViewBinding
-import com.mad.besokminggu.manager.AudioFileHelper
 import com.mad.besokminggu.manager.CoverFileHelper
+import com.mad.besokminggu.manager.DeepLinkHelper
+import com.mad.besokminggu.ui.optionMenu.ShareActionSheet
 import com.mad.besokminggu.viewModels.RepeatMode
 import com.mad.besokminggu.viewModels.SongTracksViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
+import java.util.Date
+import com.mad.besokminggu.ui.profile.ProfileViewModel
+
 
 @AndroidEntryPoint
 class ViewTrackFragment : Fragment(){
     private var _binding : FragmentTrackViewBinding? = null
     private val binding get() = _binding!!
-
     private val viewModel : SongTracksViewModel by activityViewModels()
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,76 +58,59 @@ class ViewTrackFragment : Fragment(){
         return String.format("%01d:%02d", minutes, seconds)
     }
 
-    private fun skipSong(){
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.skipToNext()
-        }
-    }
-
     private fun handlePlayedSongEvent(){
 
         val playedSong : LiveData<Song?> = viewModel.playedSong
-        val maxTimeText : TextView = binding.maxTime
-        val progressBar : SeekBar = binding.progressBar
+
         val songTitle : TextView= binding.songTitle
         val songSinger : TextView= binding.songSinger
         val songImage : ImageView= binding.songImage
 
-        playedSong.observe(viewLifecycleOwner) {
-                song ->
+
+        playedSong.observe(viewLifecycleOwner) { song ->
 
             if(song == null){
                 AudioPlayerManager.stop()
                 return@observe
             }
 
-            AudioPlayerManager.play(song,
-                onComplete = { skipSong() },
-                onPrepared = {
-                    val duration = AudioPlayerManager.getDuration()
-                    viewModel.updateSongDuration(duration)
-                    maxTimeText.text = formatTime(duration)
-                    progressBar.max = duration
-                }
-            )
+            val isOnline = viewModel.isOnlineSong.value ?: false
 
+            Log.d("ViewTrackFragment", "Song playing: ${song.title}")
 
             // General
-
             songTitle.text = song.title
             songSinger.text = song.artist
 
             songTitle.isSelected = true
             songSinger.isSelected = true
             Glide.with(requireContext())
-                .load(CoverFileHelper           .getFile(song.coverFileName))
+                .load(if (isOnline) song.coverFileName else CoverFileHelper.getFile(song.coverFileName))
                 .into(songImage)
 
             // Love Button
             viewModel.updateIsLike(song.isLiked)
-            viewModel.updatePlayPause(true)
         }
     }
 
     private fun handleProgressBar(){
         var isUserSeeking = false
-        val seekPosition : LiveData<Int> = viewModel.currentSeekPosition
+        val seekPosition : LiveData<Long> = viewModel.currentSeekPosition
         val currentTime : TextView = binding.currentTime
         val progressBar : SeekBar = binding.progressBar
         val maxTime : TextView = binding.maxTime
 
-
         seekPosition.observe(viewLifecycleOwner){
                 time ->
             if (!isUserSeeking) {
-                currentTime.text = formatTime(time)
-                progressBar.progress = time
+                currentTime.text = formatTime(time.toInt())
+                progressBar.progress = time.toInt();
             }
         }
         viewModel.currentSongDuration.observe(viewLifecycleOwner) {
                 duration ->
-            maxTime.text = formatTime(duration)
-            progressBar.max = duration
+            maxTime.text = formatTime(duration.toInt())
+            progressBar.max = duration.toInt()
         }
         startSeekBarUpdater()
         progressBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -138,9 +127,8 @@ class ViewTrackFragment : Fragment(){
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 isUserSeeking = false
-                val seekTo = seekBar?.progress ?: 0
-                AudioPlayerManager.seekTo(seekTo)
-                viewModel.updateSeekPosition(seekTo)
+                val seekToMs = seekBar?.progress?.toLong()
+                AudioPlayerManager.seekTo(seekToMs ?: 0)
             }
         })
     }
@@ -153,12 +141,14 @@ class ViewTrackFragment : Fragment(){
         val repeatMode : LiveData<RepeatMode> = viewModel.repeatMode
 
 
+
         val nextButton : ImageButton = binding.nextButton
         val loveButton: ImageButton = binding.loveButton
         val previousButton : ImageButton = binding.previousButton
         val playButton : ImageButton = binding.playButton
         val shuffleButton : ImageButton = binding.shuffleButton
         val repeatButton : ImageButton = binding.repeatButton
+        val shareButton : ImageButton = binding.shareButton
 
 
         // Next Button Event
@@ -166,6 +156,7 @@ class ViewTrackFragment : Fragment(){
         nextButton.setOnClickListener {
             lifecycleScope.launch {
                 viewModel.skipToNext()
+
             }
         }
 
@@ -201,11 +192,9 @@ class ViewTrackFragment : Fragment(){
             viewModel.skipToPrevious()
         }
 
-
         // Play Button
         isPlaying.observe(viewLifecycleOwner) {
-                isPlaying ->
-            if (isPlaying) {
+            if (it) {
                 playButton.setImageResource(R.drawable.pause_icon)
             } else {
                 playButton.setImageResource(R.drawable.play_icon)
@@ -213,11 +202,6 @@ class ViewTrackFragment : Fragment(){
 
         }
         playButton.setOnClickListener {
-            if (AudioPlayerManager.isPlaying()) {
-                AudioPlayerManager.pause()
-            } else {
-                AudioPlayerManager.resume()
-            }
             viewModel.togglePlayPause()
         }
 
@@ -225,11 +209,10 @@ class ViewTrackFragment : Fragment(){
         shuffleButton.setOnClickListener {
             viewModel.toggleShuffle()
         }
-        isShuffle.observe (viewLifecycleOwner){isShuffle ->
-
-            if(isShuffle){
+        isShuffle.observe (viewLifecycleOwner){
+            if (it) {
                 shuffleButton.setImageResource(R.drawable.shuffle_fill)
-            }else{
+            } else {
                 shuffleButton.setImageResource(R.drawable.shuffle)
             }
         }
@@ -250,13 +233,40 @@ class ViewTrackFragment : Fragment(){
 
             }
         }
+
+        // Share
+        shareButton.setOnClickListener {
+            ShareActionSheet(
+                onOther = {
+                    val song = viewModel.playedSong.value
+                    if (song != null) {
+                        DeepLinkHelper.shareSongLink(requireContext(), song.id, song.artist, song.title)
+                    }
+                },
+                onQR = {
+                    val song = viewModel.playedSong.value
+                    if (song != null) {
+                        val generatedUrl = DeepLinkHelper.createSongShareLink(song.id)
+                        val bundle = bundleOf(
+                            "title" to song.title,
+                            "artist" to song.artist,
+                            "link" to generatedUrl
+                        )
+                        findNavController().navigate(R.id.navigation_qr, bundle)
+                    }
+
+                    viewModel.hideFullPlayer()
+                }
+            ).show(parentFragmentManager, "ShareActionSheet")
+        }
+
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        handlePlayedSongEvent();
-        handleProgressBar();
+        handlePlayedSongEvent()
+        handleProgressBar()
         handleMediaController()
     }
 
@@ -267,10 +277,17 @@ class ViewTrackFragment : Fragment(){
 
     private fun startSeekBarUpdater() {
         viewLifecycleOwner.lifecycleScope.launch {
+            var lastSavedSecond = 0
             while (isActive) {
                 if (AudioPlayerManager.isPlaying()) {
                     val current = AudioPlayerManager.getCurrentPosition()
                     viewModel.updateSeekPosition(current)
+
+                    val playedSong = viewModel.playedSong.value
+                    if (playedSong != null && current > lastSavedSecond) {
+                        lastSavedSecond = current.toInt()
+                    }
+
                 }
                 delay(1000L)
             }

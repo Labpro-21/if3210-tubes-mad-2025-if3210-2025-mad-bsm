@@ -145,19 +145,60 @@ To run this project locally, follow these steps:
     <img src="./screenshot/song_actions.jpg" alt="song_actions" width="300">
 </p> 
 
+## Personal Sound Capsule
+<p align="center">
+    <img src="./screenshot/sound_capsule.webp" alt="upload_song_landscape" width="300">
+</p> 
+
+## Share Songs via QR
+<p align="center">
+    <img src="./screenshot/qr.gif" alt="library_portrait" width="300">
+</p> 
+
+## Online Songs
+<p align="center">
+    <img src="./screenshot/online_songs.webp" alt="upload_song_landscape" width="300">
+</p> 
+
+## Download Songs
+<p align="center">
+    <img src="./screenshot/download_songs.gif" alt="library_portrait" width="300">
+</p> 
+
+
+## Song Recommendations
+<p align="center">
+    <img src="./screenshot/song_rec.webp" alt="upload_song_landscape" width="300">
+</p> 
+
+## Edit Profile Picture
+<p align="center">
+    <img src="./screenshot/edit_profile.webp" alt="upload_song_landscape" width="300">
+</p> 
+
+## Music Notification
+<p align="center">
+    <img src="./screenshot/music_notif.webp" alt="upload_song_landscape" width="600">
+</p> 
+
+## Set Output Device
+<p align="center">
+    <img src="./screenshot/output_device.gif" alt="library_portrait" width="300">
+</p> 
+
 ## Landscape Preview
 
 # Developers
 | NIM / Student ID | Name | Task |
 |------------------|------|------------------|
-| 13522134 | Shabrina Maharani | Implement home page with recyclerview, landscape layout for all page, add eye patch in password, add function for liked songs |
-| 13522157 | Muhammad Davis Adhipramana | Implement SongTrackView, MiniPlayer, Integrasi Flow dari song data, Play Song, Love Song, Repeat, Shuffle, Queue |
-| 13522158 | Muhammad Rasheed Qais Tandjung | Implement library page with recyclerview, create upload songs page and mechanism, initialize room database, search songs feature |
-| 13522164 | Valentino Chryslie Triadi | Bottom Navbar, Login Page, API Fetch, Token/Session Manager, Network Sensing, Profile, Background Process, Personalized Songs |
+| 13522134 | Shabrina Maharani | Implement home page with recyclerview, landscape layout for all page, add eye patch in password, add function for liked songs, Sound Capsule, Song Recommendations |
+| 13522157 | Muhammad Davis Adhipramana | Implement SongTrackView, MiniPlayer, Integrasi Flow dari song data, Play Song, Love Song, Repeat, Shuffle, Queue, Notification Controls, AudioRouting and Output Device |
+| 13522158 | Muhammad Rasheed Qais Tandjung | Implement library page with recyclerview, create upload songs page and mechanism, initialize room database, search songs feature, share songs via link, share songs via QR |
+| 13522164 | Valentino Chryslie Triadi | Bottom Navbar, Login Page, API Fetch, Token/Session Manager, Network Sensing, Profile, Background Process, Personalized Songs, Online Songs, Download Songs, Edit Profile |
 
 | NIM / Student ID | Name | Planning Hours | Development Hours |
 |------------------|------|------|---------------------|
-| 13522134 | Shabrina Maharani | 3 | 38
-| 13522157 | Muhammad Davis Adhipramana | 4 | 52
-| 13522158 | Muhammad Rasheed Qais Tandjung | 5 | 38
-| 13522164 | Valentino Chryslie Triadi | - | 72
+| 13522134 | Shabrina Maharani | 15 | 98
+| 13522157 | Muhammad Davis Adhipramana | 15 | 122
+| 13522158 | Muhammad Rasheed Qais Tandjung | 15 | 98
+| 13522164 | Valentino Chryslie Triadi | 15 | 132

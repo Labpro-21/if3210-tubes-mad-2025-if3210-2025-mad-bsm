@@ -31,6 +31,7 @@ class MyApplication : Application(), Configuration.Provider {
             .setMinimumLoggingLevel(Log.DEBUG)
             .build()
 
+
     override fun onCreate() {
         super.onCreate()
         delayedInit()

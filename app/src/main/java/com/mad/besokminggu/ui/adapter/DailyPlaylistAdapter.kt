@@ -42,6 +42,7 @@ class DailyPlaylistAdapter(
         fun bind(playlist: PlaylistSong) {
             titleText.text = playlist.song.title
             artistText.text = playlist.song.artist
+
             Glide.with(itemView.context)
                 .load(playlist.song.coverFileName)
                 .placeholder(R.drawable.cover_daylist)

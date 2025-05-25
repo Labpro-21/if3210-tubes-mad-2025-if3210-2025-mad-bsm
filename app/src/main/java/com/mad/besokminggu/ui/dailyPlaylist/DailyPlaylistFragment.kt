@@ -43,8 +43,7 @@ class DailyPlaylistFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         val adapter = DailyPlaylistAdapter { playlist ->
             lifecycleScope.launch {
-            songTracksViewModel.playSong(playlist.song, playlist.isOnline)
-                songTracksViewModel.showFullPlayer()
+                songTracksViewModel.playSong(playlist.song, playlist.isOnline)
             }
         }
         recyclerView.adapter = adapter

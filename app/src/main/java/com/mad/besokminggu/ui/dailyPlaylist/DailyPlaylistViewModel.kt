@@ -31,7 +31,7 @@ class DailyPlaylistViewModel @Inject constructor(
     val playlistDuration: LiveData<String> = _playlistDuration
 
     private var cachedDate: String? = null
-    private var cachedPlaylist: List<Song>? = null
+    private var cachedPlaylist: List<PlaylistSong>? = null
 
     fun generateDailyPlaylist(localSongs: List<Song>, onlineSongs: List<OnlineSong>) {
         val today = getTodayLabel()

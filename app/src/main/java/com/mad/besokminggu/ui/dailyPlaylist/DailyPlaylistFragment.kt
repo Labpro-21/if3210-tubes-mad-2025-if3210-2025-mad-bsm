@@ -37,14 +37,13 @@ class DailyPlaylistFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val recyclerView = view.findViewById<RecyclerView>(R.id.rvDailyPlaylistSongs)
         val dateText = view.findViewById<TextView>(R.id.tvDate)
-        val durationText = view.findViewById<TextView>(R.id.tvTotalDuration)
+
         val backButton = view.findViewById<ImageButton>(R.id.backButton)
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         val adapter = DailyPlaylistAdapter { playlist ->
             lifecycleScope.launch {
-            songTracksViewModel.playSong(playlist.song, playlist.isOnline)
-                songTracksViewModel.showFullPlayer()
+                songTracksViewModel.playSong(playlist.song, playlist.isOnline)
             }
         }
         recyclerView.adapter = adapter
@@ -80,9 +79,7 @@ class DailyPlaylistFragment : Fragment() {
             adapter.submitList(it)
         }
 
-        dailyPlaylistViewModel.playlistDuration.observe(viewLifecycleOwner) {
-            durationText.text = it
-        }
+
 
         dateText.text = dailyPlaylistViewModel.getTodayLabel()
     }

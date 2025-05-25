@@ -5,7 +5,7 @@ data class PlaylistSong(
     val isOnline: Boolean
 )
 
-fun Song.toPlaylistSong(isOnline: Boolean) : PlaylistSong {
+fun Song.toPlaylistSong(isOnline : Boolean) : PlaylistSong {
     return PlaylistSong(
         song = Song(
             id = id,

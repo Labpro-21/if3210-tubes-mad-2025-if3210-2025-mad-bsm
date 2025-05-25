@@ -6,11 +6,8 @@
     android:id="@+id/fragment_streak_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="24dp"
     android:background="#121212"
-    android:paddingRight="24dp"
-    android:paddingLeft="24dp"
-    android:paddingBottom="24dp"
+    android:padding="24dp"
     tools:ignore="MissingDefaultResource">
 
     <com.google.android.material.card.MaterialCardView
@@ -21,6 +18,7 @@
         app:cardElevation="4dp"
         app:cardBackgroundColor="#1E1E1E"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -32,13 +30,16 @@
             <!-- Cover image -->
             <ImageView
                 android:id="@+id/cover_streak"
-                android:layout_width="346dp"
-                android:layout_height="358dp"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginEnd="16dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/cover_streak"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintWidth_percent="0.4"
+                app:layout_constraintDimensionRatio="1:1"/>
 
             <!-- Title -->
             <TextView
@@ -49,9 +50,9 @@
                 android:textColor="@android:color/white"
                 android:textSize="22sp"
                 android:textStyle="bold"
-                android:layout_marginTop="12dp"
-                app:layout_constraintTop_toBottomOf="@id/cover_streak"
-                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginLeft="16dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@id/cover_streak"
                 app:layout_constraintEnd_toEndOf="parent"/>
 
             <!-- Subtitle -->
@@ -64,8 +65,8 @@
                 android:textSize="14sp"
                 android:layout_marginTop="6dp"
                 app:layout_constraintTop_toBottomOf="@id/text_streak_title"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
+                app:layout_constraintStart_toStartOf="@id/text_streak_title"
+                app:layout_constraintEnd_toEndOf="@id/text_streak_title"/>
 
             <!-- Date range -->
             <TextView
@@ -75,9 +76,9 @@
                 android:text="Mar 21–25, 2025"
                 android:textColor="@android:color/darker_gray"
                 android:textSize="14sp"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="16dp"
                 app:layout_constraintTop_toBottomOf="@id/text_streak_subtitle"
-                app:layout_constraintStart_toStartOf="parent"/>
+                app:layout_constraintStart_toStartOf="@id/text_streak_subtitle"/>
 
             <!-- Share button -->
 

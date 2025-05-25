@@ -97,7 +97,7 @@ class SongTracksViewModel @Inject constructor(
     }
 
     suspend fun playSong(song: Song, isOnline: Boolean = false){
-
+        _isOnlineSong.value = isOnline
         AudioPlayerManager.play(song,isOnline);
         showFullPlayer();
         syncWithQueueManager();
@@ -162,6 +162,8 @@ class SongTracksViewModel @Inject constructor(
     fun toggleShuffle() {
         AudioPlayerManager.toggleShuffle()
     }
+
+
 
     private fun syncWithQueueManager(){
         _isOnlineSong.value = queueManager.isOnline

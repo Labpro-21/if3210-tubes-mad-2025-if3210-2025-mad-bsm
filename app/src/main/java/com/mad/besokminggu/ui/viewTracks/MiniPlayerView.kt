@@ -16,8 +16,8 @@ import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.mad.besokminggu.MainActivity
 import com.mad.besokminggu.R
 import com.mad.besokminggu.manager.AudioPlayerManager
 import com.mad.besokminggu.manager.DeepLinkHelper
@@ -40,6 +40,7 @@ class MiniPlayerView @JvmOverloads constructor(
     private val progressBar : ProgressBar
 
     private var fragmentManager: FragmentManager? = null
+    private var navController: androidx.navigation.NavController? = null
 
     init {
         LayoutInflater.from(context).inflate(R.layout.fragment_miniplayer, this, true)
@@ -55,6 +56,11 @@ class MiniPlayerView @JvmOverloads constructor(
     fun setFragmentManager(fragmentManager: FragmentManager) {
         this.fragmentManager = fragmentManager
     }
+
+    fun setNavigationController(nav: androidx.navigation.NavController) {
+        this.navController = nav
+    }
+
 
     private fun handlePlayedSong(viewModel: SongTracksViewModel, lifecycleOwner: LifecycleOwner) {
         viewModel.playedSong.observe(lifecycleOwner) { song ->
@@ -150,7 +156,12 @@ class MiniPlayerView @JvmOverloads constructor(
                                 "artist" to song.artist,
                                 "link" to generatedUrl
                             )
-                            findNavController().navigate(R.id.navigation_qr, bundle)
+
+                            try {
+                                navController?.navigate(R.id.navigation_qr, bundle)
+                            } catch (e: IllegalStateException) {
+                                Log.e("ShareActionSheet", "Could not find NavController here.", e)
+                            }
                         }
                     }
                 ).show(fm, "ShareActionSheet")

@@ -36,8 +36,6 @@ import com.mad.besokminggu.manager.PermissionHelper
 import com.mad.besokminggu.network.ApiResponse
 import com.mad.besokminggu.network.ConnectionStateMonitor
 import com.mad.besokminggu.network.OnNetworkAvailableCallbacks
-import com.mad.besokminggu.ui.adapter.OnlineSongAdapter
-import com.mad.besokminggu.ui.home.HomeFragment
 import com.mad.besokminggu.ui.login.LoginActivity
 import com.mad.besokminggu.ui.topSongs.TopSongsViewModel
 import com.mad.besokminggu.ui.viewTracks.MiniPlayerView
@@ -65,6 +63,8 @@ class MainActivity : AppCompatActivity(), IGetPermissionListener {
     private lateinit var connectionMonitor: ConnectionStateMonitor
     @Inject
     lateinit var permissionHelper: PermissionHelper
+
+    lateinit var navController : androidx.navigation.NavController
 
     private val requestLauncher =
         registerForActivityResult(
@@ -149,7 +149,9 @@ class MainActivity : AppCompatActivity(), IGetPermissionListener {
 
             // Wait until views are loaded
         binding.root.post {
-            val navController = findNavController(R.id.nav_host_fragment_activity_main)
+            navController = findNavController(R.id.nav_host_fragment_activity_main)
+
+            miniPlayer.setNavigationController(navController)
 
             // Setup for BottomNavigationView (portrait)
 //            navView?.setupWithNavController(navController)

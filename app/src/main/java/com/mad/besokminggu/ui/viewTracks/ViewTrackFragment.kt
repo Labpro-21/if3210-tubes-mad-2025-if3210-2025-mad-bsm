@@ -283,6 +283,8 @@ class ViewTrackFragment : Fragment(){
                         )
                         findNavController().navigate(R.id.navigation_qr, bundle)
                     }
+
+                    viewModel.hideFullPlayer()
                 }
             ).show(parentFragmentManager, "ShareActionSheet")
         }

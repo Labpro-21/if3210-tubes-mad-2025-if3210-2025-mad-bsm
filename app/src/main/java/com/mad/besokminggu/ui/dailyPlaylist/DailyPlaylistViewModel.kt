@@ -30,10 +30,23 @@ class DailyPlaylistViewModel @Inject constructor(
     private val _playlistDuration = MutableLiveData<String>()
     val playlistDuration: LiveData<String> = _playlistDuration
 
+    private var cachedDate: String? = null
+    private var cachedPlaylist: List<Song>? = null
+
     fun generateDailyPlaylist(localSongs: List<Song>, onlineSongs: List<OnlineSong>) {
+        val today = getTodayLabel()
+
+        if (today == cachedDate && cachedPlaylist != null) {
+            _dailyPlaylist.postValue(cachedPlaylist!!)
+            _playlistDuration.postValue(computeDurationString(cachedPlaylist!!.sumOf { it.song.durationInSeconds }))
+            Log.d("DailyPlaylist", "Using cached playlist for $today")
+            return
+        }
+
 
         val localPlaylists = localSongs.map { it -> it.toPlaylistSong(false) }
         val onlinePlaylists = onlineSongs.map { it -> it.toSong().toPlaylistSong(true) }
+
 
         val likedArtists = localPlaylists.filter { it.song.isLiked }.map { it.song.artist }.toSet()
         val listenedArtists = localPlaylists.map { it.song.artist }.toSet()
@@ -41,16 +54,9 @@ class DailyPlaylistViewModel @Inject constructor(
         val byLikedArtist = onlinePlaylists.filter { it.song.artist in likedArtists }
         val byListenedArtist = onlinePlaylists.filter { it.song.artist in listenedArtists && it.song.artist !in likedArtists }
 
-
         val combined = (byLikedArtist + byListenedArtist)
             .distinctBy { it.song.id }
             .shuffled()
-            .take(30)
-
-        Log.d("DailyPlaylist", "Liked artists: $likedArtists")
-        Log.d("DailyPlaylist", "Listened artists: $listenedArtists")
-        Log.d("DailyPlaylist", "byLikedArtist: ${byLikedArtist.size}, byListened: ${byListenedArtist.size}")
-
 
         val finalList = if (combined.size >= 30) {
             combined.take(30)
@@ -63,6 +69,9 @@ class DailyPlaylistViewModel @Inject constructor(
             (combined + additional).take(30)
         }
 
+
+        cachedDate = today
+        cachedPlaylist = finalList
 
         _dailyPlaylist.postValue(finalList)
         _playlistDuration.postValue(computeDurationString(finalList.sumOf { it.song.durationInSeconds }))

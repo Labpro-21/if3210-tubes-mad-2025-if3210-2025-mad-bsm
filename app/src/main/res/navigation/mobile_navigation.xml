@@ -9,7 +9,17 @@
         android:id="@+id/navigation_home"
         android:name="com.mad.besokminggu.ui.home.HomeFragment"
         android:label="New songs"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home">
+
+        <argument
+            android:name="songId"
+            app:argType="integer"
+            android:defaultValue="-1"/>
+
+        <deepLink
+            android:id="@+id/deepLink_song"
+            app:uri="purrytify://song/{songId}" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_library"
@@ -22,6 +32,12 @@
         android:name="com.mad.besokminggu.ui.profile.ProfileFragment"
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_profile" />
+
+    <fragment
+        android:id="@+id/navigation_qr_scanner"
+        android:name="com.mad.besokminggu.ui.qr.ScannerFragment"
+        android:label="QR Scanner"
+        tools:layout="@layout/fragment_scanner" />
 
     <fragment
         android:id="@+id/navigation_qr"
@@ -39,7 +55,7 @@
         <argument
             android:name="link"
             app:argType="string"
-            android:defaultValue="purritify://song/0" />
+            android:defaultValue="purritify://song/-1" />
     </fragment>
 
     <fragment

@@ -1,5 +1,8 @@
 package com.mad.besokminggu
 
+import android.Manifest
+import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -10,10 +13,13 @@ import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentContainerView
+import androidx.fragment.app.setFragmentResultListener
+import androidx.fragment.app.FragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -25,10 +31,13 @@ import com.mad.besokminggu.manager.AudioFileHelper
 import com.mad.besokminggu.manager.AudioPlayerManager
 import com.mad.besokminggu.manager.CoverFileHelper
 import com.mad.besokminggu.manager.FileHelper
+import com.mad.besokminggu.manager.IGetPermissionListener
+import com.mad.besokminggu.manager.PermissionHelper
 import com.mad.besokminggu.network.ApiResponse
 import com.mad.besokminggu.network.ConnectionStateMonitor
 import com.mad.besokminggu.network.OnNetworkAvailableCallbacks
 import com.mad.besokminggu.ui.adapter.OnlineSongAdapter
+import com.mad.besokminggu.ui.home.HomeFragment
 import com.mad.besokminggu.ui.login.LoginActivity
 import com.mad.besokminggu.ui.topSongs.TopSongsViewModel
 import com.mad.besokminggu.ui.viewTracks.MiniPlayerView
@@ -39,10 +48,11 @@ import com.mad.besokminggu.viewModels.TokenViewModel
 import com.mad.besokminggu.viewModels.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), IGetPermissionListener {
 
     private lateinit var binding: ActivityMainBinding
 
@@ -53,6 +63,36 @@ class MainActivity : AppCompatActivity() {
     private val onlineSongsViewModel: OnlineSongsViewModel by viewModels()
 
     private lateinit var connectionMonitor: ConnectionStateMonitor
+    @Inject
+    lateinit var permissionHelper: PermissionHelper
+
+    private val requestLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        )
+        { isGranted: Boolean ->
+            permissionHelper.handleSinglePermissionResult(this, isGranted)
+        }
+
+    // OnActivityResult to handle permission result.
+    private val resultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode != Activity.RESULT_OK) {
+                checkPermission()
+            }
+        }
+
+    override fun onPermissionGranted() {
+
+    }
+
+    override fun onPermissionDenied() {
+        checkPermission()
+    }
+
+    override fun onPermissionRationale() {
+        permissionAlertDialog()
+    }
 
     fun onOpenTrackSong(){
         val fullPlayer = binding.fullPlayer
@@ -95,13 +135,16 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        permissionHelper.setPermissionListener(this)
+        checkPermission()
+
         FileHelper.init(context = applicationContext)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         val navView: BottomNavigationView? = binding.navView
-        val fullPlayer : FragmentContainerView? = binding.fullPlayer
+        val fullPlayer : FragmentContainerView = binding.fullPlayer
         val miniPlayer : MiniPlayerView = binding.miniPlayer
 
             // Wait until views are loaded
@@ -276,6 +319,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+
+        val data: Uri? = intent?.data
+
+        if (data != null && data.scheme == "purrytify" && data.host == "song") {
+            val songId: String? = data.lastPathSegment
+
+            songId?.let {
+                loadSong(it.toInt())
+            }
+        }
+    }
+
     override fun onPause() {
         // Unregister
         connectionMonitor.disable()
@@ -285,6 +342,36 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         connectionMonitor.disable()
+    }
+
+    private fun checkPermission() {
+        permissionHelper.apply {
+            if (!hasPermission(
+                    this@MainActivity as AppCompatActivity,
+                    Manifest.permission.CAMERA
+                )
+            ) {
+                requestPermission(Manifest.permission.CAMERA, requestLauncher)
+            }
+        }
+    }
+
+    private fun permissionAlertDialog() {
+        AlertDialog.Builder(this).apply {
+            setTitle("Permission Required")
+            setMessage("Camera permission is required to scan QR codes. Please enable it in settings.")
+
+            setPositiveButton("Yes") { dialog, _ ->
+                permissionHelper.openAppSettingPage(this@MainActivity as AppCompatActivity, resultLauncher)
+                dialog.dismiss()
+            }
+
+            setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()
+                checkPermission()
+            }
+            show()
+        }
     }
 
     /**

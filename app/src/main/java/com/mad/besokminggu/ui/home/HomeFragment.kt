@@ -23,6 +23,13 @@ import com.mad.besokminggu.ui.addsongs.AddSongsFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import androidx.core.os.bundleOf
+import androidx.fragment.app.setFragmentResult
+import com.mad.besokminggu.MainActivity
+import com.mad.besokminggu.data.model.toSong
+import com.mad.besokminggu.network.ApiResponse
+import com.mad.besokminggu.ui.topSongs.TopSongsViewModel
+import com.mad.besokminggu.viewModels.CoroutinesErrorHandler
+import com.mad.besokminggu.viewModels.OnlineSongsViewModel
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -33,6 +40,8 @@ class HomeFragment : Fragment() {
     private val homeViewModel: HomeViewModel by activityViewModels()
     private val userViewModel: UserViewModel by activityViewModels()
     private val songViewModel : SongTracksViewModel by activityViewModels()
+    private val onlineSongsViewModel : OnlineSongsViewModel by activityViewModels()
+    private val topSongsViewModel : TopSongsViewModel by activityViewModels()
 
 
     override fun onCreateView(
@@ -91,12 +100,15 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val receivedSongId = arguments?.getInt("songId")
+
         rvNewSongs = view.findViewById(R.id.rvNewSongs)
         rvRecentlyPlayed = view.findViewById(R.id.rvRecentlyPlayed)
 
         // Set up on button click listeners
         val topGlobalButton = view.findViewById<ImageButton>(R.id.topGlobal)
         val topLocalButton = view.findViewById<ImageButton>(R.id.topLocal)
+        val qrButton = view.findViewById<ImageButton>(R.id.qrButton)
 
         // Redirect to fragment
         topGlobalButton.setOnClickListener {
@@ -107,6 +119,10 @@ class HomeFragment : Fragment() {
         topLocalButton.setOnClickListener {
             val bundle = bundleOf("isGlobal" to false)
             findNavController().navigate(R.id.navigation_top_songs, bundle)
+        }
+
+        qrButton.setOnClickListener {
+            findNavController().navigate(R.id.navigation_qr_scanner)
         }
 
         val newSongsAdapter = NewSongAdapter { song ->
@@ -163,6 +179,75 @@ class HomeFragment : Fragment() {
 
         homeViewModel.recentlyPlayed.observe(viewLifecycleOwner) { songs ->
             recentlyPlayedAdapter.submitList(songs)
+        }
+
+        if (receivedSongId != null) {
+            Log.d("HomeFragment", "Received song ID: $receivedSongId")
+            if (receivedSongId != -1) {
+                loadSong(receivedSongId)
+            }
+        }
+    }
+
+    private fun loadSong(songId: Int) {
+        onlineSongsViewModel.getSongById(songId, object : CoroutinesErrorHandler {
+            override fun onError(message: String) {
+                Log.e("DeepLink", "Error loading song: $message")
+            }
+        })
+
+        topSongsViewModel.topSongs.observe(this) { songList ->
+            when (songList) {
+                is ApiResponse.Loading -> {
+//                    binding.progressBar?.visibility = View.VISIBLE
+                }
+
+                is ApiResponse.Success -> {
+//                    songAdapter.submitList(songList.data)
+                    topSongsViewModel.updateSongsRepo(songList.data)
+                }
+
+                is ApiResponse.Failure -> {
+//                    binding.progressBar?.visibility = View.GONE
+                    // Handle error state
+                }
+
+                else -> {
+                    Log.d("TopGlobalFragment", "State: ${songList.javaClass}")
+                }
+            }
+        }
+
+        topSongsViewModel.getTopSongsGlobal(
+            coroutinesErrorHandler = object : CoroutinesErrorHandler {
+                override fun onError(message: String) {
+                    Log.e("TopGlobalFragment", "Error: ${message}")
+                }
+            },
+        )
+
+        songViewModel._isOnlineSong.postValue(true)
+
+        onlineSongsViewModel.song.observe(this) { response ->
+            when (response) {
+                is ApiResponse.Success -> {
+                    val song = response.data
+                    Log.d("DeepLink", "Loaded song: ${song.title}")
+                    lifecycleScope.launch {
+                        songViewModel.playSong(
+                            song = song.toSong(),
+                            isOnline = true
+                        )
+                        songViewModel.showFullPlayer()
+                    }
+                }
+                is ApiResponse.Failure -> {
+                    Log.e("DeepLink", "Failed to load song")
+                }
+                is ApiResponse.Loading -> {
+                    Log.d("DeepLink", "Loading song...")
+                }
+            }
         }
     }
 }

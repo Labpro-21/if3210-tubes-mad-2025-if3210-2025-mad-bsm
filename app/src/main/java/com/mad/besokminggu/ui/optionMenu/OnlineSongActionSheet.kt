@@ -16,6 +16,7 @@ import com.mad.besokminggu.data.model.OnlineSong
 class OnlineSongActionSheet(
     private val song: OnlineSong,
     private val onDownload: () -> Unit,
+    private val onShare: () -> Unit,
 ) : BottomSheetDialogFragment() {
 
     override fun onCreateView(
@@ -33,6 +34,7 @@ class OnlineSongActionSheet(
         val artist = view.findViewById<TextView>(R.id.songArtist)
         val cover = view.findViewById<ImageView>(R.id.songCover)
         val download = view.findViewById<LinearLayout>(R.id.download_button)
+        val share = view.findViewById<LinearLayout>(R.id.share_button)
 
         title.text = song.title
         artist.text = song.artist
@@ -42,6 +44,11 @@ class OnlineSongActionSheet(
 
         download.setOnClickListener {
             onDownload()
+            dismiss()
+        }
+
+        share.setOnClickListener {
+            onShare()
             dismiss()
         }
     }

@@ -8,7 +8,11 @@ import javax.inject.Singleton
 @Singleton
 class OnlineSongRepository @Inject constructor() {
 
-    private lateinit var _allSongs: List<Song>
+    private var _allSongs: List<Song>
+
+    init {
+        _allSongs = emptyList()
+    }
 
     fun updateAllSongs(songs: List<Song>) {
         _allSongs = songs

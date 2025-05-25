@@ -8,17 +8,19 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.core.os.bundleOf
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import com.bumptech.glide.Glide
 import com.mad.besokminggu.R
-import com.mad.besokminggu.data.model.Song
 import com.mad.besokminggu.manager.AudioPlayerManager
+import com.mad.besokminggu.manager.DeepLinkHelper
 import com.mad.besokminggu.manager.FileHelper
+import com.mad.besokminggu.ui.optionMenu.ShareActionSheet
 import com.mad.besokminggu.viewModels.SongTracksViewModel
 import kotlinx.coroutines.launch
 
@@ -32,7 +34,11 @@ class MiniPlayerView @JvmOverloads constructor(
     private val tvArtist: TextView
     private val playButton : ImageButton
     private val likeButton : ImageButton
+    private val shareButton : ImageButton
     private val progressBar : ProgressBar
+
+    private var fragmentManager: FragmentManager? = null
+    private var navController: androidx.navigation.NavController? = null
 
     init {
         LayoutInflater.from(context).inflate(R.layout.fragment_miniplayer, this, true)
@@ -41,8 +47,18 @@ class MiniPlayerView @JvmOverloads constructor(
         tvArtist = findViewById(R.id.songArtist)
         playButton = findViewById(R.id.pause_button)
         likeButton= findViewById(R.id.like_button)
+        shareButton = findViewById(R.id.shareButton)
         progressBar = findViewById(R.id.progress_bar)
     }
+
+    fun setFragmentManager(fragmentManager: FragmentManager) {
+        this.fragmentManager = fragmentManager
+    }
+
+    fun setNavigationController(nav: androidx.navigation.NavController) {
+        this.navController = nav
+    }
+
 
     private fun handlePlayedSong(viewModel: SongTracksViewModel, lifecycleOwner: LifecycleOwner) {
         viewModel.playedSong.observe(lifecycleOwner) { song ->
@@ -118,5 +134,38 @@ class MiniPlayerView @JvmOverloads constructor(
         handlePlayedSong(viewModel, lifecycleOwner)
         handleProgressBar(viewModel, lifecycleOwner)
         handleMediaController(viewModel, lifecycleOwner)
+
+        // Share Button
+        shareButton.setOnClickListener {
+            fragmentManager?.let { fm ->
+                ShareActionSheet(
+                    onOther = {
+                        val song = viewModel.playedSong.value
+                        if (song != null) {
+                            DeepLinkHelper.shareSongLink(context, song.id, song.artist, song.title)
+                        }
+                    },
+                    onQR = {
+                        val song = viewModel.playedSong.value
+                        if (song != null) {
+                            val generatedUrl = DeepLinkHelper.createSongShareLink(song.id)
+                            val bundle = bundleOf(
+                                "title" to song.title,
+                                "artist" to song.artist,
+                                "link" to generatedUrl
+                            )
+
+                            try {
+                                navController?.navigate(R.id.navigation_qr, bundle)
+                            } catch (e: IllegalStateException) {
+                                Log.e("ShareActionSheet", "Could not find NavController here.", e)
+                            }
+                        }
+                    }
+                ).show(fm, "ShareActionSheet")
+            } ?: run {
+                Log.e("MiniPlayerView", "FragmentManager is null. Cannot show ShareActionSheet.")
+            }
+        }
     }
 }

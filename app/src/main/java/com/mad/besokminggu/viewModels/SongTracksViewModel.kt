@@ -33,7 +33,7 @@ class SongTracksViewModel @Inject constructor(
     private val _playedSong = MutableLiveData<Song?>()
     val playedSong: LiveData<Song?> get() = _playedSong
 
-    private val _isOnlineSong = MutableLiveData<Boolean>(false)
+    val _isOnlineSong = MutableLiveData<Boolean>(false)
     val isOnlineSong: LiveData<Boolean> get() = _isOnlineSong
 
     // Keep tracking of previous queue
@@ -60,7 +60,7 @@ class SongTracksViewModel @Inject constructor(
     val currentSongDuration: LiveData<Int> get() = _currentSongDuration
 
     private val _isLiked = MutableLiveData<Boolean>(false)
-    val isLiked : LiveData<Boolean> get() = _isLiked;
+    val isLiked : LiveData<Boolean> get() = _isLiked
 
     private val _repeatMode = MutableLiveData(RepeatMode.NONE)
     val repeatMode: LiveData<RepeatMode> get() = _repeatMode
@@ -90,7 +90,7 @@ class SongTracksViewModel @Inject constructor(
     }
 
     fun togglePlayPause() {
-        var newVal = false;
+        var newVal = false
         if(_isPlaying.value != null)
             newVal = !_isPlaying.value!!
 
@@ -109,10 +109,10 @@ class SongTracksViewModel @Inject constructor(
         _playedSong.value = newSong
         Log.d("MiniPlayer", "Song playing: ${_playedSong.value}")
         if (isOnline) {
-            songRepository.update(newSong);
-            resetPrevQueue();
+            songRepository.update(newSong)
+            resetPrevQueue()
         }
-        showFullPlayer();
+        showFullPlayer()
     }
 
 
@@ -120,7 +120,7 @@ class SongTracksViewModel @Inject constructor(
         val currentSong : Song = _playedSong.value?.copy(lastPlayedAt =  Date()) ?: return
         val isOnline = isOnlineSong.value ?: false
         if (!isOnline) {
-            songRepository.update(currentSong);
+            songRepository.update(currentSong)
         }
         when(_repeatMode.value){
             RepeatMode.REPEAT_ONE -> {
@@ -131,13 +131,13 @@ class SongTracksViewModel @Inject constructor(
                 val nextQueue = _nextSongsQueue.value?.toMutableList() ?: return
                 if(nextQueue.isNotEmpty()){
                     // exist a queue
-                    handleNextSongFromQueue(currentSong);
-                    addToNextQueue(currentSong);
+                    handleNextSongFromQueue(currentSong)
+                    addToNextQueue(currentSong)
                 }else{
                     // Only single song played, do the same as repeat_one
                     _playedSong.value = currentSong.copy(lastPlayedAt = Date())
                 }
-                return;
+                return
             }
             else -> {
                 handleNextSongFromQueue(currentSong)
@@ -206,7 +206,7 @@ class SongTracksViewModel @Inject constructor(
         }
         if (isOnlineSong.value == false)
             songRepository.deleteSong(song)
-        _anySongDeleted.value = song;
+        _anySongDeleted.value = song
     }
 
 
@@ -245,7 +245,7 @@ class SongTracksViewModel @Inject constructor(
     }
 
     fun isAnySongPlayed() : Boolean{
-        return _playedSong.value != null;
+        return _playedSong.value != null
     }
 
     fun updateIsLike(like : Boolean){

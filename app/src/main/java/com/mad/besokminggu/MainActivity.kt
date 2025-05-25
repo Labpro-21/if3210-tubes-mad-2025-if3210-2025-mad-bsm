@@ -1,43 +1,54 @@
 package com.mad.besokminggu
 
+import android.Manifest
+import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import android.view.View
-import android.widget.ImageButton
-import android.widget.Toast
-import androidx.activity.viewModels
 import android.util.Log
 import android.view.Gravity
+import android.view.View
 import android.widget.FrameLayout
+import android.widget.ImageButton
 import android.widget.TextView
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
-
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
+import com.mad.besokminggu.data.model.toSong
 import com.mad.besokminggu.databinding.ActivityMainBinding
 import com.mad.besokminggu.manager.AudioFileHelper
 import com.mad.besokminggu.manager.AudioPlayerManager
 import com.mad.besokminggu.manager.CoverFileHelper
 import com.mad.besokminggu.manager.FileHelper
+import com.mad.besokminggu.manager.IGetPermissionListener
+import com.mad.besokminggu.manager.PermissionHelper
 import com.mad.besokminggu.network.ApiResponse
 import com.mad.besokminggu.network.ConnectionStateMonitor
 import com.mad.besokminggu.network.OnNetworkAvailableCallbacks
-import com.mad.besokminggu.ui.viewTracks.MiniPlayerView
 import com.mad.besokminggu.ui.login.LoginActivity
+import com.mad.besokminggu.ui.topSongs.TopSongsViewModel
+import com.mad.besokminggu.ui.viewTracks.MiniPlayerView
+import com.mad.besokminggu.viewModels.CoroutinesErrorHandler
+import com.mad.besokminggu.viewModels.OnlineSongsViewModel
 import com.mad.besokminggu.viewModels.SongTracksViewModel
 import com.mad.besokminggu.viewModels.TokenViewModel
-import com.mad.besokminggu.ui.topSongs.TopSongsViewModel
 import com.mad.besokminggu.viewModels.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), IGetPermissionListener {
 
     private lateinit var binding: ActivityMainBinding
 
@@ -45,12 +56,44 @@ class MainActivity : AppCompatActivity() {
     private val userViewModel : UserViewModel by viewModels()
     private val tokenViewModel: TokenViewModel by viewModels()
     private val topSongsViewModel: TopSongsViewModel by viewModels()
+    private val onlineSongsViewModel: OnlineSongsViewModel by viewModels()
 
     private lateinit var connectionMonitor: ConnectionStateMonitor
+    @Inject
+    lateinit var permissionHelper: PermissionHelper
+
+    lateinit var navController : androidx.navigation.NavController
+
+    private val requestLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        )
+        { isGranted: Boolean ->
+            permissionHelper.handleSinglePermissionResult(this, isGranted)
+        }
+
+    // OnActivityResult to handle permission result.
+    private val resultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode != Activity.RESULT_OK) {
+                checkPermission()
+            }
+        }
+
+    override fun onPermissionGranted() {
+
+    }
+
+    override fun onPermissionDenied() {
+        checkPermission()
+    }
+
+    override fun onPermissionRationale() {
+        permissionAlertDialog()
+    }
 
     fun onOpenTrackSong(){
         val fullPlayer = binding.fullPlayer
-        if(fullPlayer == null)return
 
         fullPlayer.translationY = fullPlayer.height.toFloat()
         fullPlayer.alpha = 0f
@@ -65,9 +108,6 @@ class MainActivity : AppCompatActivity() {
 
     fun onCloseTrackSong(){
         val fullPlayer = binding.fullPlayer
-        if(fullPlayer == null){
-            return
-        }
 
         fullPlayer.animate()
             .translationY(fullPlayer.height.toFloat())
@@ -89,18 +129,23 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        permissionHelper.setPermissionListener(this)
+        checkPermission()
+
         FileHelper.init(context = applicationContext)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         val navView: BottomNavigationView? = binding.navView
-        val fullPlayer : FragmentContainerView? = binding.fullPlayer
+        val fullPlayer : FragmentContainerView = binding.fullPlayer
         val miniPlayer : MiniPlayerView = binding.miniPlayer
 
             // Wait until views are loaded
         binding.root.post {
-            val navController = findNavController(R.id.nav_host_fragment_activity_main)
+            navController = findNavController(R.id.nav_host_fragment_activity_main)
+
+            miniPlayer.setNavigationController(navController)
 
             // Setup for BottomNavigationView (portrait)
 //            navView?.setupWithNavController(navController)
@@ -175,11 +220,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         miniPlayer.visibility = View.GONE
-        fullPlayer?.visibility = View.GONE
+        fullPlayer.visibility = View.GONE
 
         miniPlayer.setOnClickListener {
             songViewModel.showFullPlayer()
         }
+
+        miniPlayer.setFragmentManager(fragmentManager = supportFragmentManager)
 
         miniPlayer.observeViewModel()
 
@@ -194,7 +241,7 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        fullPlayer?.post {
+        fullPlayer.post {
             val closeButton : ImageButton = fullPlayer.findViewById(R.id.collapse_button)
             closeButton.setOnClickListener {
                 songViewModel.hideFullPlayer()
@@ -255,6 +302,32 @@ class MainActivity : AppCompatActivity() {
 //                }
 //            },
 //        )
+
+        // Deep Link handler
+        val intents = intent
+        val data: Uri? = intents.data
+
+        if (data != null && data.scheme == "purrytify" && data.host == "song") {
+            val songId: String? = data.lastPathSegment
+
+            songId?.let {
+                loadSong(it.toInt())
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+
+        val data: Uri? = intent?.data
+
+        if (data != null && data.scheme == "purrytify" && data.host == "song") {
+            val songId: String? = data.lastPathSegment
+
+            songId?.let {
+                loadSong(it.toInt())
+            }
+        }
     }
 
     override fun onPause() {
@@ -268,6 +341,36 @@ class MainActivity : AppCompatActivity() {
 
         super.onDestroy()
         connectionMonitor.disable()
+    }
+
+    private fun checkPermission() {
+        permissionHelper.apply {
+            if (!hasPermission(
+                    this@MainActivity as AppCompatActivity,
+                    Manifest.permission.CAMERA
+                )
+            ) {
+                requestPermission(Manifest.permission.CAMERA, requestLauncher)
+            }
+        }
+    }
+
+    private fun permissionAlertDialog() {
+        AlertDialog.Builder(this).apply {
+            setTitle("Permission Required")
+            setMessage("Camera permission is required to scan QR codes. Please enable it in settings.")
+
+            setPositiveButton("Yes") { dialog, _ ->
+                permissionHelper.openAppSettingPage(this@MainActivity as AppCompatActivity, resultLauncher)
+                dialog.dismiss()
+            }
+
+            setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()
+                checkPermission()
+            }
+            show()
+        }
     }
 
     /**
@@ -311,6 +414,68 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
 
             Log.e("LOGIN_ACTIVITY", "Error showing Snackbar: ${e.message}")
+        }
+    }
+
+    private fun loadSong(songId: Int) {
+        onlineSongsViewModel.getSongById(songId, object : CoroutinesErrorHandler {
+            override fun onError(message: String) {
+                Log.e("DeepLink", "Error loading song: $message")
+            }
+        })
+
+        topSongsViewModel.topSongs.observe(this) { songList ->
+            when (songList) {
+                is ApiResponse.Loading -> {
+//                    binding.progressBar?.visibility = View.VISIBLE
+                }
+
+                is ApiResponse.Success -> {
+//                    songAdapter.submitList(songList.data)
+                    topSongsViewModel.updateSongsRepo(songList.data)
+                }
+
+                is ApiResponse.Failure -> {
+//                    binding.progressBar?.visibility = View.GONE
+                    // Handle error state
+                }
+
+                else -> {
+                    Log.d("TopGlobalFragment", "State: ${songList.javaClass}")
+                }
+            }
+        }
+
+        topSongsViewModel.getTopSongsGlobal(
+            coroutinesErrorHandler = object : CoroutinesErrorHandler {
+                override fun onError(message: String) {
+                    Log.e("TopGlobalFragment", "Error: ${message}")
+                }
+            },
+        )
+
+        songViewModel._isOnlineSong.postValue(true)
+
+        onlineSongsViewModel.song.observe(this) { response ->
+            when (response) {
+                is ApiResponse.Success -> {
+                    val song = response.data
+                    Log.d("DeepLink", "Loaded song: ${song.title}")
+                    lifecycleScope.launch {
+                        songViewModel.playSong(
+                            song = song.toSong(),
+                            isOnline = true
+                        )
+                        songViewModel.showFullPlayer()
+                    }
+                }
+                is ApiResponse.Failure -> {
+                    Log.e("DeepLink", "Failed to load song")
+                }
+                is ApiResponse.Loading -> {
+                    Log.d("DeepLink", "Loading song...")
+                }
+            }
         }
     }
 }

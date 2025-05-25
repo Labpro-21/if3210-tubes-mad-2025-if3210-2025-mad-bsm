@@ -1,5 +1,6 @@
 package com.mad.besokminggu.ui.dailyPlaylist
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -30,18 +31,33 @@ class DailyPlaylistViewModel @Inject constructor(
     fun generateDailyPlaylist(localSongs: List<Song>, onlineSongs: List<OnlineSong>) {
         val likedArtists = localSongs.filter { it.isLiked }.map { it.artist }.toSet()
         val listenedArtists = localSongs.map { it.artist }.toSet()
-        val listenedCountries = localSongs.mapNotNull { it.artist.takeIf { it.isNotBlank() } }.toSet()
 
         val byLikedArtist = onlineSongs.filter { it.artist in likedArtists }
         val byListenedArtist = onlineSongs.filter { it.artist in listenedArtists && it.artist !in likedArtists }
-        val byCountry = onlineSongs.filter { it.country in listenedCountries && it.artist !in listenedArtists }
 
-        val combined = (byLikedArtist + byListenedArtist + byCountry)
+
+        val combined = (byLikedArtist + byListenedArtist)
             .distinctBy { it.id }
             .shuffled()
             .take(30)
 
-        val songs = combined.map { it.toSong() }
+        Log.d("DailyPlaylist", "Liked artists: $likedArtists")
+        Log.d("DailyPlaylist", "Listened artists: $listenedArtists")
+        Log.d("DailyPlaylist", "byLikedArtist: ${byLikedArtist.size}, byListened: ${byListenedArtist.size}")
+
+
+        val finalList = if (combined.size >= 30) {
+            combined.take(30)
+        } else {
+            val additional = onlineSongs
+                .filter { online -> combined.none { it.id == online.id } }
+                .shuffled()
+                .take(30 - combined.size)
+
+            (combined + additional).take(30)
+        }
+
+        val songs = finalList.map { it.toSong() }
         _dailyPlaylist.postValue(songs)
         _playlistDuration.postValue(computeDurationString(songs.sumOf { it.durationInSeconds }))
     }

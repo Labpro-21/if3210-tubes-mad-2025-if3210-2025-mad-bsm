@@ -200,6 +200,44 @@
         app:layout_constraintTop_toBottomOf="@id/tvDailyPlaylist"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <LinearLayout
+        android:id="@+id/dailyPlaylistBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="32dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?android:attr/selectableItemBackground"
+        app:layout_constraintTop_toBottomOf="@id/tvDuration"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageButton
+            android:id="@+id/dailyPlaylistImage"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/cover_daylist"
+            android:scaleType="fitCenter"
+            android:contentDescription="Daily Playlist"
+            android:background="?android:attr/selectableItemBackgroundBorderless"/>
+
+        <TextView
+            android:id="@+id/dailyPlaylistDesc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/poppinsmedium"
+            android:lines="2"
+            android:maxLines="2"
+            android:text="Your daily update of curated songs"
+            android:textColor="@color/gray"
+            android:textSize="10sp"/>
+    </LinearLayout>
+
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

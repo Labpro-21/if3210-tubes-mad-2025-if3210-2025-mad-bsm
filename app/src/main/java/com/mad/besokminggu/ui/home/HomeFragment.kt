@@ -136,7 +136,7 @@ class HomeFragment : Fragment() {
             },
         )
 
-        val dailyPlaylistBox = view.findViewById<View>(R.id.tvDailyPlaylist)
+        val dailyPlaylistBox = view.findViewById<View>(R.id.dailyPlaylistImage)
         dailyPlaylistBox.setOnClickListener {
             findNavController().navigate(R.id.navigation_daily_playlist)
         }

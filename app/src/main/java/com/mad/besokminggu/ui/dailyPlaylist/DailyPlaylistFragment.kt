@@ -1,6 +1,7 @@
 package com.mad.besokminggu.ui.dailyPlaylist
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +16,7 @@ import com.mad.besokminggu.R
 import com.mad.besokminggu.network.ApiResponse
 import com.mad.besokminggu.ui.adapter.DailyPlaylistAdapter
 import com.mad.besokminggu.ui.topSongs.TopSongsViewModel
+import com.mad.besokminggu.viewModels.CoroutinesErrorHandler
 import com.mad.besokminggu.viewModels.SongTracksViewModel
 import com.mad.besokminggu.viewModels.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -60,12 +62,25 @@ class DailyPlaylistFragment : Fragment() {
 
         // Observe user profile to fetch local songs
         userViewModel.profile.observe(viewLifecycleOwner) { user ->
+            topSongsViewModel.getTopSongsGlobal(
+                coroutinesErrorHandler = object : CoroutinesErrorHandler {
+                    override fun onError(message: String) {
+                        Log.e("TopGlobalFragment", "Error: ${message}")
+                    }
+                },
+            )
             topSongsViewModel.topSongs.observe(viewLifecycleOwner) { topSongRes ->
-                dailyPlaylistViewModel.loadLocalSongsAndGenerate(
-                    ownerId = user.id,
-                    topSongsResponse = topSongRes
-                )
+                if (topSongRes is ApiResponse.Success) {
+                    dailyPlaylistViewModel.loadLocalSongsAndGenerate(
+                        ownerId = user.id,
+                        topSongsResponse = topSongRes
+                    )
+                }
             }
+
+
+
+
         }
 
 

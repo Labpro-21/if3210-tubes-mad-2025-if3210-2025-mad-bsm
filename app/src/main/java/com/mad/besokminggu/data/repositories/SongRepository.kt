@@ -185,5 +185,9 @@ class SongRepository @Inject constructor(private val songDao: SongDao) {
         return songDao.getPlayedMinutesPerDay(ownerId,monthLabel)
     }
 
+    suspend fun getAllSongsSync(ownerId: Int): List<Song> {
+        return songDao.getAllSongsSync(ownerId)
+    }
+
 
 }

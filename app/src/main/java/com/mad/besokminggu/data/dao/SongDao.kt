@@ -174,8 +174,8 @@ interface SongDao {
     """)
     suspend fun getPlayedMinutesPerDay(ownerId: Int, monthYear: String): List<DailyPlay>
 
-
-
+    @Query("SELECT * FROM songs WHERE ownerId = :ownerId")
+    suspend fun getAllSongsSync(ownerId: Int): List<Song>
 
 
 }

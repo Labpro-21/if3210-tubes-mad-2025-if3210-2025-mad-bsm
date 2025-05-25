@@ -104,40 +104,37 @@ class ProfileViewModel @Inject constructor(
 
             val months = repository.getRecentMonthsWithPlayback(ownerId).toMutableList()
             val currentMonthKey = getCurrentMonthKey()
-            if (!months.contains(currentMonthKey)) {
-                months.add(currentMonthKey)
-            }
+            if (!months.contains(currentMonthKey)) months.add(currentMonthKey)
 
-            val summaries = months.map { monthKey ->
-                val totalMinutes = repository.getTotalPlayedDurationByMonth(ownerId, monthKey)?.div(60) ?: 0
+            // Paralel load untuk tiap bulan
+            val summaryDeferred = months.map { monthKey ->
+                async {
+                    val totalMinutes = repository.getTotalPlayedDurationByMonth(ownerId, monthKey)?.div(60) ?: 0
+                    val topSongObj = repository.getTopSongByMonth(ownerId, monthKey)
+                    val topSongTitle = topSongObj?.title.orEmpty()
+                    val topSongCover = topSongObj?.coverFileName.orEmpty()
 
-                val topSongObj = repository.getTopSongByMonth(ownerId, monthKey)
-                val topSongTitle = topSongObj?.title ?: ""
-                val topSongCover = topSongObj?.coverFileName ?: ""
-                val topArtist = repository.getTopArtistByMonth(ownerId, monthKey)
-                val topArtistCover = topArtist?.let {
-                    repository.getTopArtistCover(ownerId, it)
+                    val topArtist = repository.getTopArtistByMonth(ownerId, monthKey)
+                    val topArtistCover = topArtist?.let { repository.getTopArtistCover(ownerId, it) }
+
+                    val topSongsList = repository.getTopSongsForMonth(ownerId, monthKey)?.map { it.title }.orEmpty()
+                    val topArtistList = repository.getTopArtists(ownerId, monthKey).map { it.name }
+
+                    MonthlySummaryCapsule(
+                        month = formatMonthFromKey(monthKey),
+                        totalMinutes = totalMinutes,
+                        topSong = topSongTitle,
+                        topArtist = topArtist,
+                        topSongsList = topSongsList,
+                        topArtistsList = topArtistList,
+                        topSongCover = topSongCover,
+                        topArtistCover = topArtistCover
+                    )
                 }
-                val topSongsCapsule = repository.getTopSongsForMonth(ownerId, monthKey)
-                val topSongsList = topSongsCapsule?.map { it.title } ?: emptyList()
-
-                val topArtistsRaw = repository.getTopArtists(ownerId, monthKey)
-                val topArtistList = topArtistsRaw.map { it.name }
-
-
-                MonthlySummaryCapsule(
-                    month = formatMonthFromKey(monthKey),
-                    totalMinutes = totalMinutes,
-                    topSong = topSongTitle,
-                    topArtist = topArtist,
-                    topSongsList = topSongsList,
-                    topArtistsList = topArtistList,
-                    topSongCover = topSongCover,
-                    topArtistCover = topArtistCover
-
-                )
-
             }
+
+            // Tunggu semua selesai
+            val summaries = summaryDeferred.map { it.await() }
 
             withContext(Dispatchers.Main) {
                 _monthlySummaries.value = summaries
@@ -145,6 +142,7 @@ class ProfileViewModel @Inject constructor(
             }
         }
     }
+
 
     fun loadStreakInfo() {
         viewModelScope.launch {

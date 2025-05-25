@@ -101,6 +101,7 @@ class SongRepository @Inject constructor(private val songDao: SongDao) {
         val monthKey = SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(Date())
         val rawSongs = songDao.getPlayedSongsByDate(ownerId, monthKey)
 
+        if (rawSongs.isNullOrEmpty()) return null
 
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val sorted = rawSongs.sortedBy { sdf.parse(it.playedDate) }
